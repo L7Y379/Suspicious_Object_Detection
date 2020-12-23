@@ -14,7 +14,7 @@ def file_array():
     filenames = []
     trainfile = []
     testfile = []
-    for j in ["0", "2Mhid"]:  # "1S", "2S"
+    for j in ["0", "1M"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
@@ -52,8 +52,8 @@ def read_data(filenames):
         csvdata = pd.read_csv(filename, header=None)
         csvdata = np.array(csvdata, dtype=np.float64)
         csvdata = csvdata[:, 0:270]
-        idx = np.array([j for j in range(int(csvdata.shape[0] / 2)-100 ,
-                                         int(csvdata.shape[0] / 2) +100, 2)])#取中心点处左右分布数据
+        idx = np.array([j for j in range(int(csvdata.shape[0] / 2)-120 ,
+                                         int(csvdata.shape[0] / 2) +120, 2)])#取中心点处左右分布数据
         temp_feature = csvdata[idx,]
         # 贴标签
         temp_label = -1  # 初始化
@@ -86,8 +86,8 @@ test_feature, test_label = read_data(testfile_array)
 #print(test_feature)
 
 
-train_feature = train_feature.astype('float32')/72.0
-test_feature = test_feature.astype('float32')/72.0
+train_feature = train_feature.astype('float32')/73.0
+test_feature = test_feature.astype('float32')/73.0
 train_feature_nosiy=pow(train_feature, 2.0/3)
 test_feature_nosiy = pow(test_feature, 2.0/3)
 
