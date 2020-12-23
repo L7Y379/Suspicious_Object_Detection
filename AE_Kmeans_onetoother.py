@@ -1,13 +1,17 @@
+#一个人的训练模型去测试另外一个人的没有训练过的数据one to other
+
 from keras.layers import Dense, Input
+from keras.datasets import mnist
 from keras.models import Model
 import numpy as np
 from tensorflow.python.keras.models import load_model
+import matplotlib.pyplot as plt
 import pandas as pd
 import os
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-#一个人的训练模型去测试这个人的没有训练过的数据
+
 def file_array():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
     filetype = '.csv'
@@ -33,7 +37,7 @@ def file_array_all():
     filenames = []
     trainfile = []
     testfile = []
-    for j in ["0", "1M"]:  # "1S", "2S"
+    for j in ["0", "2M"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
@@ -113,7 +117,7 @@ autoencoder_mid = Model(inputs=input, outputs=encoded2)
 autoencoder.compile(optimizer='adam', loss='mse')
 autoencoder.summary()
 
-autoencoder.fit(train_feature_nosiy, train_feature, epochs=100, batch_size=128, verbose=1, validation_data=(test_feature_nosiy, test_feature))
+autoencoder.fit(train_feature_nosiy, train_feature, epochs=1000, batch_size=128, verbose=1, validation_data=(test_feature_nosiy, test_feature))
 
 autoencoder.save("model")
 model = load_model("model")
@@ -256,7 +260,7 @@ else:
 acc_train=float(a)/float(len(pred_train))
 print("训练数据的聚类准确率为：")
 print(acc_train)
-print(c)
+
 b1 = [0, 0]
 b2 = [0, 0]
 for i in range(0, int(len(pred_test) / 2)):
@@ -267,16 +271,12 @@ for j in range(int(len(pred_test) / 2), int(len(pred_test))):
     if pred_test[j] == 1:b2[1] = b2[1] + 1
 print(b1)
 print(b2)
-if((b1[0]+b2[1])>=(b1[1]+b2[0])):
+if((b1[0]+a2[1])>=(b1[1]+b2[0])):
     if (c==0):
         b=(b1[0]+b2[1])
-    else:
-        b = (b1[1] + b2[0])
 else:
     if(c==1):
         b = (b1[1] + b2[0])
-    else:
-        b = (b1[0] + b2[1])
 acc_test=float(b)/float(len(pred_test))
 print("测试数据的聚类准确率为：")
 print(acc_test)
@@ -337,14 +337,12 @@ for j in range(int(len(pred_test_vot) / 2), int(len(pred_test_vot))):
     if pred_test_vot[j] == 1: b2[1] = b2[1] + 1
 print(b1)
 print(b2)
-if((b1[0]+b2[1])>=(b1[1]+b2[0])):
+if((b1[0]+a2[1])>=(b1[1]+b2[0])):
     if (c==0):
         b=(b1[0]+b2[1])
-    else:b = (b1[1] + b2[0])
 else:
     if(c==1):
         b = (b1[1] + b2[0])
-    else:b=(b1[0]+b2[1])
 acc_test_vot = float(b) / float(len(pred_test_vot))
 print("测试数据的投票后聚类准确率为：")
 print(acc_test_vot)
