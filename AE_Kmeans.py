@@ -14,7 +14,7 @@ def file_array():
     filenames = []
     trainfile = []
     testfile = []
-    for j in ["0", "1M"]:  # "1S", "2S"
+    for j in ["0", "3M"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
@@ -88,8 +88,12 @@ test_feature, test_label = read_data(testfile_array)
 
 train_feature = train_feature.astype('float32')/73.0
 test_feature = test_feature.astype('float32')/73.0
-train_feature_nosiy=pow(train_feature, 2.0/3)
-test_feature_nosiy = pow(test_feature, 2.0/3)
+# train_feature=pow(train_feature, 2.0/3)
+# test_feature = pow(test_feature, 2.0/3)
+train_feature_nosiy=train_feature
+test_feature_nosiy=test_feature
+# train_feature_nosiy=pow(train_feature, 2.0/3)
+# test_feature_nosiy = pow(test_feature, 2.0/3)
 
 # train_feature_nosiy = train_feature
 # test_feature_nosiy = test_feature
@@ -115,8 +119,8 @@ autoencoder.summary()
 
 autoencoder.fit(train_feature_nosiy, train_feature, epochs=100, batch_size=128, verbose=1, validation_data=(test_feature_nosiy, test_feature))
 
-autoencoder.save("model")
-model = load_model("model")
+# autoencoder.save("model")
+# model = load_model("model")
 
 
 
