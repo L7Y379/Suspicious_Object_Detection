@@ -37,8 +37,8 @@ def read_data(filenames):
         csvdata = pd.read_csv(filename, header=None)
         csvdata = np.array(csvdata, dtype=np.float64)
         csvdata = csvdata[:, 0:270]
-        idx = np.array([j for j in range(int(csvdata.shape[0] / 2) -5,
-                                         int(csvdata.shape[0] / 2) + 5, 1)])#取中心点处左右分布数据
+        idx = np.array([j for j in range(int(csvdata.shape[0] / 2) -120,
+                                         int(csvdata.shape[0] / 2) + 120, 2)])#取中心点处左右分布数据
         temp_feature = csvdata[idx,]
         # 贴标签
         temp_label = -1  # 初始化
@@ -60,18 +60,9 @@ def read_data(filenames):
             feature = np.concatenate((feature, temp_feature), axis=0)  # 拼接
             #label = np.concatenate((label, temp_label), axis=0)
     #data = np.concatenate((feature, label), axis=1)
-    np.random.shuffle(feature)
+    #np.random.shuffle(feature)
     #return np.array(feature[:, :270]), np.array(feature[:, 270:])
-    return np.array(feature[:, :2]), np.array(feature[:, :2])
-
-trainfile_array, testfile_array = file_array()#
-train_feature, train_label = read_data(trainfile_array)
-print(train_feature.shape, train_label.shape)
-test_feature, test_label = read_data(testfile_array)
-print(test_feature.shape, test_label.shape)
-#print(csvdata)
-
-
+    return np.array(feature[:, :270]), np.array(feature[:, :2])
 # 欧氏距离计算
 def distEclud(x, y):
     return np.sqrt(np.sum((x - y) ** 2))  # 计算欧氏距离
@@ -149,19 +140,128 @@ def showCluster(dataSet, k, centroids, clusterAssment):
 
     plt.show()
 
+trainfile_array, testfile_array = file_array()#
+train_feature, train_label = read_data(trainfile_array)
+test_feature, test_label = read_data(testfile_array)
 
+kmeans=KMeans(n_clusters=2).fit(train_feature)
+pred_train=kmeans.predict(train_feature)
+print(pred_train)
+pred_test=kmeans.predict(test_feature)
+print(pred_test)
 
-print(train_feature)
+a1=[0,0]
+a2=[0,0]
+for i in range(0,int(len(pred_train)/2)):
+    if pred_train[i]==0:a1[0]=a1[0]+1
+    if pred_train[i]==1:a1[1]=a1[1]+1
+for j in range(int(len(pred_train)/2),int(len(pred_train))):
+    if pred_train[j] == 0: a2[0] = a2[0] + 1
+    if pred_train[j] == 1: a2[1] = a2[1] + 1
+print(a1)
+print(a2)
+if((a1[0]+a2[1])>=(a1[1]+a2[0])):
+    a=(a1[0]+a2[1])
+    c=0
+else:
+    a=(a1[1]+a2[0])
+    c=1
+acc_train=float(a)/float(len(pred_train))
+print("训练数据的聚类准确率为：")
+print(acc_train)
+print(c)
+b1 = [0, 0]
+b2 = [0, 0]
+for i in range(0, int(len(pred_test) / 2)):
+    if pred_test[i] == 0:b1[0] = b1[0] + 1
+    if pred_test[i] == 1:b1[1] = b1[1] + 1
+for j in range(int(len(pred_test) / 2), int(len(pred_test))):
+    if pred_test[j] == 0:b2[0] = b2[0] + 1
+    if pred_test[j] == 1:b2[1] = b2[1] + 1
+print(b1)
+print(b2)
+if((b1[0]+b2[1])>=(b1[1]+b2[0])):
+    if (c==0):
+        b=(b1[0]+b2[1])
+    else:
+        b = (b1[1] + b2[0])
+else:
+    if(c==1):
+        b = (b1[1] + b2[0])
+    else:
+        b = (b1[0] + b2[1])
+acc_test=float(b)/float(len(pred_test))
+print("测试数据的聚类准确率为：")
+print(acc_test)
+
+#投票
+def get_max(shuzu):
+    s=[0,0]
+    for i in range(0,100):
+        if (shuzu[i]==0):s[0]=s[0]+1
+        else:s[1]=s[1]+1
+    if(s[0]>s[1]):return 0
+    if(s[0]<s[1]):return 1
+    if(s[0]==s[1]):return 2
+
+pred_train_vot=np.arange(len(pred_train)/100)
+print(len(pred_train_vot))
+for b in range(0, len(pred_train_vot)):
+    i=get_max(pred_train[b*100:(b+1)*100])
+    if(i==2):pred_train_vot[b]=pred_train_vot[b-1]
+    if (i == 0): pred_train_vot[b] = 0
+    if (i == 1): pred_train_vot[b] = 1
+print(pred_train_vot)
+a1=[0,0]
+a2=[0,0]
+for i in range(0,int(len(pred_train_vot)/2)):
+    if pred_train_vot[i]==0:a1[0]=a1[0]+1
+    if pred_train_vot[i]==1:a1[1]=a1[1]+1
+for j in range(int(len(pred_train_vot)/2),int(len(pred_train_vot))):
+    if pred_train_vot[j] == 0: a2[0] = a2[0] + 1
+    if pred_train_vot[j] == 1: a2[1] = a2[1] + 1
+print(a1)
+print(a2)
+if((a1[0]+a2[1])>=(a1[1]+a2[0])):
+    a=(a1[0]+a2[1])
+    c=0
+else:
+    a=(a1[1]+a2[0])
+    c=1
+acc_train_vot=float(a)/float(len(pred_train_vot))
+print("训练数据的投票后聚类准确率为：")
+print(acc_train_vot)
+
+pred_test_vot = np.arange(len(pred_test) / 100)
+print(len(pred_test_vot))
+for b in range(0, len(pred_test_vot)):
+    i = get_max(pred_test[b * 100:(b + 1) * 100])
+    if (i == 2): pred_test_vot[b] = pred_test_vot[b - 1]
+    if (i == 0): pred_test_vot[b] = 0
+    if (i == 1): pred_test_vot[b] = 1
+print(pred_test_vot)
+b1 = [0, 0]
+b2 = [0, 0]
+for i in range(0, int(len(pred_test_vot) / 2)):
+    if pred_test_vot[i] == 0: b1[0] = b1[0] + 1
+    if pred_test_vot[i] == 1: b1[1] = b1[1] + 1
+for j in range(int(len(pred_test_vot) / 2), int(len(pred_test_vot))):
+    if pred_test_vot[j] == 0: b2[0] = b2[0] + 1
+    if pred_test_vot[j] == 1: b2[1] = b2[1] + 1
+print(b1)
+print(b2)
+if((b1[0]+b2[1])>=(b1[1]+b2[0])):
+    if (c==0):
+        b=(b1[0]+b2[1])
+    else:b = (b1[1] + b2[0])
+else:
+    if(c==1):
+        b = (b1[1] + b2[0])
+    else:b=(b1[0]+b2[1])
+acc_test_vot = float(b) / float(len(pred_test_vot))
+print("测试数据的投票后聚类准确率为：")
+print(acc_test_vot)
+
 k = 2
 centroids, clusterAssment = KMeans1(train_feature, k)
-kmeans=KMeans(n_clusters=2).fit(train_feature)
-pred=kmeans.predict(train_feature)
-
-print(pred)
-#print(pred[200:])
-
-pred2=kmeans.predict(test_feature)
-
-print(pred2)
-#print(pred2[100:])
 showCluster(train_feature, k, centroids, clusterAssment)
