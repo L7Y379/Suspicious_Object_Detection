@@ -1,4 +1,7 @@
 from keras.layers import Dense, Input
+
+from keras.layers import Concatenate, Reshape
+from keras.layers.convolutional import Conv2D, MaxPooling2D, UpSampling2D, ZeroPadding2D
 from keras.models import Model
 import numpy as np
 from tensorflow.python.keras.models import load_model
@@ -14,7 +17,7 @@ def file_array():
     filenames = []
     trainfile = []
     testfile = []
-    for j in ["0", "2Mhid"]:  # "1S", "2S"
+    for j in ["0", "1M"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
@@ -26,20 +29,6 @@ def file_array():
     testfile = np.array(testfile)#10*2
     #print(testfile);
     return trainfile, testfile
-
-# def file_array_all():
-#     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
-#     filetype = '.csv'
-#     filenames = []
-#     trainfile = []
-#     testfile = []
-#     for j in ["0", "1M"]:  # "1S", "2S"
-#         for i in [i for i in range(0, 30)]:
-#             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
-#             filenames += [fn]
-#         np.random.shuffle(filenames)
-#     #print(testfile);
-#     return filenames
 
 def read_data(filenames):
     i = 0
@@ -81,57 +70,61 @@ def read_data(filenames):
 
 trainfile_array, testfile_array = file_array()#
 train_feature, train_label = read_data(trainfile_array)
-#print(train_feature)
 test_feature, test_label = read_data(testfile_array)
-#print(test_feature)
 
 
 train_feature = train_feature.astype('float32')/73.0
 test_feature = test_feature.astype('float32')/73.0
-# train_feature=pow(train_feature, 2.0/3)
-# test_feature = pow(test_feature, 2.0/3)
-#train_feature_nosiy=train_feature
-#test_feature_nosiy=test_feature
-# train_feature_nosiy=pow(train_feature, 2.0/3)
-# test_feature_nosiy = pow(test_feature, 2.0/3)
+train_feature = train_feature.reshape(train_feature.shape[0], 15, 18,1)
+test_feature = test_feature.reshape(test_feature.shape[0], 15, 18,1)
+#train_feature = np.expand_dims(train_feature, axis=3)
+#test_feature = np.expand_dims(test_feature, axis=3)
+train_feature_nosiy=train_feature
+test_feature_nosiy=test_feature
 
-# train_feature_nosiy = train_feature
-# test_feature_nosiy = test_feature
-train_feature_nosiy = train_feature+0.005 * np.random.normal(loc=0., scale=1., size=train_feature.shape)
-test_feature_nosiy = test_feature+0.005 * np.random.normal(loc=0., scale=1., size=test_feature.shape)
-# train_feature_nosiy = np.clip(train_feature_nosiy, 0., 1.)
-# test_feature_nosiy = np.clip(test_feature_nosiy, 0, 1.)
-input = Input(shape=(270,))
+#使用卷积卷积自编码器
+input = Input(shape=(15,18,1))
+encoded1 = Conv2D(32, (3, 3), activation='relu', padding='same')(input)
+encoded1 = MaxPooling2D((2, 2), padding='same')(encoded1)
+encoded1 = Conv2D(32, (3, 3), activation='relu', padding='same')(encoded1)
+encoded1 = MaxPooling2D((2, 2), padding='same')(encoded1)
+encoded1 = Reshape([640])(encoded1)
 
-encoded1 = Dense(128, activation='relu')(input)
-#encoded1 = Dense(128, activation='relu')(encoded1)
-encoded2 = Dense(2)(input)
-decoded1 = Dense(128, activation='relu')(encoded2)
-#decoded1 = Dense(128, activation='relu')(decoded1)
-#decoded1 = Dense(128, activation='relu')(decoded1)
-decoded2 = Dense(270, activation='sigmoid')(decoded1)
-#decoded2 = Dense(270, activation='relu')(decoded1)
+encoded2 = Dense(2)(encoded1)
 
-autoencoder = Model(input=input, output=decoded2)
-#print(autoencoder.inputs)
+decoded1 = Dense(640)(encoded2)
+decoded1 = Reshape([4,5,32])(decoded1)
+decoded1 = Conv2D(32, (3, 3), activation='relu', padding='same')(decoded1)
+decoded1 = UpSampling2D((2, 2))(decoded1)
+decoded1 = Conv2D(32, (3, 3), activation='relu', padding='same')(decoded1)
+decoded1 = UpSampling2D((2, 2))(decoded1)
+decoded2 = Conv2D(1, (2, 3), activation='sigmoid', padding='valid')(decoded1)
+
+#另一个结构cnn自编码器
+# input = Input(shape=(15,18,1))
+# encoded1 = Conv2D(16, (3, 3), activation='relu', padding='same')(input)
+# encoded1 = MaxPooling2D((2, 2), padding='same')(encoded1)
+#
+# # encoded1 = Reshape([640])(encoded1)
+# #
+# # encoded2 = Dense(2)(encoded1)
+# #
+# # decoded1 = Dense(640)(encoded1)
+# # decoded1 = Reshape([4,5,32])(decoded1)
+# decoded1 = Conv2D(16, (3, 3), activation='relu', padding='same')(encoded1)
+# decoded1 = UpSampling2D((2, 2))(decoded1)
+#
+# decoded2 = Conv2D(1, (2, 1), activation='sigmoid', padding='valid')(decoded1)
+
+
+autoencoder = Model(inputs=input, outputs=decoded2)
 autoencoder_mid = Model(inputs=input, outputs=encoded2)
-
 autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
 #autoencoder.compile(optimizer='adam', loss='mse')
 autoencoder.summary()
-autoencoder.fit(train_feature_nosiy, train_feature, epochs=50, batch_size=128, verbose=1, validation_data=(test_feature_nosiy, test_feature))
 
-
-#使用卷积卷积自编码器
-
-
-
-# autoencoder.save("model")
-# model = load_model("model")
-
-
-
-
+# 打开一个终端并启动TensorBoard，终端中输入 tensorboard --logdir=/autoencoder
+autoencoder.fit(train_feature_nosiy, train_feature, epochs=50, batch_size=128,verbose=1, validation_data=(test_feature_nosiy, test_feature))
 
 #decoded test images
 train_mid = autoencoder_mid.predict(train_feature_nosiy)
