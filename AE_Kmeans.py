@@ -1,3 +1,6 @@
+#一个人的训练模型去测试这个人的没有训练过的数据
+
+
 from keras.layers import Dense, Input
 from keras.models import Model
 import numpy as np
@@ -7,14 +10,14 @@ import os
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-#一个人的训练模型去测试这个人的没有训练过的数据
+
 def file_array():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
     filetype = '.csv'
     filenames = []
     trainfile = []
     testfile = []
-    for j in ["0", "2Mhid"]:  # "1S", "2S"
+    for j in ["0", "2Mclean"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
@@ -27,19 +30,17 @@ def file_array():
     #print(testfile);
     return trainfile, testfile
 
-# def file_array_all():
-#     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
-#     filetype = '.csv'
-#     filenames = []
-#     trainfile = []
-#     testfile = []
-#     for j in ["0", "1M"]:  # "1S", "2S"
-#         for i in [i for i in range(0, 30)]:
-#             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
-#             filenames += [fn]
-#         np.random.shuffle(filenames)
-#     #print(testfile);
-#     return filenames
+def file_array_other():
+    filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
+    filetype = '.csv'
+    filenames = []
+    for j in ["0"]:  # "1S", "2S"
+        for i in [i for i in range(0, 30)]:
+            fn = filepath + "czn-2.5-M/" + "czn-" + str(j) + "-" + str(i) + filetype
+            filenames += [fn]
+        np.random.shuffle(filenames)
+    filenames = np.array(filenames)#20*2
+    return filenames
 
 def read_data(filenames):
     i = 0
@@ -80,14 +81,15 @@ def read_data(filenames):
     #return np.array(feature[:, 134:136]), np.array(feature[:, 134:136])
 
 trainfile_array, testfile_array = file_array()#
+tk_files=file_array_other()
 train_feature, train_label = read_data(trainfile_array)
-#print(train_feature)
 test_feature, test_label = read_data(testfile_array)
-#print(test_feature)
+tk_feature,tk_label=read_data(tk_files)
 
 
 train_feature = train_feature.astype('float32')/73.0
 test_feature = test_feature.astype('float32')/73.0
+tk_feature=tk_feature.astype('float32')/73.0
 # train_feature=pow(train_feature, 2.0/3)
 # test_feature = pow(test_feature, 2.0/3)
 #train_feature_nosiy=train_feature
@@ -97,8 +99,8 @@ test_feature = test_feature.astype('float32')/73.0
 
 # train_feature_nosiy = train_feature
 # test_feature_nosiy = test_feature
-train_feature_nosiy = train_feature+0.005 * np.random.normal(loc=0., scale=1., size=train_feature.shape)
-test_feature_nosiy = test_feature+0.005 * np.random.normal(loc=0., scale=1., size=test_feature.shape)
+train_feature_nosiy = train_feature#+0.005 * np.random.normal(loc=0., scale=1., size=train_feature.shape)
+test_feature_nosiy = test_feature#+0.005 * np.random.normal(loc=0., scale=1., size=test_feature.shape)
 # train_feature_nosiy = np.clip(train_feature_nosiy, 0., 1.)
 # test_feature_nosiy = np.clip(test_feature_nosiy, 0, 1.)
 input = Input(shape=(270,))
@@ -136,6 +138,7 @@ autoencoder.fit(train_feature_nosiy, train_feature, epochs=50, batch_size=128, v
 #decoded test images
 train_mid = autoencoder_mid.predict(train_feature_nosiy)
 test_mid = autoencoder_mid.predict(test_feature_nosiy)
+tk_mid = autoencoder_mid.predict(tk_feature)
 print(train_mid)
 print(test_mid)
 decoded_img = autoencoder.predict(test_feature_nosiy)
@@ -247,6 +250,7 @@ pred_train=kmeans.predict(train_mid)
 print(pred_train)
 pred_test=kmeans.predict(test_mid)
 print(pred_test)
+pred_tk=kmeans.predict(tk_mid)
 
 a1=[0,0]
 a2=[0,0]
@@ -359,6 +363,36 @@ else:
 acc_test_vot = float(b) / float(len(pred_test_vot))
 print("测试数据的投票后聚类准确率为：")
 print(acc_test_vot)
+
+
+t=[0,0]
+for i in range(0,len(pred_tk)):
+    if pred_tk[i]==0:t[0]=t[0]+1
+    if pred_tk[i]==1:t[1]=t[1]+1
+print(t)
+if(c==0):acc_tk=float(t[0])/float(len(pred_tk))
+if(c==1):acc_tk=float(t[1])/float(len(pred_tk))
+print("other的准确率为：")
+print(acc_tk)
+
+pred_tk_vot = np.arange(len(pred_tk) / 100)
+print(len(pred_tk_vot))
+for b in range(0, len(pred_tk_vot)):
+    i = get_max(pred_tk[b * 100:(b + 1) * 100])
+    if (i == 2): pred_tk_vot[b] = pred_tk_vot[b - 1]
+    if (i == 0): pred_tk_vot[b] = 0
+    if (i == 1): pred_tk_vot[b] = 1
+print(pred_tk_vot)
+b1 = [0, 0]
+for i in range(0, int(len(pred_tk_vot))):
+    if pred_tk_vot[i] == 0: b1[0] = b1[0] + 1
+    if pred_tk_vot[i] == 1: b1[1] = b1[1] + 1
+if(c==0):acc_tk_vot=float(b1[0])/float(len(pred_tk_vot))
+if(c==1):acc_tk_vot=float(b1[1])/float(len(pred_tk_vot))
+print("投票后other的准确率为：")
+print(acc_tk_vot)
+
+
 
 k = 2
 centroids, clusterAssment = KMeans1(train_mid, k)

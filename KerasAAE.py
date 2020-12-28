@@ -128,8 +128,8 @@ def read_data(filenames):#读取文件中数据，并贴上标签
         csvdata = pd.read_csv(filename, header=None)
         csvdata = np.array(csvdata, dtype=np.float64)
         csvdata = csvdata[:, 0:270]
-        idx = np.array([j for j in range(int(csvdata.shape[0] / 2)-10 ,
-                                         int(csvdata.shape[0] / 2) +10, 1)])#取中心点处左右分布数据
+        idx = np.array([j for j in range(int(csvdata.shape[0] / 2)-120 ,
+                                         int(csvdata.shape[0] / 2) +120, 2)])#取中心点处左右分布数据
         temp_feature = csvdata[idx,]
         # 贴标签
         temp_label = -1  # 初始化
@@ -176,10 +176,10 @@ def build_encoder(latent_dim, img_shape):
     deterministic = 1
     img = Input(shape=img_shape)
     h = Flatten()(img)
-    h = Dense(512)(h)
-    h = LeakyReLU(alpha=0.2)(h)
-    h = Dense(512)(h)
-    h = LeakyReLU(alpha=0.2)(h)
+    # h = Dense(512)(h)
+    # h = LeakyReLU(alpha=0.2)(h)
+    # h = Dense(512)(h)
+    # h = LeakyReLU(alpha=0.2)(h)
     if deterministic:
         latent_repr = Dense(latent_dim)(h)
     else:
@@ -277,7 +277,7 @@ discriminator.summary()
 # In[30]:
 
 
-epochs = 1000
+epochs = 800
 batch_size = 100
 sample_interval = 100
 
@@ -382,31 +382,156 @@ for epoch in range(epochs):
     if epoch % sample_interval == 0:
         sample_images(latent_dim, decoder, epoch)
 
-        trainfile_array, testfile_array = file_array()
-        train_feature_all, train_label_all = read_data(trainfile_array)
-        test_feature_all, test_label_all = read_data(testfile_array)
-        # train_feature_all = train_feature_all.astype('float32')
-        # test_feature_all = test_feature_all.astype('float32')
-        train_feature_all = (train_feature_all.astype('float32')-36) / 36.0
-        test_feature_all = (test_feature_all.astype('float32')-36) / 36.0
-        train_feature_all = train_feature_all.reshape([train_feature_all.shape[0], img_rows, img_cols])
-        test_feature_all = test_feature_all.reshape([test_feature_all.shape[0], img_rows, img_cols])
-        train_feature_all = np.expand_dims(train_feature_all, axis=3)
-        test_feature_all = np.expand_dims(test_feature_all, axis=3)
-        n_batches1 = int(len(train_feature_all) / batch_size)
-        for b in range(1, n_batches1 + 1):
-            train_feature = train_feature_all[(b - 1) * batch_size:b * batch_size]
+        # trainfile_array, testfile_array = file_array()
+        # train_feature_all, train_label_all = read_data(trainfile_array)
+        # test_feature_all, test_label_all = read_data(testfile_array)
+        # # train_feature_all = train_feature_all.astype('float32')
+        # # test_feature_all = test_feature_all.astype('float32')
+        # train_feature_all = (train_feature_all.astype('float32')-36) / 36.0
+        # test_feature_all = (test_feature_all.astype('float32')-36) / 36.0
+        # train_feature_all = train_feature_all.reshape([train_feature_all.shape[0], img_rows, img_cols])
+        # test_feature_all = test_feature_all.reshape([test_feature_all.shape[0], img_rows, img_cols])
+        # train_feature_all = np.expand_dims(train_feature_all, axis=3)
+        # test_feature_all = np.expand_dims(test_feature_all, axis=3)
+        # n_batches1 = int(len(train_feature_all) / batch_size)
+        # for b in range(1, n_batches1 + 1):
+        #     train_feature = train_feature_all[(b - 1) * batch_size:b * batch_size]
+        #
+        #     train_feature_mid=encoder.predict(train_feature)
+        #     if (b == 1):
+        #         train_feature_mid_all = train_feature_mid
+        #     else:
+        #         train_feature_mid_all = np.vstack((train_feature_mid_all, train_feature_mid))
+        #
+        # kmeans = KMeans(n_clusters=2).fit(train_feature_mid_all)
+        # pred_train = kmeans.predict(train_feature_mid_all)
+        # print(pred_train)
 
-            train_feature_mid=encoder.predict(train_feature)
-            if (b == 1):
-                train_feature_mid_all = train_feature_mid
-            else:
-                train_feature_mid_all = np.vstack((train_feature_mid_all, train_feature_mid))
 
-        kmeans = KMeans(n_clusters=2).fit(train_feature_mid_all)
-        pred_train = kmeans.predict(train_feature_mid_all)
-        print(pred_train)
 
-        k = 2
-        centroids, clusterAssment = KMeans1(train_feature_mid_all, k)
-        showCluster(train_feature_mid_all, k, centroids, clusterAssment)
+train_mid = encoder.predict(X_train)
+test_mid =encoder.predict(X_test)
+print(train_mid)
+print(test_mid)
+
+kmeans = KMeans(n_clusters=2).fit(train_mid)
+pred_train = kmeans.predict(train_mid)
+print(pred_train)
+pred_test = kmeans.predict(test_mid)
+print(pred_test)
+
+a1=[0,0]
+a2=[0,0]
+for i in range(0,int(len(pred_train)/2)):
+    if pred_train[i]==0:a1[0]=a1[0]+1
+    if pred_train[i]==1:a1[1]=a1[1]+1
+for j in range(int(len(pred_train)/2),int(len(pred_train))):
+    if pred_train[j] == 0: a2[0] = a2[0] + 1
+    if pred_train[j] == 1: a2[1] = a2[1] + 1
+print(a1)
+print(a2)
+if((a1[0]+a2[1])>=(a1[1]+a2[0])):
+    a=(a1[0]+a2[1])
+    c=0
+else:
+    a=(a1[1]+a2[0])
+    c=1
+acc_train=float(a)/float(len(pred_train))
+print("训练数据的聚类准确率为：")
+print(acc_train)
+print(c)
+b1 = [0, 0]
+b2 = [0, 0]
+for i in range(0, int(len(pred_test) / 2)):
+    if pred_test[i] == 0:b1[0] = b1[0] + 1
+    if pred_test[i] == 1:b1[1] = b1[1] + 1
+for j in range(int(len(pred_test) / 2), int(len(pred_test))):
+    if pred_test[j] == 0:b2[0] = b2[0] + 1
+    if pred_test[j] == 1:b2[1] = b2[1] + 1
+print(b1)
+print(b2)
+if((b1[0]+b2[1])>=(b1[1]+b2[0])):
+    if (c==0):
+        b=(b1[0]+b2[1])
+    else:
+        b = (b1[1] + b2[0])
+else:
+    if(c==1):
+        b = (b1[1] + b2[0])
+    else:
+        b = (b1[0] + b2[1])
+acc_test=float(b)/float(len(pred_test))
+print("测试数据的聚类准确率为：")
+print(acc_test)
+
+#投票
+def get_max(shuzu):
+    s=[0,0]
+    for i in range(0,100):
+        if (shuzu[i]==0):s[0]=s[0]+1
+        else:s[1]=s[1]+1
+    if(s[0]>s[1]):return 0
+    if(s[0]<s[1]):return 1
+    if(s[0]==s[1]):return 2
+
+pred_train_vot=np.arange(len(pred_train)/100)
+print(len(pred_train_vot))
+for b in range(0, len(pred_train_vot)):
+    i=get_max(pred_train[b*100:(b+1)*100])
+    if(i==2):pred_train_vot[b]=pred_train_vot[b-1]
+    if (i == 0): pred_train_vot[b] = 0
+    if (i == 1): pred_train_vot[b] = 1
+print(pred_train_vot)
+a1=[0,0]
+a2=[0,0]
+for i in range(0,int(len(pred_train_vot)/2)):
+    if pred_train_vot[i]==0:a1[0]=a1[0]+1
+    if pred_train_vot[i]==1:a1[1]=a1[1]+1
+for j in range(int(len(pred_train_vot)/2),int(len(pred_train_vot))):
+    if pred_train_vot[j] == 0: a2[0] = a2[0] + 1
+    if pred_train_vot[j] == 1: a2[1] = a2[1] + 1
+print(a1)
+print(a2)
+if((a1[0]+a2[1])>=(a1[1]+a2[0])):
+    a=(a1[0]+a2[1])
+    c=0
+else:
+    a=(a1[1]+a2[0])
+    c=1
+acc_train_vot=float(a)/float(len(pred_train_vot))
+print("训练数据的投票后聚类准确率为：")
+print(acc_train_vot)
+
+pred_test_vot = np.arange(len(pred_test) / 100)
+print(len(pred_test_vot))
+for b in range(0, len(pred_test_vot)):
+    i = get_max(pred_test[b * 100:(b + 1) * 100])
+    if (i == 2): pred_test_vot[b] = pred_test_vot[b - 1]
+    if (i == 0): pred_test_vot[b] = 0
+    if (i == 1): pred_test_vot[b] = 1
+print(pred_test_vot)
+b1 = [0, 0]
+b2 = [0, 0]
+for i in range(0, int(len(pred_test_vot) / 2)):
+    if pred_test_vot[i] == 0: b1[0] = b1[0] + 1
+    if pred_test_vot[i] == 1: b1[1] = b1[1] + 1
+for j in range(int(len(pred_test_vot) / 2), int(len(pred_test_vot))):
+    if pred_test_vot[j] == 0: b2[0] = b2[0] + 1
+    if pred_test_vot[j] == 1: b2[1] = b2[1] + 1
+print(b1)
+print(b2)
+if((b1[0]+b2[1])>=(b1[1]+b2[0])):
+    if (c==0):
+        b=(b1[0]+b2[1])
+    else:b = (b1[1] + b2[0])
+else:
+    if(c==1):
+        b = (b1[1] + b2[0])
+    else:b=(b1[0]+b2[1])
+acc_test_vot = float(b) / float(len(pred_test_vot))
+print("测试数据的投票后聚类准确率为：")
+print(acc_test_vot)
+
+k = 2
+centroids, clusterAssment = KMeans1(train_mid, k)
+showCluster(test_mid, k, centroids, clusterAssment)
