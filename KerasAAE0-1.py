@@ -116,6 +116,17 @@ def file_array():#训练和测试文件名数组
     testfile = np.array(testfile)#10*2
     #print(testfile);
     return trainfile, testfile
+def file_array_other():
+    filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
+    filetype = '.csv'
+    filenames = []
+    for j in ["0"]:  # "1S", "2S"
+        for i in [i for i in range(0, 30)]:
+            fn = filepath + "czn-2.5-M/" + "czn-" + str(j) + "-" + str(i) + filetype
+            filenames += [fn]
+        np.random.shuffle(filenames)
+    filenames = np.array(filenames)#20*2
+    return filenames
 
 def read_data(filenames):#读取文件中数据，并贴上标签
     i = 0
@@ -209,11 +220,11 @@ def build_discriminator(latent_dim):
 
 def build_decoder(latent_dim, img_shape):
     model = Sequential()
-    model.add(Dense(128, input_dim=latent_dim))
-    model.add(LeakyReLU(alpha=0.2))
+    model.add(Dense(128, input_dim=latent_dim,activation='relu'))
+    #model.add(LeakyReLU(alpha=0.2))
     # model.add(Dense(512))
     # model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(np.prod(img_shape), activation='tanh'))
+    model.add(Dense(np.prod(img_shape), activation='sigmoid'))
     model.add(Reshape(img_shape))
     z = Input(shape=(latent_dim,))
     img = model(z)
@@ -284,31 +295,29 @@ sample_interval = 100
 # Load the dataset
 #(X_train, _), (_, _) = mnist.load_data()
 trainfile_array, testfile_array = file_array()
+tk_files=file_array_other()
 train_feature_all, train_label_all = read_data(trainfile_array)
 test_feature_all, test_label_all = read_data(testfile_array)
+tk_feature,tk_label=read_data(tk_files)
 
 # Rescale -1 to 1
 # train_feature_all = train_feature_all.astype('float32')
 # test_feature_all = test_feature_all.astype('float32')
-X_train = (train_feature_all.astype('float32')-36) / 36.0
-X_test = (test_feature_all.astype('float32')-36) / 36.0
+X_train = train_feature_all.astype('float32')/ 73.0
+X_test = test_feature_all.astype('float32') / 73.0
+tk_feature=tk_feature.astype('float32')/73.0
 X_train = X_train.reshape([X_train.shape[0], img_rows, img_cols])
 X_test = X_test.reshape([X_test.shape[0], img_rows, img_cols])
+tk_feature=tk_feature.reshape([tk_feature.shape[0], img_rows, img_cols])
 X_train = np.expand_dims(X_train, axis=3)
 X_test = np.expand_dims(X_test, axis=3)
+tk_feature = np.expand_dims(tk_feature, axis=3)
 # Adversarial ground truths
 valid = np.ones((batch_size, 1))
 fake = np.zeros((batch_size, 1))
 
-
-# In[ ]:
-
-
 def sample_prior(latent_dim, batch_size):
-    return np.random.normal(size=(batch_size, latent_dim))
-
-
-# In[31]:
+    return np.random.normal(size=(batch_size, latent_dim))+0.1
 
 
 def sample_images(latent_dim, decoder, epoch):
@@ -316,8 +325,6 @@ def sample_images(latent_dim, decoder, epoch):
 
     z = sample_prior(latent_dim, r * c)
     gen_imgs = decoder.predict(z)
-
-    gen_imgs = 0.5 * gen_imgs + 0.5
 
     fig, axs = plt.subplots(r, c)
     cnt = 0
@@ -329,18 +336,6 @@ def sample_images(latent_dim, decoder, epoch):
     fig.savefig("AAE-CSI-images/CSI_%d.png" % epoch)
     plt.close()
 
-
-# # Training
-#
-# Each epoch a batch is chosen from the images at random. The typical batch size is 128 items out of 60.000 images. The change to pick the same image is minimal (but not zero).
-#
-# The "real" latent variables for the encoder will be Normal distributed. They all have the same N(0,1) distribution, mu=0, sigma=1. The variables are returned in a 128x10 matrix if we use 10 latent variables.
-#
-# The discriminator doesn't know that there is order to the "real" and "fake" samples. We can just first train it on all the real ones and then all the fake ones. I don't know if it matters for the training, but we might try to actually build one data structure where this is randomized...
-#
-#
-
-# In[32]:
 
 
 for epoch in range(epochs):
@@ -382,35 +377,9 @@ for epoch in range(epochs):
     if epoch % sample_interval == 0:
         sample_images(latent_dim, decoder, epoch)
 
-        # trainfile_array, testfile_array = file_array()
-        # train_feature_all, train_label_all = read_data(trainfile_array)
-        # test_feature_all, test_label_all = read_data(testfile_array)
-        # # train_feature_all = train_feature_all.astype('float32')
-        # # test_feature_all = test_feature_all.astype('float32')
-        # train_feature_all = (train_feature_all.astype('float32')-36) / 36.0
-        # test_feature_all = (test_feature_all.astype('float32')-36) / 36.0
-        # train_feature_all = train_feature_all.reshape([train_feature_all.shape[0], img_rows, img_cols])
-        # test_feature_all = test_feature_all.reshape([test_feature_all.shape[0], img_rows, img_cols])
-        # train_feature_all = np.expand_dims(train_feature_all, axis=3)
-        # test_feature_all = np.expand_dims(test_feature_all, axis=3)
-        # n_batches1 = int(len(train_feature_all) / batch_size)
-        # for b in range(1, n_batches1 + 1):
-        #     train_feature = train_feature_all[(b - 1) * batch_size:b * batch_size]
-        #
-        #     train_feature_mid=encoder.predict(train_feature)
-        #     if (b == 1):
-        #         train_feature_mid_all = train_feature_mid
-        #     else:
-        #         train_feature_mid_all = np.vstack((train_feature_mid_all, train_feature_mid))
-        #
-        # kmeans = KMeans(n_clusters=2).fit(train_feature_mid_all)
-        # pred_train = kmeans.predict(train_feature_mid_all)
-        # print(pred_train)
-
-
-
 train_mid = encoder.predict(X_train)
 test_mid =encoder.predict(X_test)
+tk_mid = encoder.predict(tk_feature)
 print(train_mid)
 print(test_mid)
 
@@ -419,6 +388,7 @@ pred_train = kmeans.predict(train_mid)
 print(pred_train)
 pred_test = kmeans.predict(test_mid)
 print(pred_test)
+pred_tk=kmeans.predict(tk_mid)
 
 a1=[0,0]
 a2=[0,0]
@@ -532,6 +502,33 @@ acc_test_vot = float(b) / float(len(pred_test_vot))
 print("测试数据的投票后聚类准确率为：")
 print(acc_test_vot)
 
+
+t=[0,0]
+for i in range(0,len(pred_tk)):
+    if pred_tk[i]==0:t[0]=t[0]+1
+    if pred_tk[i]==1:t[1]=t[1]+1
+print(t)
+if(c==0):acc_tk=float(t[0])/float(len(pred_tk))
+if(c==1):acc_tk=float(t[1])/float(len(pred_tk))
+print("other的准确率为：")
+print(acc_tk)
+
+pred_tk_vot = np.arange(len(pred_tk) / 100)
+print(len(pred_tk_vot))
+for b in range(0, len(pred_tk_vot)):
+    i = get_max(pred_tk[b * 100:(b + 1) * 100])
+    if (i == 2): pred_tk_vot[b] = pred_tk_vot[b - 1]
+    if (i == 0): pred_tk_vot[b] = 0
+    if (i == 1): pred_tk_vot[b] = 1
+print(pred_tk_vot)
+b1 = [0, 0]
+for i in range(0, int(len(pred_tk_vot))):
+    if pred_tk_vot[i] == 0: b1[0] = b1[0] + 1
+    if pred_tk_vot[i] == 1: b1[1] = b1[1] + 1
+if(c==0):acc_tk_vot=float(b1[0])/float(len(pred_tk_vot))
+if(c==1):acc_tk_vot=float(b1[1])/float(len(pred_tk_vot))
+print("投票后other的准确率为：")
+print(acc_tk_vot)
 k = 2
 centroids, clusterAssment = KMeans1(train_mid, k)
 showCluster(train_mid, k, centroids, clusterAssment)

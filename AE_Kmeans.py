@@ -17,7 +17,7 @@ def file_array():
     filenames = []
     trainfile = []
     testfile = []
-    for j in ["0", "2Mclean"]:  # "1S", "2S"
+    for j in ["0", "2Mhid"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
@@ -90,6 +90,9 @@ tk_feature,tk_label=read_data(tk_files)
 train_feature = train_feature.astype('float32')/73.0
 test_feature = test_feature.astype('float32')/73.0
 tk_feature=tk_feature.astype('float32')/73.0
+# train_feature = (train_feature.astype('float32')-37)/36.0
+# test_feature = (test_feature.astype('float32')-37)/36.0
+# tk_feature=(tk_feature.astype('float32')-37)/36.0
 # train_feature=pow(train_feature, 2.0/3)
 # test_feature = pow(test_feature, 2.0/3)
 #train_feature_nosiy=train_feature
@@ -99,8 +102,8 @@ tk_feature=tk_feature.astype('float32')/73.0
 
 # train_feature_nosiy = train_feature
 # test_feature_nosiy = test_feature
-train_feature_nosiy = train_feature#+0.005 * np.random.normal(loc=0., scale=1., size=train_feature.shape)
-test_feature_nosiy = test_feature#+0.005 * np.random.normal(loc=0., scale=1., size=test_feature.shape)
+train_feature_nosiy = train_feature+0.005 * np.random.normal(loc=0., scale=1., size=train_feature.shape)
+test_feature_nosiy = test_feature+0.005 * np.random.normal(loc=0., scale=1., size=test_feature.shape)
 # train_feature_nosiy = np.clip(train_feature_nosiy, 0., 1.)
 # test_feature_nosiy = np.clip(test_feature_nosiy, 0, 1.)
 input = Input(shape=(270,))
@@ -111,6 +114,7 @@ encoded2 = Dense(2)(input)
 decoded1 = Dense(128, activation='relu')(encoded2)
 #decoded1 = Dense(128, activation='relu')(decoded1)
 #decoded1 = Dense(128, activation='relu')(decoded1)
+#decoded2 = Dense(270, activation='sigmoid')(decoded1)
 decoded2 = Dense(270, activation='sigmoid')(decoded1)
 #decoded2 = Dense(270, activation='relu')(decoded1)
 
@@ -122,11 +126,6 @@ autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
 #autoencoder.compile(optimizer='adam', loss='mse')
 autoencoder.summary()
 autoencoder.fit(train_feature_nosiy, train_feature, epochs=50, batch_size=128, verbose=1, validation_data=(test_feature_nosiy, test_feature))
-
-
-#使用卷积卷积自编码器
-
-
 
 # autoencoder.save("model")
 # model = load_model("model")
