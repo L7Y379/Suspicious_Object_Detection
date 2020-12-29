@@ -277,7 +277,7 @@ discriminator.summary()
 # In[30]:
 
 
-epochs = 2000
+epochs = 1000
 batch_size = 100
 sample_interval = 100
 

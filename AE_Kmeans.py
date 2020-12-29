@@ -244,7 +244,7 @@ def showCluster(dataSet, k, centroids, clusterAssment):
 
 
 
-kmeans=KMeans(n_clusters=2).fit(train_mid)
+kmeans=KMeans(n_clusters=2,n_init=20).fit(train_mid)
 pred_train=kmeans.predict(train_mid)
 print(pred_train)
 pred_test=kmeans.predict(test_mid)

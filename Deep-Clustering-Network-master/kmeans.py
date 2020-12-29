@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.cluster import KMeans
 from joblib import Parallel, delayed
 
-
+#返回数组X中每一个点到聚类中心得距离
 def _parallel_compute_distance(X, cluster):
     n_samples = X.shape[0]
     dis_mat = np.zeros((n_samples, 1))
@@ -20,12 +20,13 @@ class batch_KMeans(object):
         self.clusters = np.zeros((self.n_clusters, self.n_features))
         self.count = 100 * np.ones((self.n_clusters))  # serve as learning rate
         self.n_jobs = args.n_jobs
-    
+
+    #对每一个聚类中心计算周围点的距离
     def _compute_dist(self, X):
         dis_mat = Parallel(n_jobs=self.n_jobs)(
             delayed(_parallel_compute_distance)(X, self.clusters[i])
             for i in range(self.n_clusters))
-        dis_mat = np.hstack(dis_mat)
+        dis_mat = np.hstack(dis_mat)#水平方向平铺
         
         return dis_mat
     
@@ -34,7 +35,7 @@ class batch_KMeans(object):
         model = KMeans(n_clusters=self.n_clusters,
                        n_init=20)
         model.fit(X)
-        self.clusters = model.cluster_centers_  # copy clusters
+        self.clusters = model.cluster_centers_  # copy clusters 聚类中心的坐标
     
     def update_cluster(self, X, cluster_idx):
         """ Update clusters in Kmeans on a batch of data """

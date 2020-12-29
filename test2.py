@@ -1,23 +1,15 @@
+from keras.datasets import mnist
 import numpy as np
-c = np.arange(10)
-c[5]=9
-print(c)
-pred_train_vot=np.arange(4000/100)
-print(pred_train_vot)
-if(pred_train_vot[1]==1):print("sss")
-for b in range(0, 5):
-    print(b)
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+image_size = x_train.shape[1]
+print(image_size)
+image_size = x_train.shape[1]
+original_dim = image_size * image_size
 
-def get_max(shuzu):
-    s=[0,0]
-    for i in range(0,10):
-        if (shuzu[i]==0):s[0]=s[0]+1
-        else:s[1]=s[1]+1
-    print(s)
-    if (s[0] > s[1]): return 0
-    if (s[0] < s[1]): return 1
-    if (s[0] == s[1]): return 2
-ss=[0,0,0,0,1,1,0,0,1,1]
+x_train = np.reshape(x_train, [-1, original_dim])
+x_test = np.reshape(x_test, [-1, original_dim])
+x_train = x_train.astype('float32') / 255
+x_test = x_test.astype('float32') / 255
 
-i=get_max(ss)
-print(i)
+print(x_train.shape)
+print(x_test.shape)

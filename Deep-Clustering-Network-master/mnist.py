@@ -12,7 +12,7 @@ def evaluate(model, test_loader):
     for data, target in test_loader:
         batch_size = data.size()[0]
         data = data.view(batch_size, -1).to(model.device)
-        latent_X = model.autoencoder(data, latent=True)
+        latent_X = model.autoencoder(data, latent=False)
         latent_X = latent_X.detach().cpu().numpy()
 
         y_test.append(target.view(-1, 1).numpy())
@@ -63,7 +63,7 @@ if __name__ == '__main__':
                         help='weight decay (default: 5e-4)')
     parser.add_argument('--batch-size', type=int, default=256, 
                         help='input batch size for training')
-    parser.add_argument('--epoch', type=int, default=100, 
+    parser.add_argument('--epoch', type=int, default=5,
                         help='number of epochs to train')
     parser.add_argument('--pretrain', type=bool, default=True, 
                         help='whether use pre-training')
@@ -97,7 +97,7 @@ if __name__ == '__main__':
                                       transforms.Normalize((0.1307,),
                                                            (0.3081,))])
     train_loader = torch.utils.data.DataLoader(
-        datasets.MNIST(args.dir, train=True, download=False, 
+        datasets.MNIST(args.dir, train=True, download=True,
                        transform=transformer), 
         batch_size=args.batch_size, shuffle=False)
     

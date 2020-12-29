@@ -62,7 +62,7 @@ class DCN(nn.Module):
                 rec_loss.detach().cpu().numpy(),
                 dist_loss.detach().cpu().numpy())
     
-    def pretrain(self, train_loader, epoch=100, verbose=True):
+    def pretrain(self, train_loader, epoch=5, verbose=True):
         
         if not self.args.pretrain:
             return
