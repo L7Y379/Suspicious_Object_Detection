@@ -125,7 +125,7 @@ autoencoder_mid = Model(inputs=input, outputs=encoded2)
 autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
 #autoencoder.compile(optimizer='adam', loss='mse')
 autoencoder.summary()
-autoencoder.fit(train_feature_nosiy, train_feature, epochs=50, batch_size=128, verbose=1, validation_data=(test_feature_nosiy, test_feature))
+autoencoder.fit(train_feature_nosiy, train_feature, epochs=60, batch_size=128, verbose=1, validation_data=(test_feature_nosiy, test_feature))
 
 # autoencoder.save("model")
 # model = load_model("model")
@@ -142,28 +142,28 @@ print(train_mid)
 print(test_mid)
 decoded_img = autoencoder.predict(test_feature_nosiy)
 #decoded_img1 = autoencoder.encoder(x_test_nosiy)
-n = 10
-plt.figure(figsize=(20, 4))
-for i in range(n):
-    #noisy data
-    ax = plt.subplot(3, n, i+1)
-    plt.imshow(test_feature_nosiy[i].reshape(15, 18))
-    plt.gray()
-    ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
-    #predict
-    ax = plt.subplot(3, n, i+1+n)
-    plt.imshow(decoded_img[i].reshape(15, 18))
-    plt.gray()
-    ax.get_yaxis().set_visible(False)
-    ax.get_xaxis().set_visible(False)
-    #original
-    ax = plt.subplot(3, n, i+1+2*n)
-    plt.imshow(test_feature[i].reshape(15, 18))
-    plt.gray()
-    ax.get_yaxis().set_visible(False)
-    ax.get_xaxis().set_visible(False)
-plt.show()
+# n = 10
+# plt.figure(figsize=(20, 4))
+# for i in range(n):
+#     #noisy data
+#     ax = plt.subplot(3, n, i+1)
+#     plt.imshow(test_feature_nosiy[i].reshape(15, 18))
+#     plt.gray()
+#     ax.get_xaxis().set_visible(False)
+#     ax.get_yaxis().set_visible(False)
+#     #predict
+#     ax = plt.subplot(3, n, i+1+n)
+#     plt.imshow(decoded_img[i].reshape(15, 18))
+#     plt.gray()
+#     ax.get_yaxis().set_visible(False)
+#     ax.get_xaxis().set_visible(False)
+#     #original
+#     ax = plt.subplot(3, n, i+1+2*n)
+#     plt.imshow(test_feature[i].reshape(15, 18))
+#     plt.gray()
+#     ax.get_yaxis().set_visible(False)
+#     ax.get_xaxis().set_visible(False)
+# plt.show()
 
 # 欧氏距离计算
 def distEclud(x, y):
@@ -244,7 +244,7 @@ def showCluster(dataSet, k, centroids, clusterAssment):
 
 
 
-kmeans=KMeans(n_clusters=2,n_init=20).fit(train_mid)
+kmeans=KMeans(n_clusters=2,n_init=50).fit(train_mid)
 pred_train=kmeans.predict(train_mid)
 print(pred_train)
 pred_test=kmeans.predict(test_mid)

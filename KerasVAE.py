@@ -90,7 +90,7 @@ def file_array():#训练和测试文件名数组
     filenames = []
     trainfile = []
     testfile = []
-    for j in ["0", "3M"]:  # "1S", "2S"
+    for j in ["0", "2Mhid"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
@@ -106,7 +106,7 @@ def file_array_other():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
     filetype = '.csv'
     filenames = []
-    for j in ["0"]:  # "1S", "2S"
+    for j in ["0","1M"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
             fn = filepath + "czn-2.5-M/" + "czn-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
@@ -177,7 +177,7 @@ batch_size = 128
 original_dim = 270
 # You would assume that 10 latent dimensions would be best for the MNIST dataset...
 latent_dim = 2
-epochs = 100
+epochs = 60
 input_shape = (original_dim, )
 
 

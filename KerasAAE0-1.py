@@ -104,7 +104,7 @@ def file_array():#训练和测试文件名数组
     filenames = []
     trainfile = []
     testfile = []
-    for j in ["0", "2Mhid"]:  # "1S", "2S"
+    for j in ["0", "3M"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
@@ -205,8 +205,8 @@ def build_encoder(latent_dim, img_shape):
 
 def build_discriminator(latent_dim):
     model = Sequential()
-    model.add(Dense(512, input_dim=latent_dim))
-    model.add(LeakyReLU(alpha=0.2))
+    # model.add(Dense(512, input_dim=latent_dim))
+    # model.add(LeakyReLU(alpha=0.2))
     model.add(Dense(256))
     model.add(LeakyReLU(alpha=0.2))
     model.add(Dense(1, activation="sigmoid"))
@@ -320,21 +320,21 @@ def sample_prior(latent_dim, batch_size):
     return np.random.normal(size=(batch_size, latent_dim))+0.1
 
 
-def sample_images(latent_dim, decoder, epoch):
-    r, c = 5, 5
-
-    z = sample_prior(latent_dim, r * c)
-    gen_imgs = decoder.predict(z)
-
-    fig, axs = plt.subplots(r, c)
-    cnt = 0
-    for i in range(r):
-        for j in range(c):
-            axs[i, j].imshow(gen_imgs[cnt, :, :, 0], cmap='gray')
-            axs[i, j].axis('off')
-            cnt += 1
-    fig.savefig("AAE-CSI-images/CSI_%d.png" % epoch)
-    plt.close()
+# def sample_images(latent_dim, decoder, epoch):
+#     r, c = 5, 5
+#
+#     z = sample_prior(latent_dim, r * c)
+#     gen_imgs = decoder.predict(z)
+#
+#     fig, axs = plt.subplots(r, c)
+#     cnt = 0
+#     for i in range(r):
+#         for j in range(c):
+#             axs[i, j].imshow(gen_imgs[cnt, :, :, 0], cmap='gray')
+#             axs[i, j].axis('off')
+#             cnt += 1
+#     fig.savefig("AAE-CSI-images/CSI_%d.png" % epoch)
+#     plt.close()
 
 
 
