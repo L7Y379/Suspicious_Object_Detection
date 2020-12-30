@@ -374,8 +374,8 @@ for epoch in range(epochs):
         # centroids, clusterAssment = KMeans1(latent_fake, k)
         # showCluster(latent_fake, k, centroids, clusterAssment)
     # Save generated images (every sample interval, e.g. every 100th epoch)
-    if epoch % sample_interval == 0:
-        sample_images(latent_dim, decoder, epoch)
+    # if epoch % sample_interval == 0:
+    #     sample_images(latent_dim, decoder, epoch)
 
 train_mid = encoder.predict(X_train)
 test_mid =encoder.predict(X_test)
