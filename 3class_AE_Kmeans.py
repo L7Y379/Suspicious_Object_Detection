@@ -17,7 +17,7 @@ def file_array():
     filenames = []
     trainfile = []
     testfile = []
-    for j in ["0", "2Mhid"]:  # "1S", "2S"
+    for j in ["0","2Mhid", "3M"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
@@ -34,7 +34,7 @@ def file_array_other():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
     filetype = '.csv'
     filenames = []
-    for j in ["0","2M"]:  # "1S", "2S"
+    for j in ["0"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
             fn = filepath + "czn-2.5-M/" + "czn-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
@@ -244,152 +244,127 @@ def showCluster(dataSet, k, centroids, clusterAssment):
 
 
 
-kmeans=KMeans(n_clusters=2,n_init=50).fit(train_mid)
+kmeans=KMeans(n_clusters=3,n_init=50).fit(train_mid)
 pred_train=kmeans.predict(train_mid)
 print(pred_train)
 pred_test=kmeans.predict(test_mid)
 print(pred_test)
 pred_tk=kmeans.predict(tk_mid)
 
-a1=[0,0]
-a2=[0,0]
-for i in range(0,int(len(pred_train)/2)):
+a1=[0,0,0]
+a2=[0,0,0]
+a3=[0,0,0]
+for i in range(0,int(len(pred_train)/3)):
     if pred_train[i]==0:a1[0]=a1[0]+1
     if pred_train[i]==1:a1[1]=a1[1]+1
-for j in range(int(len(pred_train)/2),int(len(pred_train))):
+    if pred_train[i]==2:a1[2]=a1[2]+1
+for j in range(int(len(pred_train)/3),int(len(pred_train)*2/3)):
     if pred_train[j] == 0: a2[0] = a2[0] + 1
     if pred_train[j] == 1: a2[1] = a2[1] + 1
+    if pred_train[j] == 2: a2[2] = a2[2] + 1
+for k in range(int(len(pred_train)*2/3),int(len(pred_train))):
+    if pred_train[k] == 0: a3[0] = a3[0] + 1
+    if pred_train[k] == 1: a3[1] = a3[1] + 1
+    if pred_train[k] == 2: a3[2] = a3[2] + 1
 print(a1)
 print(a2)
-if((a1[0]+a2[1])>=(a1[1]+a2[0])):
-    a=(a1[0]+a2[1])
-    c=0
-else:
-    a=(a1[1]+a2[0])
-    c=1
-acc_train=float(a)/float(len(pred_train))
-print("训练数据的聚类准确率为：")
-print(acc_train)
-print(c)
-b1 = [0, 0]
-b2 = [0, 0]
-for i in range(0, int(len(pred_test) / 2)):
+print(a3)
+
+b1 = [0, 0,0]
+b2 = [0, 0,0]
+b3=[0,0,0]
+for i in range(0, int(len(pred_test) / 3)):
     if pred_test[i] == 0:b1[0] = b1[0] + 1
     if pred_test[i] == 1:b1[1] = b1[1] + 1
-for j in range(int(len(pred_test) / 2), int(len(pred_test))):
+    if pred_test[i] == 2: b1[2] = b1[2] + 1
+for j in range(int(len(pred_test) / 3), int(len(pred_test)*2/3)):
     if pred_test[j] == 0:b2[0] = b2[0] + 1
     if pred_test[j] == 1:b2[1] = b2[1] + 1
+    if pred_test[j] == 2: b2[2] = b2[2] + 1
+for j in range(int(len(pred_test) *2/ 3), int(len(pred_test))):
+    if pred_test[j] == 0:b3[0] = b3[0] + 1
+    if pred_test[j] == 1:b3[1] = b3[1] + 1
+    if pred_test[j] == 2: b3[2] = b3[2] + 1
 print(b1)
 print(b2)
-if((b1[0]+b2[1])>=(b1[1]+b2[0])):
-    if (c==0):
-        b=(b1[0]+b2[1])
-    else:
-        b = (b1[1] + b2[0])
-else:
-    if(c==1):
-        b = (b1[1] + b2[0])
-    else:
-        b = (b1[0] + b2[1])
-acc_test=float(b)/float(len(pred_test))
-print("测试数据的聚类准确率为：")
-print(acc_test)
+print(b3)
+
 
 #投票
 def get_max(shuzu):
-    s=[0,0]
+    s=[0,0,0]
     for i in range(0,lin):
         if (shuzu[i]==0):s[0]=s[0]+1
-        else:s[1]=s[1]+1
-    if(s[0]>s[1]):return 0
-    if(s[0]<s[1]):return 1
-    if(s[0]==s[1]):return 2
+        if (shuzu[i] == 1):s[1] = s[1] + 1
+        if (shuzu[i] == 2):s[2] = s[2] + 1
+    if(s[0]>=s[1]):
+        if(s[0]>=s[2]):
+            return 0
+    if(s[1]>=s[0]):
+        if (s[1] >= s[2]):
+            return 1
+    if(s[2]>=s[0]):
+        if(s[2]>=s[1]):
+            return 2
 
 pred_train_vot=np.arange(len(pred_train)/lin)
 print(len(pred_train_vot))
 for b in range(0, len(pred_train_vot)):
     i=get_max(pred_train[b*lin:(b+1)*lin])
-    if(i==2):pred_train_vot[b]=pred_train_vot[b-1]
     if (i == 0): pred_train_vot[b] = 0
     if (i == 1): pred_train_vot[b] = 1
+    if (i == 2): pred_train_vot[b] = 2
 print(pred_train_vot)
-a1=[0,0]
-a2=[0,0]
-for i in range(0,int(len(pred_train_vot)/2)):
+
+
+a1=[0,0,0]
+a2=[0,0,0]
+a3=[0,0,0]
+for i in range(0,int(len(pred_train_vot)/3)):
     if pred_train_vot[i]==0:a1[0]=a1[0]+1
     if pred_train_vot[i]==1:a1[1]=a1[1]+1
-for j in range(int(len(pred_train_vot)/2),int(len(pred_train_vot))):
+    if pred_train_vot[i]==2:a1[2]=a1[2]+1
+for j in range(int(len(pred_train_vot)/3),int(len(pred_train_vot)*2/3)):
     if pred_train_vot[j] == 0: a2[0] = a2[0] + 1
     if pred_train_vot[j] == 1: a2[1] = a2[1] + 1
+    if pred_train_vot[j] == 2: a2[2] = a2[2] + 1
+for k in range(int(len(pred_train_vot)*2/3),int(len(pred_train_vot))):
+    if pred_train_vot[k] == 0: a3[0] = a3[0] + 1
+    if pred_train_vot[k] == 1: a3[1] = a3[1] + 1
+    if pred_train_vot[k] == 2: a3[2] = a3[2] + 1
 print(a1)
 print(a2)
-if((a1[0]+a2[1])>=(a1[1]+a2[0])):
-    a=(a1[0]+a2[1])
-    c=0
-else:
-    a=(a1[1]+a2[0])
-    c=1
-acc_train_vot=float(a)/float(len(pred_train_vot))
-print("训练数据的投票后聚类准确率为：")
-print(acc_train_vot)
+print(a3)
+
 
 pred_test_vot = np.arange(len(pred_test) / lin)
 print(len(pred_test_vot))
 for b in range(0, len(pred_test_vot)):
     i = get_max(pred_test[b * lin:(b + 1) * lin])
-    if (i == 2): pred_test_vot[b] = pred_test_vot[b - 1]
     if (i == 0): pred_test_vot[b] = 0
     if (i == 1): pred_test_vot[b] = 1
+    if (i == 2): pred_test_vot[b] = 2
 print(pred_test_vot)
-b1 = [0, 0]
-b2 = [0, 0]
-for i in range(0, int(len(pred_test_vot) / 2)):
-    if pred_test_vot[i] == 0: b1[0] = b1[0] + 1
-    if pred_test_vot[i] == 1: b1[1] = b1[1] + 1
-for j in range(int(len(pred_test_vot) / 2), int(len(pred_test_vot))):
-    if pred_test_vot[j] == 0: b2[0] = b2[0] + 1
-    if pred_test_vot[j] == 1: b2[1] = b2[1] + 1
+
+
+b1 = [0, 0,0]
+b2 = [0, 0,0]
+b3=[0,0,0]
+for i in range(0, int(len(pred_test_vot) / 3)):
+    if pred_test_vot[i] == 0:b1[0] = b1[0] + 1
+    if pred_test_vot[i] == 1:b1[1] = b1[1] + 1
+    if pred_test_vot[i] == 2: b1[2] = b1[2] + 1
+for j in range(int(len(pred_test_vot) / 3), int(len(pred_test_vot)*2/3)):
+    if pred_test_vot[j] == 0:b2[0] = b2[0] + 1
+    if pred_test_vot[j] == 1:b2[1] = b2[1] + 1
+    if pred_test_vot[j] == 2: b2[2] = b2[2] + 1
+for j in range(int(len(pred_test_vot) *2/ 3), int(len(pred_test_vot))):
+    if pred_test_vot[j] == 0:b3[0] = b3[0] + 1
+    if pred_test_vot[j] == 1:b3[1] = b3[1] + 1
+    if pred_test_vot[j] == 2: b3[2] = b3[2] + 1
 print(b1)
 print(b2)
-if((b1[0]+b2[1])>=(b1[1]+b2[0])):
-    if (c==0):
-        b=(b1[0]+b2[1])
-    else:b = (b1[1] + b2[0])
-else:
-    if(c==1):
-        b = (b1[1] + b2[0])
-    else:b=(b1[0]+b2[1])
-acc_test_vot = float(b) / float(len(pred_test_vot))
-print("测试数据的投票后聚类准确率为：")
-print(acc_test_vot)
-
-
-t=[0,0]
-for i in range(0,len(pred_tk)):
-    if pred_tk[i]==0:t[0]=t[0]+1
-    if pred_tk[i]==1:t[1]=t[1]+1
-print(t)
-if(c==0):acc_tk=float(t[0])/float(len(pred_tk))
-if(c==1):acc_tk=float(t[1])/float(len(pred_tk))
-print("other的准确率为：")
-print(acc_tk)
-
-pred_tk_vot = np.arange(len(pred_tk) / lin)
-print(len(pred_tk_vot))
-for b in range(0, len(pred_tk_vot)):
-    i = get_max(pred_tk[b * lin:(b + 1) * lin])
-    if (i == 2): pred_tk_vot[b] = pred_tk_vot[b - 1]
-    if (i == 0): pred_tk_vot[b] = 0
-    if (i == 1): pred_tk_vot[b] = 1
-print(pred_tk_vot)
-b1 = [0, 0]
-for i in range(0, int(len(pred_tk_vot))):
-    if pred_tk_vot[i] == 0: b1[0] = b1[0] + 1
-    if pred_tk_vot[i] == 1: b1[1] = b1[1] + 1
-if(c==0):acc_tk_vot=float(b1[0])/float(len(pred_tk_vot))
-if(c==1):acc_tk_vot=float(b1[1])/float(len(pred_tk_vot))
-print("投票后other的准确率为：")
-print(acc_tk_vot)
+print(b3)
 
 
 
