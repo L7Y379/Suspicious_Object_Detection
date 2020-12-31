@@ -1,34 +1,19 @@
+
 # coding: utf-8
 
-# # Code explanation
+# # Variational Autoencoder
 #
-# At [this blog](http://nnormandin.com/science/2017/07/01/cvae.html) quite a few details of typical Keras models are explained. Note that older Keras versions had different ways to handle merging of layers as for a variational autoencoder (see e.g. [here](https://github.com/keras-team/keras/issues/3921)).
-#
-# However, I don't get why there is a `sample_z` function. The purpose of an adversarial autoencoder is that it would not need differentiable probability densities in the latent layer, or that's what I thought. The latent representation should be compared to samples from a normal distribution by the discriminator.
-#
-# Ah, that is actually in the original paper! The authors distinguish three different autoencoders. (1) The deterministic autoencoder (that's if you skip the layer containing random variables altogether). (2) An autoencoder that uses a Gaussian posterior. In this case we can indeed use the same renormalization trick as in Kingma and Welling. (3) A general autoencoder with a "univeral approximate posterior" where we add noise to the input of the encoder.
-#
-# The network has to match q(z) to p(z) by only exploiting the stochasticity in the data distribution in the deterministic case. However, the authors found that for all different types an extensive sweep over hyperparameters did obtain similiar test-likelihoods. All their reported results where subsequently with a deterministic autoencoder.
+# Example is from the [Keras blog](https://blog.keras.io/building-autoencoders-in-keras.html). According to the writer it's the simplest possible autoencoder.
 
 # In[1]:
-import tensorflow as tf
+
 from sklearn.cluster import KMeans
+from keras.layers import Input, Dense
+from keras.models import Model
+from keras.datasets import mnist
+import numpy as np
 import pandas as pd
 import os
-from keras.datasets import mnist
-from keras.layers import Input, Dense, Reshape, Flatten, Dropout, multiply, GaussianNoise
-from keras.layers import BatchNormalization, Activation, Embedding, ZeroPadding2D
-from keras.layers import MaxPooling2D
-from keras.layers import Lambda
-from keras.layers.advanced_activations import LeakyReLU
-from keras.layers.convolutional import UpSampling2D, Conv2D
-from keras.models import Sequential, Model
-from keras.optimizers import Adam
-from keras import losses
-from keras.utils import to_categorical
-import keras.backend as K
-import matplotlib.pyplot as plt
-import numpy as np
 
 
 # 欧氏距离计算
@@ -121,7 +106,7 @@ def file_array_other():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
     filetype = '.csv'
     filenames = []
-    for j in ["0"]:  # "1S", "2S"
+    for j in ["0","1M"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
             fn = filepath + "czn-2.5-M/" + "czn-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
@@ -166,215 +151,151 @@ def read_data(filenames):#读取文件中数据，并贴上标签
     #np.random.shuffle(feature)
     return np.array(data[:, :270]), np.array(data[:, 270:])
 
-
-def build_encoder(latent_dim, img_shape):
-    img = Input(shape=img_shape)
-    h = Flatten()(img)
-    latent_repr = Dense(latent_dim)(h)
-    return Model(img, latent_repr)
-
-def build_encoder2(latent_dim, img_shape):
-    img = Input(shape=img_shape)
-    h = Flatten()(img)
-    latent_repr = Dense(latent_dim)(h)
-    return Model(img, latent_repr)
-
-
-def build_discriminator(latent_dim):
-    model = Sequential()
-    # model.add(Dense(512, input_dim=latent_dim))
-    # model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(256))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(1, activation="sigmoid"))
-    encoded_repr = Input(shape=(latent_dim,))
-    validity = model(encoded_repr)
-    return Model(encoded_repr, validity)
-
-
-# In[25]:
-
-
-def build_decoder(latent_dim, img_shape):
-    model = Sequential()
-    model.add(Dense(128, input_dim=latent_dim,activation='relu'))
-    #model.add(LeakyReLU(alpha=0.2))
-    # model.add(Dense(512))
-    # model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(np.prod(img_shape), activation='sigmoid'))
-    model.add(Reshape(img_shape))
-    z = Input(shape=(latent_dim,))
-    img = model(z)
-    return Model(z, img)
-
-
-# The input are 28x28 images. The optimization used is Adam. The loss is binary cross-entropy.
-
-# In[26]:
-
-
-img_rows = 15
-img_cols = 18
-channels = 1
-img_shape = (img_rows, img_cols, channels)
-# Results can be found in just_2_rv
-latent_dim = 4
-llatent_dim=2
-rlatent_dim=2
-# latent_dim = 8
-
-optimizer = Adam(0.0002, 0.5)
-
-# Build and compile the discriminator
-discriminator = build_discriminator(latent_dim)
-discriminator.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
-
-# In[27]:
-
-
-# Build the encoder / decoder
-encoder = build_encoder(latent_dim, img_shape)
-decoder = build_decoder(latent_dim, img_shape)
-
-# In[28]:
-
-
-# The generator takes the image, encodes it and reconstructs it
-# from the encoding
-img = Input(shape=img_shape)
-encoded_repr = encoder(img)
-reconstructed_img = decoder(encoded_repr)
-
-# For the adversarial_autoencoder model we will only train the generator
-# It will say something like:
-#   UserWarning: Discrepancy between trainable weights and collected trainable weights,
-#   did you set `model.trainable` without calling `model.compile` after ?
-# We only set trainable to false for the discriminator when it is part of the autoencoder...
-discriminator.trainable = False
-
-# The discriminator determines validity of the encoding
-validity = discriminator(encoded_repr)
-
-# The adversarial_autoencoder model  (stacked generator and discriminator)
-adversarial_autoencoder = Model(img, [reconstructed_img, validity])
-adversarial_autoencoder.compile(loss=['mse', 'binary_crossentropy'], loss_weights=[0.5, 0.5], optimizer=optimizer)
-
-# In[29]:
-
-
-discriminator.summary()
-
-# In[30]:
-
-
-epochs = 1000
-batch_size = 100
-sample_interval = 100
-
 # Load the dataset
-#(X_train, _), (_, _) = mnist.load_data()
+#(x_train, y_train), (x_test, y_test) = mnist.load_data()
 trainfile_array, testfile_array = file_array()
 tk_files=file_array_other()
 train_feature_all, train_label_all = read_data(trainfile_array)
 test_feature_all, test_label_all = read_data(testfile_array)
 tk_feature,tk_label=read_data(tk_files)
 
-# Rescale -1 to 1
-# train_feature_all = train_feature_all.astype('float32')
-# test_feature_all = test_feature_all.astype('float32')
-X_train = train_feature_all.astype('float32')/ 73.0
-X_test = test_feature_all.astype('float32') / 73.0
+x_train = train_feature_all.astype('float32')/ 73.0
+x_test = test_feature_all.astype('float32') / 73.0
 tk_feature=tk_feature.astype('float32')/73.0
-X_train_label=train_label_all
-X_test_label=test_label_all
-X_train = X_train.reshape([X_train.shape[0], img_rows, img_cols])
-X_test = X_test.reshape([X_test.shape[0], img_rows, img_cols])
-tk_feature=tk_feature.reshape([tk_feature.shape[0], img_rows, img_cols])
-X_train = np.expand_dims(X_train, axis=3)
-X_test = np.expand_dims(X_test, axis=3)
-tk_feature = np.expand_dims(tk_feature, axis=3)
-# Adversarial ground truths
+x_train_label=train_label_all
+x_test_label=test_label_all
+
+batch_size = 128
+original_dim = 270
+# You would assume that 10 latent dimensions would be best for the MNIST dataset...
+latent_dim = 4
+llatent_dim=2
+rlatent_dim=2
+epochs = 60
+input_shape = (original_dim, )
 
 
-def sample_prior(latent_dim, batch_size):
-    return np.random.normal(size=(batch_size, latent_dim))
+# In[3]:
 
 
+# Build encoder
+
+# The input is mapped to a hidden layer "h" with dimension "intermediate_dim" and then mapped immediately to
+# a latent layer with Gaussians (mean and log sigma variables). All subsequent layers are fully connected.
+inputs = Input(input_shape)
+h = Dense(128, activation='relu')(inputs)
+z_l = Dense(llatent_dim)(inputs)
+z_r = Dense(rlatent_dim)(inputs)
 
 
-for epoch in range(epochs):
+# Given mean, $\mu$, and (log) sigma, $\log \sigma$, sample from a Normal distribution: $z \sim N(\mu, \sigma^2)$.
+#
+# Here Lambda is actually a layer. It accepts a vector with means and sigmas and returns a vector with samples
+#
+# Rather than directly sampling from $N(\mu,\sigma^2)$ we sample from $\epsilon \sim N(0,1)$ and calculate $z = \mu + \sigma \odot \epsilon$. Note that this function expects $\log \sigma$, not $\log \sigma^2$. The above representation is a product-wise multiplication by $\sigma$, but represents $N(\mu,\sigma^2)$.
 
-    # ---------------------
-    #  Train Discriminator
-    # ---------------------
+# In[4]:
 
-    # Select a random batch of images
-    idx = np.random.randint(0, X_train.shape[0], batch_size)
-    imgs = X_train[idx]
 
-    latent = encoder.predict(imgs)
-    latent = latent[:]
-    latent_label=X_train_label[idx]
-    k=0
-    j=0
-    for i in range(0,len(latent)):
-        if (latent_label[i] == 0):
-            if(k==0):
-                latent_fake=latent[i]
-                k=k+1
-            else:
-                latent_fake = np.vstack((latent_fake, latent[i]))
-        if(latent_label[i]==2):
-            if(j==0):
-                latent_real=latent[i]
-                j=j+1
-            else:
-                latent_real=np.vstack((latent_real, latent[i]))
+from keras.layers import Lambda
+from keras import backend as K
 
-    valid = np.ones((len(latent_real), 1))
-    fake = np.zeros((len(latent_fake), 1))
-    # Train the discriminator
-    d_loss_real = discriminator.train_on_batch(latent_real, valid)#real带🔪
-    d_loss_fake = discriminator.train_on_batch(latent_fake, fake)#fake不带🔪
-    d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
+def sampling(args):
+    z_l, z_r = args
+    z=np.hstack((z_l, z_r))
+    return z
 
-    # ---------------------
-    #  Train Generator
-    # ---------------------
+z = Lambda(sampling)([z_l, z_r])
 
-    # Train the generator
-    g_loss = adversarial_autoencoder.train_on_batch(imgs, [imgs, valid])
+# instantiate encoder, from inputs to latent space
+encoder = Model(inputs, [z_l, z_r, z])
 
-    # Plot the progress (every 10th epoch)
-    if epoch % 10 == 0:
-        print("%d [D loss: %f, acc: %.2f%%] [G loss: %f, mse: %f]" % (
-        epoch, d_loss[0], 100 * d_loss[1], g_loss[0], g_loss[1]))
-        # k = 2
-        # print(latent_fake.shape)
-        # centroids, clusterAssment = KMeans1(latent_fake, k)
-        # showCluster(latent_fake, k, centroids, clusterAssment)
-    # Save generated images (every sample interval, e.g. every 100th epoch)
-    # if epoch % sample_interval == 0:
-    #     sample_images(latent_dim, decoder, epoch)
 
-train_mid = encoder.predict(X_train)
-train_mid_l=train_mid[:2]
-train_mid_r=train_mid[2:]
-test_mid =encoder.predict(X_test)
-test_mid_l=test_mid[:2]
-test_mid_r=test_mid[2:]
-tk_mid = encoder.predict(tk_feature)
-tk_mid_l=tk_mid[:2]
-tk_mid_r=tk_mid[2:]
-print(train_mid_r)
-print(test_mid_r)
+# In[6]:
 
-kmeans = KMeans(n_clusters=2,n_init=20).fit(train_mid_r)
-pred_train = kmeans.predict(train_mid_r)
+
+# Build decoder model
+# The latent Gaussian variables are mapped to again a layer with dimension "intermediate_dim", finally the
+# reconstruction is formed by mapping to original dimension.
+# If properly trained, x_decoded_mean should be the same as x.
+decoder_input = Input(shape=(latent_dim,))
+decoder_h = Dense(128, activation='relu')(decoder_input)
+decoder_output = Dense(original_dim, activation='sigmoid')(decoder_h)
+#x_decoded_mean = decoder_mean(h1)
+
+# Instantiate decoder
+decoder = Model(decoder_input, decoder_output)
+
+# end-to-end autoencoder
+outputs = decoder(encoder(inputs)[2])
+vae = Model(inputs, outputs)
+
+from keras import objectives
+from keras.losses import mse, binary_crossentropy
+
+def vae_loss(x, x_reconstruction):
+    xent_loss = binary_crossentropy(x, x_reconstruction) * original_dim
+    # if we set kl_loss to 0 we get low values pretty immediate...
+    # in 1 epoch, loss: 0.1557 - val_loss: 0.1401
+    # in 50 epochs, loss: 0.0785 - val_loss: 0.0791
+    kl_loss = - 0.5 * K.sum(1 + z_r - K.square(z_l) - K.exp(z_r), axis=-1)
+    return K.mean(xent_loss + kl_loss)
+
+vae.compile(optimizer='adam', loss=vae_loss)
+vae.summary()
+
+
+steps_per_epoch=None
+vae.fit(x_train, x_train,epochs=epochs,batch_size=batch_size,verbose = 1,validation_data=(x_test, x_test))
+vae.save_weights('vae_mlp_CSI.h5')
+
+
+# In[12]:
+
+
+# encode and decode some digits
+# note that we take them from the *test* set
+encoded_imgs, _, _, = encoder.predict(x_test)
+decoded_imgs = decoder.predict(encoded_imgs)
+
+
+# In[14]:
+
+
+# use Matplotlib (don't ask)
+import matplotlib.pyplot as plt
+
+n = 10  # how many digits we will display
+plt.figure(figsize=(20, 4))
+for i in range(n):
+    # display original
+    ax = plt.subplot(2, n, i + 1)
+    plt.imshow(x_test[i].reshape(15, 18))
+    plt.gray()
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+
+    # display reconstruction
+    ax = plt.subplot(2, n, i + 1 + n)
+    plt.imshow(decoded_imgs[i].reshape(15, 18))
+    plt.gray()
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+plt.show()
+
+train_mid, _, _, = encoder.predict(x_train)
+test_mid, _, _, = encoder.predict(x_test)
+tk_mid, _, _, = encoder.predict(tk_feature)
+print(train_mid)
+print(test_mid)
+
+
+kmeans=KMeans(n_clusters=2,n_init=20).fit(train_mid)
+pred_train=kmeans.predict(train_mid)
 print(pred_train)
-pred_test = kmeans.predict(test_mid_r)
+pred_test=kmeans.predict(test_mid)
 print(pred_test)
-pred_tk=kmeans.predict(tk_mid_r)
+pred_tk=kmeans.predict(tk_mid)
 
 a1=[0,0]
 a2=[0,0]
@@ -515,6 +436,9 @@ if(c==0):acc_tk_vot=float(b1[0])/float(len(pred_tk_vot))
 if(c==1):acc_tk_vot=float(b1[1])/float(len(pred_tk_vot))
 print("投票后other的准确率为：")
 print(acc_tk_vot)
+
+
+
 k = 2
-centroids, clusterAssment = KMeans1(train_mid_r, k)
-showCluster(train_mid_r, k, centroids, clusterAssment)
+centroids, clusterAssment = KMeans1(train_mid, k)
+showCluster(train_mid, k, centroids, clusterAssment)

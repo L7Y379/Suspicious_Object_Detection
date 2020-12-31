@@ -17,7 +17,7 @@ def file_array():
     filenames = []
     trainfile = []
     testfile = []
-    for j in ["0","2Mhid", "3M"]:  # "1S", "2S"
+    for j in ["0","1M", "3M"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
@@ -125,7 +125,7 @@ autoencoder_mid = Model(inputs=input, outputs=encoded2)
 autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
 #autoencoder.compile(optimizer='adam', loss='mse')
 autoencoder.summary()
-autoencoder.fit(train_feature_nosiy, train_feature, epochs=60, batch_size=128, verbose=1, validation_data=(test_feature_nosiy, test_feature))
+autoencoder.fit(train_feature_nosiy, train_feature, epochs=100, batch_size=128, verbose=1, validation_data=(test_feature_nosiy, test_feature))
 
 # autoencoder.save("model")
 # model = load_model("model")
@@ -368,6 +368,6 @@ print(b3)
 
 
 
-k = 2
+k = 3
 centroids, clusterAssment = KMeans1(train_mid, k)
 showCluster(train_mid, k, centroids, clusterAssment)

@@ -104,7 +104,7 @@ def file_array():#训练和测试文件名数组
     filenames = []
     trainfile = []
     testfile = []
-    for j in ["0", "3M"]:  # "1S", "2S"
+    for j in ["0", "2Mhid"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
@@ -288,7 +288,7 @@ discriminator.summary()
 # In[30]:
 
 
-epochs = 2000
+epochs = 1500
 batch_size = 100
 sample_interval = 100
 
@@ -383,7 +383,7 @@ tk_mid = encoder.predict(tk_feature)
 print(train_mid)
 print(test_mid)
 
-kmeans = KMeans(n_clusters=2,n_init=20).fit(train_mid)
+kmeans = KMeans(n_clusters=2,n_init=50).fit(train_mid)
 pred_train = kmeans.predict(train_mid)
 print(pred_train)
 pred_test = kmeans.predict(test_mid)
