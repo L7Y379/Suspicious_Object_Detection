@@ -18,7 +18,7 @@ def file_array():
     filenames = []
     trainfile = []
     testfile = []
-    for j in ["0", "2Mhid"]:  # "1S", "2S"
+    for j in ["0", "1M"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
@@ -140,7 +140,7 @@ print(sess.run(test_loss[2300:]))
 tk_loss= tf.reduce_mean(tf.square(tk_feature - tk_predict),axis=1)
 
 #设置经验基准m
-m=0.01
+m=0.0022
 len_train=train_loss.shape[0]
 print(len_train)
 train_loss=train_loss.eval(session=sess)#转换为数组
@@ -186,7 +186,7 @@ else:
 acc_train=float(a)/float(len(pred_train))
 print("训练数据的聚类准确率为：")
 print(acc_train)
-print(c)
+#print(c)
 b1 = [0, 0]
 b2 = [0, 0]
 for i in range(0, int(len(pred_test) / 2)):
