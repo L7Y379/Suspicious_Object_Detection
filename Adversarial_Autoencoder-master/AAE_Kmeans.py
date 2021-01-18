@@ -139,8 +139,8 @@ def read_data(filenames):#读取文件中数据，并贴上标签
         csvdata = pd.read_csv(filename, header=None)
         csvdata = np.array(csvdata, dtype=np.float64)
         csvdata = csvdata[:, 0:270]
-        idx = np.array([j for j in range(int(csvdata.shape[0] / 2)-10 ,
-                                         int(csvdata.shape[0] / 2) +10, 1)])#取中心点处左右分布数据
+        idx = np.array([j for j in range(int(csvdata.shape[0] / 2)-120 ,
+                                         int(csvdata.shape[0] / 2) +120, 2)])#取中心点处左右分布数据
         temp_feature = csvdata[idx,]
         # 贴标签
         temp_label = -1  # 初始化
@@ -479,18 +479,16 @@ def train(train_model=True):
 
             sess.run(init)
             writer = tf.summary.FileWriter(logdir=tensorboard_path, graph=sess.graph)
+            trainfile_array, testfile_array = file_array()
+            train_feature_all, train_label_all = read_data(trainfile_array)
+            test_feature_all, test_label_all = read_data(testfile_array)
+            # train_feature_all = train_feature_all.astype('float32')
+            # test_feature_all = test_feature_all.astype('float32')
+            train_feature_all = train_feature_all.astype('float32') / 73.0
+            test_feature_all = test_feature_all.astype('float32') / 73.0
             for i in range(n_epochs):
 
-                trainfile_array, testfile_array = file_array()
-                train_feature_all, train_label_all = read_data(trainfile_array)
-                test_feature_all, test_label_all = read_data(testfile_array)
-                # train_feature_all = train_feature_all.astype('float32')
-                # test_feature_all = test_feature_all.astype('float32')
-                train_feature_all = train_feature_all.astype('float32') / 72.0
-                test_feature_all = test_feature_all.astype('float32') / 72.0
-                train_feature_all = pow(train_feature_all, 2.0 / 3)
-                test_feature_all = pow(test_feature_all, 2.0 / 3)
-                #n_batches = int(mnist.train.num_examples / batch_size)
+
                 n_batches = int(len(train_feature_all) / batch_size)
                 print("------------------Epoch {}/{}------------------".format(i, n_epochs))
                 #for b in range(1, n_batches + 1):

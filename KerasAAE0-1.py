@@ -288,7 +288,7 @@ discriminator.summary()
 # In[30]:
 
 
-epochs = 1500
+epochs = 1000
 batch_size = 100
 sample_interval = 100
 
@@ -317,7 +317,7 @@ valid = np.ones((batch_size, 1))
 fake = np.zeros((batch_size, 1))
 
 def sample_prior(latent_dim, batch_size):
-    return np.random.normal(size=(batch_size, latent_dim))+0.1
+    return np.random.normal(size=(batch_size, latent_dim))
 
 
 # def sample_images(latent_dim, decoder, epoch):
@@ -383,7 +383,8 @@ tk_mid = encoder.predict(tk_feature)
 print(train_mid)
 print(test_mid)
 
-kmeans = KMeans(n_clusters=2,n_init=50).fit(train_mid)
+#kmeans = KMeans(n_clusters=2,n_init=20).fit(train_mid)
+kmeans = KMeans(n_clusters=2).fit(train_mid)
 pred_train = kmeans.predict(train_mid)
 print(pred_train)
 pred_test = kmeans.predict(test_mid)

@@ -90,7 +90,7 @@ def file_array():#训练和测试文件名数组
     filenames = []
     trainfile = []
     testfile = []
-    for j in ["0", "2Mhid"]:  # "1S", "2S"
+    for j in ["0", "1M"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
@@ -180,59 +180,28 @@ latent_dim = 2
 epochs = 60
 input_shape = (original_dim, )
 
-
-# In[3]:
-
-
 # Build encoder
-
-# The input is mapped to a hidden layer "h" with dimension "intermediate_dim" and then mapped immediately to
-# a latent layer with Gaussians (mean and log sigma variables). All subsequent layers are fully connected.
 inputs = Input(input_shape)
 h = Dense(128, activation='relu')(inputs)
 z_mean = Dense(latent_dim)(inputs)
 z_log_variance = Dense(latent_dim)(inputs)
-
-
-# Given mean, $\mu$, and (log) sigma, $\log \sigma$, sample from a Normal distribution: $z \sim N(\mu, \sigma^2)$.
-#
-# Here Lambda is actually a layer. It accepts a vector with means and sigmas and returns a vector with samples
-#
-# Rather than directly sampling from $N(\mu,\sigma^2)$ we sample from $\epsilon \sim N(0,1)$ and calculate $z = \mu + \sigma \odot \epsilon$. Note that this function expects $\log \sigma$, not $\log \sigma^2$. The above representation is a product-wise multiplication by $\sigma$, but represents $N(\mu,\sigma^2)$.
-
-# In[4]:
-
 
 from keras.layers import Lambda
 from keras import backend as K
 
 def sampling(args):
     z_mean, z_log_variance = args
+    z = np.hstack((z_mean, z_log_variance))
     batch = K.shape(z_mean)[0]
     dim = K.int_shape(z_mean)[1]
     epsilon = K.random_normal(shape=(batch, dim))
-    # It stated z_mean + K.exp(z_log_sigma) * epsilon in original code, but actually log variance was used
-    # in Kullback-Leibler divergence. Hence I changed z_log_sigma -> z_log_variance and divide here by 2 in the
-    # exponent, corresponds to sqrt(z_variance).
     return z_mean + K.exp(z_log_variance / 2) * epsilon
 
 z = Lambda(sampling)([z_mean, z_log_variance])
 
-
-# In[5]:
-
-
-# instantiate encoder, from inputs to latent space
 encoder = Model(inputs, [z_mean, z_log_variance, z])
 
-
-# In[6]:
-
-
 # Build decoder model
-# The latent Gaussian variables are mapped to again a layer with dimension "intermediate_dim", finally the
-# reconstruction is formed by mapping to original dimension.
-# If properly trained, x_decoded_mean should be the same as x.
 decoder_input = Input(shape=(latent_dim,))
 decoder_h = Dense(128, activation='relu')(decoder_input)
 decoder_output = Dense(original_dim, activation='sigmoid')(decoder_h)
@@ -249,38 +218,6 @@ decoder = Model(decoder_input, decoder_output)
 outputs = decoder(encoder(inputs)[2])
 vae = Model(inputs, outputs)
 
-
-# The loss for the Variational Autoencoder is:
-# * a "binary cross-entropy" loss between x and x' (the reconstructed x_decoded_mean)
-# * a Kullback-Leibler divergence with the latent layer
-#
-# The Kullback-Leibler divergence between two multivariate normal distributions:
-#
-# $$D_{KL}(N_0,N_1) = 1/2 \left( \mathrm{tr }(\Sigma_1^{-1}\Sigma_0) + (\mu_1 - \mu_0)^T\Sigma_1^{-1} (\mu_1 - \mu_0) -k + \log \frac{\det \Sigma_1}{ \det \Sigma_0} \right)$$
-#
-# Here $\Sigma_0$ and $\Sigma_1$ are covariance matrices.
-#
-# In our case we compare a diagonal multivariate normal (one $\sigma$ scalar per variable) with a unit normal distribution. The trace of a matrix is just the sum over the diagonal. The determinant of a diagonal matrix is the product over the diagonal. The unit normal distribution: $\Sigma_1 = I$, $\mu_1=0$ (vector notation omitted).
-#
-# $$D_{KL}(N_0,N_1) = 1/2 \left( \sum_k ( \Sigma_0 ) + (-\mu_0)^T (-\mu_0) -k - \log  \prod_k (\Sigma_0) \right)$$
-#
-# And:
-#
-# $$D_{KL}(N_0,N_1) = 1/2 \left( \sum_k ( \Sigma_0 ) + \sum_k (\mu_i^2) + \sum_k ( -1 ) - \sum_k \log \Sigma_0 \right)$$
-#
-# Which leads to:
-#
-# $$D_{KL}(N_0,N_1) = -1/2 \sum_{i=1}^k 1 + \log(\sigma_i^2) - \mu_i^2 - \sigma_i^2$$
-#
-# Here $N_0 = N(\mu_1,\ldots,\mu_k;\sigma_1,\ldots,\sigma_k)$ and $N_1 = N(0,I)$. We use the standard deviation $\sigma_i$ here rather than the (co)variance $\Sigma$.
-#
-# Note, it seems that z_log_sigma here actually represents $\log \sigma^2$. Is this correct?
-#
-# Rather than K.sum() for the KL divergence K_mean() is used. The entire loss is scaled with the original dimension. It would also have been an option to multiply the xend_loss with original_dim and then return the sum.
-
-# In[9]:
-
-
 from keras import objectives
 from keras.losses import mse, binary_crossentropy
 
@@ -289,7 +226,8 @@ def vae_loss(x, x_reconstruction):
     # if we set kl_loss to 0 we get low values pretty immediate...
     # in 1 epoch, loss: 0.1557 - val_loss: 0.1401
     # in 50 epochs, loss: 0.0785 - val_loss: 0.0791
-    kl_loss = - 0.5 * K.sum(1 + z_log_variance - K.square(z_mean) - K.exp(z_log_variance), axis=-1)
+    #kl_loss = - 0.5 * K.sum(1 + z_log_variance - K.square(z_mean) - K.exp(z_log_variance), axis=-1)
+    kl_loss = - 5 * K.sum(1 + z_log_variance - K.square(z_mean) - K.exp(z_log_variance), axis=-1)
     return K.mean(xent_loss + kl_loss)
 
 vae.compile(optimizer='adam', loss=vae_loss)
@@ -300,7 +238,9 @@ vae.summary()
 
 
 steps_per_epoch=None
-vae.fit(x_train, x_train,epochs=epochs,batch_size=batch_size,verbose = 1,validation_data=(x_test, x_test))
+print(x_train.shape)
+#vae.fit(x_train, x_train,epochs=epochs,batch_size=batch_size,verbose = 1,validation_data=(x_test, x_test))
+vae.fit(x_train[:2400], x_train[:2400],epochs=epochs,batch_size=batch_size,verbose = 1,validation_data=(x_test[:1200], x_test[:1200]))
 vae.save_weights('vae_mlp_CSI.h5')
 
 
@@ -311,10 +251,6 @@ vae.save_weights('vae_mlp_CSI.h5')
 # note that we take them from the *test* set
 encoded_imgs, _, _, = encoder.predict(x_test)
 decoded_imgs = decoder.predict(encoded_imgs)
-
-
-# In[14]:
-
 
 # use Matplotlib (don't ask)
 import matplotlib.pyplot as plt
@@ -344,7 +280,7 @@ print(train_mid)
 print(test_mid)
 
 
-kmeans=KMeans(n_clusters=2,n_init=20).fit(train_mid)
+kmeans=KMeans(n_clusters=2,n_init=50).fit(train_mid)
 pred_train=kmeans.predict(train_mid)
 print(pred_train)
 pred_test=kmeans.predict(test_mid)

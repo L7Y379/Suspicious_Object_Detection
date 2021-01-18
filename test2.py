@@ -192,6 +192,7 @@ def build_discriminator(latent_dim):
     return Model(encoded_repr, validity)
 
 
+
 # In[25]:
 
 
@@ -258,8 +259,6 @@ validity = discriminator(encoded_repr)
 # The adversarial_autoencoder model  (stacked generator and discriminator)
 adversarial_autoencoder = Model(img, [reconstructed_img, validity])
 adversarial_autoencoder.compile(loss=['mse', 'binary_crossentropy'], loss_weights=[0.5, 0.5], optimizer=optimizer)
-
-# In[29]:
 
 
 discriminator.summary()
