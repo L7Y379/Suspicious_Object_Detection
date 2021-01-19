@@ -135,7 +135,7 @@ autoencoder = Model(input=input, output=decoded2)
 #print(autoencoder.inputs)
 autoencoder_mid = Model(inputs=input, outputs=encoded2)
 
-autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
+autoencoder.compile(optimizer='adam', loss='mse')
 #autoencoder.compile(optimizer='adam', loss='mse')
 autoencoder.summary()
 autoencoder.fit(train_feature_nosiy[:2400], train_feature[:2400], epochs=500, batch_size=128, verbose=1, validation_data=(test_feature_nosiy[:1200], test_feature[:1200]))

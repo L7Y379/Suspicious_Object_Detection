@@ -1,4 +1,4 @@
-#在测试阶段，如果一个样本是之前训练过的同类数据，那么它的重构错误很低。而另一个类型的重构错误较高。
+#一个人的训练模型去测试这个人的没有训练过的数据
 
 import tensorflow as tf
 from keras.layers import Dense, Input
@@ -7,17 +7,17 @@ import numpy as np
 from tensorflow.python.keras.models import load_model
 import pandas as pd
 import os
-from sklearn import preprocessing
+from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-
+from sklearn import preprocessing
 def file_array():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
     filetype = '.csv'
     filenames = []
     trainfile = []
     testfile = []
-    for j in ["0", "1M"]:  # "1S", "2S"
+    for j in ["0", "2Mhid"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
@@ -34,7 +34,7 @@ def file_array_other():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
     filetype = '.csv'
     filenames = []
-    for j in ["0","1M"]:  # "1S", "2S"
+    for j in ["0","2M"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
             fn = filepath + "czn-2.5-M/" + "czn-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
@@ -86,25 +86,24 @@ train_feature, train_label = read_data(trainfile_array)
 test_feature, test_label = read_data(testfile_array)
 tk_feature,tk_label=read_data(tk_files)
 
-#全局归一化
+
+#全局归化为-1~1
 # train_feature = train_feature.astype('float32')/np.max(train_feature)
 # test_feature = test_feature.astype('float32')/np.max(test_feature)
 # tk_feature=tk_feature.astype('float32')/np.max(tk_feature)
-train_feature = (train_feature.astype('float32')-np.min(train_feature))/(np.max(train_feature)-np.min(train_feature))
-test_feature = (test_feature.astype('float32')-np.min(test_feature))/(np.max(test_feature)-np.min(test_feature))
-tk_feature=(tk_feature.astype('float32')-np.min(tk_feature))/(np.max(tk_feature)-np.min(tk_feature))
-# train_feature = train_feature.astype('float32')/73.0
-# test_feature = test_feature.astype('float32')/73.0
-# tk_feature=tk_feature.astype('float32')/73.0
-
-# #列归一化
-# min_max_scaler = preprocessing.MinMaxScaler()
+train_feature = ((train_feature.astype('float32')-np.min(train_feature))-(np.max(train_feature)-np.min(train_feature))/2.0)/((np.max(train_feature)-np.min(train_feature))/2)
+test_feature = ((test_feature.astype('float32')-np.min(test_feature))-(np.max(test_feature)-np.min(test_feature))/2.0)/((np.max(test_feature)-np.min(test_feature))/2)
+tk_feature=((tk_feature.astype('float32')-np.min(tk_feature))-(np.max(tk_feature)-np.min(tk_feature))/2.0)/((np.max(tk_feature)-np.min(tk_feature))/2)
+print(train_feature)
+print(test_feature)
+#列归化为-1~1
+# min_max_scaler = preprocessing.MinMaxScaler(feature_range = (-1,1),copy = 1)
 # train_feature = min_max_scaler.fit_transform(train_feature)
 # test_feature = min_max_scaler.fit_transform(test_feature)
 # tk_feature = min_max_scaler.fit_transform(tk_feature)
 
-# #行归一化
-# min_max_scaler1 = preprocessing.MinMaxScaler()
+# #行归化为-1~1
+# min_max_scaler1 = preprocessing.MinMaxScaler(feature_range = (-1,1),copy = 1)
 # train_feature=train_feature.T
 # test_feature=test_feature.T
 # tk_feature=tk_feature.T
@@ -117,78 +116,130 @@ tk_feature=(tk_feature.astype('float32')-np.min(tk_feature))/(np.max(tk_feature)
 
 train_feature_nosiy = train_feature
 test_feature_nosiy = test_feature
-# train_feature_nosiy = np.clip(train_feature_nosiy, 0., 1.)
-# test_feature_nosiy = np.clip(test_feature_nosiy, 0, 1.)
-input = Input(shape=(270,))
 
-encoded1 = Dense(128, activation='relu')(input)
-# encoded1 = Dense(128, activation='relu')(encoded1)
-encoded2 = Dense(64,activation='relu')(encoded1)
-decoded1 = Dense(128, activation='relu')(encoded2)
-# decoded1 = Dense(128, activation='relu')(decoded1)
+input = Input(shape=(270,))
+encoded1 = Dense(128)(input)
+#encoded1 = Dense(128, activation='relu')(encoded1)
+encoded2 = Dense(2)(input)
+decoded1 = Dense(128)(encoded2)
+#decoded1 = Dense(128, activation='relu')(decoded1)
 #decoded1 = Dense(128, activation='relu')(decoded1)
 #decoded2 = Dense(270, activation='sigmoid')(decoded1)
-decoded2 = Dense(270, activation='sigmoid')(decoded1)
+decoded2 = Dense(270, activation='tanh')(decoded1)
 #decoded2 = Dense(270, activation='relu')(decoded1)
 
 autoencoder = Model(input=input, output=decoded2)
 #print(autoencoder.inputs)
 autoencoder_mid = Model(inputs=input, outputs=encoded2)
 
-autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
+autoencoder.compile(optimizer='adam', loss='mse')
 #autoencoder.compile(optimizer='adam', loss='mse')
 autoencoder.summary()
-autoencoder.fit(train_feature_nosiy[:2400], train_feature[:2400], epochs=500, batch_size=128, verbose=1, validation_data=(test_feature_nosiy[:1200], test_feature[:1200]))
+autoencoder.fit(train_feature_nosiy, train_feature, epochs=60, batch_size=128, verbose=1, validation_data=(test_feature_nosiy, test_feature))
+
+# autoencoder.save("model")
+# model = load_model("model")
+
+
+
+
 
 #decoded test images
-train_predict = autoencoder.predict(train_feature_nosiy)
-test_predict = autoencoder.predict(test_feature_nosiy)
-tk_predict = autoencoder.predict(tk_feature)
-print(train_predict)
-print(test_predict)
-sess = tf.Session()
-# Evaluate the tensor `c`.
+train_mid = autoencoder_mid.predict(train_feature_nosiy)
+test_mid = autoencoder_mid.predict(test_feature_nosiy)
+tk_mid = autoencoder_mid.predict(tk_feature)
+print(train_mid)
+print(test_mid)
+decoded_img = autoencoder.predict(test_feature_nosiy)
+autoencoder_loss = tf.reduce_mean(tf.square(test_feature_nosiy - decoded_img))
 
-train_loss = tf.reduce_mean(tf.square(train_feature_nosiy - train_predict),axis=1)
-print(train_loss)
-print(sess.run(train_loss))
-print(sess.run(train_loss[:100]))
-print(sess.run(train_loss[4700:]))
 
-test_loss = tf.reduce_mean(tf.square(test_feature_nosiy - test_predict),axis=1)
-print(test_loss)
-print(sess.run(test_loss))
-print(sess.run(test_loss[:100]))
-print(sess.run(test_loss[2300:]))
+# 欧氏距离计算
+def distEclud(x, y):
+    return np.sqrt(np.sum((x - y) ** 2))  # 计算欧氏距离
 
-tk_loss= tf.reduce_mean(tf.square(tk_feature - tk_predict),axis=1)
 
-#设置经验基准m
-len_train=train_loss.shape[0]
-print(len_train)
-train_loss=train_loss.eval(session=sess)#转换为数组
-# m=(np.max(train_loss[:2400])+np.min(train_loss[2400:]))/2#取前后两部分最大和最小值的均值
-# m=np.mean(train_loss)#取平均值
-m=np.median(train_loss)#取中位数
-print("m为")
-print(m)
-pred_train=np.arange(int(len_train))
-for i in range(0,int(len_train)):
-    if train_loss[i]<=m:pred_train[i]=0
-    if train_loss[i]>m:pred_train[i]=1
-len_test=test_loss.shape[0]
-test_loss=test_loss.eval(session=sess)#转换为数组
-pred_test=np.arange(int(len_test))
-for i in range(0,int(len_test)):
-    if test_loss[i]<=m:pred_test[i]=0
-    if test_loss[i]>m:pred_test[i]=1
-len_tk=tk_loss.shape[0]
-tk_loss=tk_loss.eval(session=sess)#转换为数组
-pred_tk=np.arange(int(len_tk))
-for i in range(0,int(len_tk)):
-    if tk_loss[i]<=m:pred_tk[i]=0
-    if tk_loss[i]>m:pred_tk[i]=1
-#
+# 为给定数据集构建一个包含K个随机质心的集合
+def randCent(dataSet, k):
+    m, n = dataSet.shape
+    centroids = np.zeros((k, n))
+    for i in range(k):
+        index = int(np.random.uniform(0, m))  #
+        centroids[i, :] = dataSet[index, :]
+    return centroids
+
+
+# k均值聚类
+def KMeans1(dataSet, k):
+    m = np.shape(dataSet)[0]  # 行的数目
+    # 第一列存样本属于哪一簇
+    # 第二列存样本的到簇的中心点的误差
+    clusterAssment = np.mat(np.zeros((m, 2)))
+    clusterChange = True
+
+    # 第1步 初始化centroids
+    centroids = randCent(dataSet, k)
+    while clusterChange:
+        clusterChange = False
+
+        # 遍历所有的样本（行数）
+        for i in range(m):
+            minDist = 100000.0
+            minIndex = -1
+
+            # 遍历所有的质心
+            # 第2步 找出最近的质心
+            for j in range(k):
+                # 计算该样本到质心的欧式距离
+                distance = distEclud(centroids[j, :], dataSet[i, :])
+                if distance < minDist:
+                    minDist = distance
+                    minIndex = j
+            # 第 3 步：更新每一行样本所属的簇
+            if clusterAssment[i, 0] != minIndex:
+                clusterChange = True
+                clusterAssment[i, :] = minIndex, minDist ** 2
+        # 第 4 步：更新质心
+        for j in range(k):
+            pointsInCluster = dataSet[np.nonzero(clusterAssment[:, 0].A == j)[0]]  # 获取簇类所有的点
+            centroids[j, :] = np.mean(pointsInCluster, axis=0)  # 对矩阵的行求均值
+
+    print("Congratulations,cluster complete!")
+    return centroids, clusterAssment
+
+
+def showCluster(dataSet, k, centroids, clusterAssment):
+    m, n = dataSet.shape
+    if n != 2:
+        print("数据不是二维的")
+        return 1
+
+    mark = ['or', 'ob', 'og', 'ok', '^r', '+r', 'sr', 'dr', '<r', 'pr']
+    if k > len(mark):
+        print("k值太大了")
+        return 1
+
+    # 绘制所有的样本
+    for i in range(m):
+        markIndex = int(clusterAssment[i, 0])
+        plt.plot(dataSet[i, 0], dataSet[i, 1], mark[markIndex])
+
+    mark = ['Dr', 'Db', 'Dg', 'Dk', '^b', '+b', 'sb', 'db', '<b', 'pb']
+    # 绘制质心
+    for i in range(k):
+        plt.plot(centroids[i, 0], centroids[i, 1], mark[i])
+
+    plt.show()
+
+
+
+kmeans=KMeans(n_clusters=2,n_init=50).fit(train_mid)
+pred_train=kmeans.predict(train_mid)
+print(pred_train)
+pred_test=kmeans.predict(test_mid)
+print(pred_test)
+pred_tk=kmeans.predict(tk_mid)
+
 a1=[0,0]
 a2=[0,0]
 for i in range(0,int(len(pred_train)/2)):
@@ -208,7 +259,7 @@ else:
 acc_train=float(a)/float(len(pred_train))
 print("训练数据的聚类准确率为：")
 print(acc_train)
-#print(c)
+print(c)
 b1 = [0, 0]
 b2 = [0, 0]
 for i in range(0, int(len(pred_test) / 2)):
@@ -328,3 +379,9 @@ if(c==0):acc_tk_vot=float(b1[0])/float(len(pred_tk_vot))
 if(c==1):acc_tk_vot=float(b1[1])/float(len(pred_tk_vot))
 print("投票后other的准确率为：")
 print(acc_tk_vot)
+
+
+
+k = 2
+centroids, clusterAssment = KMeans1(train_mid, k)
+showCluster(train_mid, k, centroids, clusterAssment)
