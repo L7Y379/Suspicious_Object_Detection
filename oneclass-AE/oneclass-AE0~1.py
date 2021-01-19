@@ -34,7 +34,7 @@ def file_array_other():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
     filetype = '.csv'
     filenames = []
-    for j in ["0","1M"]:  # "1S", "2S"
+    for j in ["0","2M"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
             fn = filepath + "czn-2.5-M/" + "czn-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
@@ -42,6 +42,7 @@ def file_array_other():
     filenames = np.array(filenames)#20*2
     return filenames
 lin=120
+lin2=240
 def read_data(filenames):
     i = 0
     feature = []
@@ -54,7 +55,7 @@ def read_data(filenames):
         csvdata = np.array(csvdata, dtype=np.float64)
         csvdata = csvdata[:, 0:270]
         idx = np.array([j for j in range(int(csvdata.shape[0] / 2)-lin ,
-                                         int(csvdata.shape[0] / 2) +lin, 2)])#取中心点处左右分布数据
+                                         int(csvdata.shape[0] / 2) +lin, 1)])#取中心点处左右分布数据
         temp_feature = csvdata[idx,]
         # 贴标签
         temp_label = -1  # 初始化
@@ -236,17 +237,17 @@ print(acc_test)
 #投票
 def get_max(shuzu):
     s=[0,0]
-    for i in range(0,lin):
+    for i in range(0,lin2):
         if (shuzu[i]==0):s[0]=s[0]+1
         else:s[1]=s[1]+1
     if(s[0]>s[1]):return 0
     if(s[0]<s[1]):return 1
     if(s[0]==s[1]):return 2
 
-pred_train_vot=np.arange(len(pred_train)/lin)
+pred_train_vot=np.arange(len(pred_train)/lin2)
 print(len(pred_train_vot))
 for b in range(0, len(pred_train_vot)):
-    i=get_max(pred_train[b*lin:(b+1)*lin])
+    i=get_max(pred_train[b*lin2:(b+1)*lin2])
     if(i==2):pred_train_vot[b]=pred_train_vot[b-1]
     if (i == 0): pred_train_vot[b] = 0
     if (i == 1): pred_train_vot[b] = 1
@@ -271,10 +272,10 @@ acc_train_vot=float(a)/float(len(pred_train_vot))
 print("训练数据的投票后聚类准确率为：")
 print(acc_train_vot)
 
-pred_test_vot = np.arange(len(pred_test) / lin)
+pred_test_vot = np.arange(len(pred_test) / lin2)
 print(len(pred_test_vot))
 for b in range(0, len(pred_test_vot)):
-    i = get_max(pred_test[b * lin:(b + 1) * lin])
+    i = get_max(pred_test[b * lin2:(b + 1) * lin2])
     if (i == 2): pred_test_vot[b] = pred_test_vot[b - 1]
     if (i == 0): pred_test_vot[b] = 0
     if (i == 1): pred_test_vot[b] = 1
@@ -312,10 +313,10 @@ if(c==1):acc_tk=float(t[1])/float(len(pred_tk))
 print("other的准确率为：")
 print(acc_tk)
 
-pred_tk_vot = np.arange(len(pred_tk) / lin)
+pred_tk_vot = np.arange(len(pred_tk) / lin2)
 print(len(pred_tk_vot))
 for b in range(0, len(pred_tk_vot)):
-    i = get_max(pred_tk[b * lin:(b + 1) * lin])
+    i = get_max(pred_tk[b * lin2:(b + 1) * lin2])
     if (i == 2): pred_tk_vot[b] = pred_tk_vot[b - 1]
     if (i == 0): pred_tk_vot[b] = 0
     if (i == 1): pred_tk_vot[b] = 1
