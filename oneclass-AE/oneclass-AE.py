@@ -7,8 +7,7 @@ import numpy as np
 from tensorflow.python.keras.models import load_model
 import pandas as pd
 import os
-from sklearn.cluster import KMeans
-from keras.losses import mse, binary_crossentropy
+from sklearn import preprocessing
 import matplotlib.pyplot as plt
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
@@ -87,10 +86,32 @@ train_feature, train_label = read_data(trainfile_array)
 test_feature, test_label = read_data(testfile_array)
 tk_feature,tk_label=read_data(tk_files)
 
-
+#全局归一化
+# train_feature = train_feature.astype('float32')/np.max(train_feature)
+# test_feature = test_feature.astype('float32')/np.max(test_feature)
+# tk_feature=tk_feature.astype('float32')/np.max(tk_feature)
 train_feature = train_feature.astype('float32')/73.0
 test_feature = test_feature.astype('float32')/73.0
 tk_feature=tk_feature.astype('float32')/73.0
+
+# #列归一化
+# min_max_scaler = preprocessing.MinMaxScaler()
+# train_feature = min_max_scaler.fit_transform(train_feature)
+# test_feature = min_max_scaler.fit_transform(test_feature)
+# tk_feature = min_max_scaler.fit_transform(tk_feature)
+
+# #行归一化
+# min_max_scaler1 = preprocessing.MinMaxScaler()
+# train_feature=train_feature.T
+# test_feature=test_feature.T
+# tk_feature=tk_feature.T
+# train_feature = min_max_scaler1.fit_transform(train_feature)
+# test_feature = min_max_scaler1.fit_transform(test_feature)
+# tk_feature = min_max_scaler1.fit_transform(tk_feature)
+# train_feature=train_feature.T
+# test_feature=test_feature.T
+# tk_feature=tk_feature.T
+
 train_feature_nosiy = train_feature
 test_feature_nosiy = test_feature
 # train_feature_nosiy = np.clip(train_feature_nosiy, 0., 1.)
@@ -98,10 +119,10 @@ test_feature_nosiy = test_feature
 input = Input(shape=(270,))
 
 encoded1 = Dense(128, activation='relu')(input)
-#encoded1 = Dense(128, activation='relu')(encoded1)
+encoded1 = Dense(128, activation='relu')(encoded1)
 encoded2 = Dense(2)(encoded1)
 decoded1 = Dense(128, activation='relu')(encoded2)
-#decoded1 = Dense(128, activation='relu')(decoded1)
+decoded1 = Dense(128, activation='relu')(decoded1)
 #decoded1 = Dense(128, activation='relu')(decoded1)
 #decoded2 = Dense(270, activation='sigmoid')(decoded1)
 decoded2 = Dense(270, activation='sigmoid')(decoded1)
@@ -114,7 +135,7 @@ autoencoder_mid = Model(inputs=input, outputs=encoded2)
 autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
 #autoencoder.compile(optimizer='adam', loss='mse')
 autoencoder.summary()
-autoencoder.fit(train_feature_nosiy[:2400], train_feature[:2400], epochs=60, batch_size=128, verbose=1, validation_data=(test_feature_nosiy[:1200], test_feature[:1200]))
+autoencoder.fit(train_feature_nosiy[:2400], train_feature[:2400], epochs=100, batch_size=128, verbose=1, validation_data=(test_feature_nosiy[:1200], test_feature[:1200]))
 
 #decoded test images
 train_predict = autoencoder.predict(train_feature_nosiy)
@@ -140,10 +161,14 @@ print(sess.run(test_loss[2300:]))
 tk_loss= tf.reduce_mean(tf.square(tk_feature - tk_predict),axis=1)
 
 #设置经验基准m
-m=0.0022
 len_train=train_loss.shape[0]
 print(len_train)
 train_loss=train_loss.eval(session=sess)#转换为数组
+# m=(np.max(train_loss[:2400])+np.min(train_loss[2400:]))/2#取前后两部分最大和最小值的均值
+# m=np.mean(train_loss)#取平均值
+m=np.median(train_loss)#取中位数
+print("m为")
+print(m)
 pred_train=np.arange(int(len_train))
 for i in range(0,int(len_train)):
     if train_loss[i]<=m:pred_train[i]=0
@@ -160,12 +185,6 @@ pred_tk=np.arange(int(len_tk))
 for i in range(0,int(len_tk)):
     if tk_loss[i]<=m:pred_tk[i]=0
     if tk_loss[i]>m:pred_tk[i]=1
-# kmeans=KMeans(n_clusters=2,n_init=50).fit(train_mid)
-# pred_train=kmeans.predict(train_mid)
-# print(pred_train)
-# pred_test=kmeans.predict(test_mid)
-# print(pred_test)
-# pred_tk=kmeans.predict(tk_mid)
 #
 a1=[0,0]
 a2=[0,0]
