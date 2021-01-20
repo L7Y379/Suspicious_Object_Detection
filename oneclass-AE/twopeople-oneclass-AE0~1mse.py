@@ -18,7 +18,7 @@ def file_array():
     trainfile = []
     testfile = []
     for j in ["0", "1M"]:  # "1S", "2S"
-        for name in ['zb','tk']:
+        for name in ['zb','ljy']:
             for i in [i for i in range(0, 30)]:
                 fn = filepath + name+"-2.5-M/" + name+"-"+ str(j) + "-" + str(i) + filetype
                 filenames += [fn]
@@ -141,7 +141,7 @@ autoencoder_mid = Model(inputs=input, outputs=encoded2)
 autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
 #autoencoder.compile(optimizer='adam', loss='mse')
 autoencoder.summary()
-autoencoder.fit(train_feature_nosiy[:9600], train_feature[:9600], epochs=100, batch_size=128, verbose=1, validation_data=(test_feature_nosiy[:4800], test_feature[:4800]))
+autoencoder.fit(train_feature_nosiy[:9600], train_feature[:9600], epochs=200, batch_size=128, verbose=1, validation_data=(test_feature_nosiy[:4800], test_feature[:4800]))
 
 #decoded test images
 train_predict = autoencoder.predict(train_feature_nosiy)

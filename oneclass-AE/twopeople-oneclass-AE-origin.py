@@ -18,7 +18,7 @@ def file_array():
     trainfile = []
     testfile = []
     for j in ["0", "1M"]:  # "1S", "2S"
-        for name in ['zb', 'ljy']:
+        for name in ['zb', 'tk']:
             for i in [i for i in range(0, 30)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
                 filenames += [fn]
