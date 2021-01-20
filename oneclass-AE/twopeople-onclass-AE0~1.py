@@ -17,14 +17,15 @@ def file_array():
     filenames = []
     trainfile = []
     testfile = []
-    for j in ["0", "2Mhid"]:  # "1S", "2S"
-        for i in [i for i in range(0, 30)]:
-            fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
-            filenames += [fn]
-        np.random.shuffle(filenames)
-        trainfile += filenames[:20]
-        testfile += filenames[20:]
-        filenames = []
+    for j in ["0", "1M"]:  # "1S", "2S"
+        for name in ['zb', 'tk']:
+            for i in [i for i in range(0, 30)]:
+                fn = filepath + name+"-2.5-M/" + name+"-"+ str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+            np.random.shuffle(filenames)
+            trainfile += filenames[:20]
+            testfile += filenames[20:]
+            filenames = []
     trainfile = np.array(trainfile)#20*2
     testfile = np.array(testfile)#10*2
     #print(testfile);
@@ -42,9 +43,8 @@ def file_array_other():
     filenames = np.array(filenames)#20*2
     return filenames
 lin=120
-ww=1
+ww=2
 lin2=int((lin*2)/ww)
-print(lin2)
 def read_data(filenames):
     i = 0
     feature = []
@@ -120,12 +120,13 @@ tk_feature=(tk_feature.astype('float32')-np.min(tk_feature))/(np.max(tk_feature)
 
 train_feature_nosiy = train_feature
 test_feature_nosiy = test_feature
-
+# train_feature_nosiy = np.clip(train_feature_nosiy, 0., 1.)
+# test_feature_nosiy = np.clip(test_feature_nosiy, 0, 1.)
 input = Input(shape=(270,))
+
 encoded1 = Dense(128, activation='relu')(input)
 # encoded1 = Dense(128, activation='relu')(encoded1)
 encoded2 = Dense(64,activation='relu')(encoded1)
-
 decoded1 = Dense(128, activation='relu')(encoded2)
 # decoded1 = Dense(128, activation='relu')(decoded1)
 #decoded1 = Dense(128, activation='relu')(decoded1)
@@ -137,10 +138,10 @@ autoencoder = Model(input=input, output=decoded2)
 #print(autoencoder.inputs)
 autoencoder_mid = Model(inputs=input, outputs=encoded2)
 
-autoencoder.compile(optimizer='adam', loss='mse')
+autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
 #autoencoder.compile(optimizer='adam', loss='mse')
 autoencoder.summary()
-autoencoder.fit(train_feature_nosiy[:4800], train_feature[:4800], epochs=500, batch_size=128, verbose=1, validation_data=(test_feature_nosiy[:1200], test_feature[:1200]))
+autoencoder.fit(train_feature_nosiy[:4800], train_feature[:4800], epochs=500, batch_size=128, verbose=1, validation_data=(test_feature_nosiy[:2400], test_feature[:2400]))
 
 #decoded test images
 train_predict = autoencoder.predict(train_feature_nosiy)

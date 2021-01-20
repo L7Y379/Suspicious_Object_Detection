@@ -42,7 +42,8 @@ def file_array_other():
     filenames = np.array(filenames)#20*2
     return filenames
 lin=120
-lin2=240
+ww=1
+lin2=int((lin*2)/ww)
 def read_data(filenames):
     i = 0
     feature = []
@@ -55,7 +56,7 @@ def read_data(filenames):
         csvdata = np.array(csvdata, dtype=np.float64)
         csvdata = csvdata[:, 0:270]
         idx = np.array([j for j in range(int(csvdata.shape[0] / 2)-lin ,
-                                         int(csvdata.shape[0] / 2) +lin, 1)])#取中心点处左右分布数据
+                                         int(csvdata.shape[0] / 2) +lin, ww)])#取中心点处左右分布数据
         temp_feature = csvdata[idx,]
         # 贴标签
         temp_label = -1  # 初始化
@@ -139,7 +140,7 @@ autoencoder_mid = Model(inputs=input, outputs=encoded2)
 autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
 #autoencoder.compile(optimizer='adam', loss='mse')
 autoencoder.summary()
-autoencoder.fit(train_feature_nosiy[:2400], train_feature[:2400], epochs=500, batch_size=128, verbose=1, validation_data=(test_feature_nosiy[:1200], test_feature[:1200]))
+autoencoder.fit(train_feature_nosiy[:4800], train_feature[:4800], epochs=500, batch_size=128, verbose=1, validation_data=(test_feature_nosiy[:2400], test_feature[:2400]))
 
 #decoded test images
 train_predict = autoencoder.predict(train_feature_nosiy)
