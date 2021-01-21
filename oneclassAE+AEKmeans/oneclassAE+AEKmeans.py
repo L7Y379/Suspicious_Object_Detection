@@ -17,7 +17,7 @@ def file_array():
     filenames = []
     trainfile = []
     testfile = []
-    for j in ["0", "2Mhid"]:  # "1S", "2S"
+    for j in ["0", "1M"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
@@ -42,6 +42,8 @@ def file_array_other():
     filenames = np.array(filenames)#20*2
     return filenames
 lin=120
+ww=2
+lin2=int((lin*2)/ww)
 def read_data(filenames):
     i = 0
     feature = []
@@ -74,11 +76,7 @@ def read_data(filenames):
             i = i + 1
         else:
             feature = np.concatenate((feature, temp_feature), axis=0)  # 拼接
-            #label = np.concatenate((label, temp_label), axis=0)
-    #data = np.concatenate((feature, label), axis=1)
-    #np.random.shuffle(feature)
     return np.array(feature[:, :270]), np.array(feature[:, 270:])
-    #return np.array(feature[:, 134:136]), np.array(feature[:, 134:136])
 
 trainfile_array, testfile_array = file_array()#
 tk_files=file_array_other()
@@ -87,30 +85,46 @@ test_feature, test_label = read_data(testfile_array)
 tk_feature,tk_label=read_data(tk_files)
 
 
-train_feature = train_feature.astype('float32')/73.0
-test_feature = test_feature.astype('float32')/73.0
-tk_feature=tk_feature.astype('float32')/73.0
-# train_feature = (train_feature.astype('float32')-37)/36.0
-# test_feature = (test_feature.astype('float32')-37)/36.0
-# tk_feature=(tk_feature.astype('float32')-37)/36.0
-# train_feature=pow(train_feature, 2.0/3)
-# test_feature = pow(test_feature, 2.0/3)
-#train_feature_nosiy=train_feature
-#test_feature_nosiy=test_feature
-# train_feature_nosiy=pow(train_feature, 2.0/3)
-# test_feature_nosiy = pow(test_feature, 2.0/3)
+#全局归一化
+# train_feature = train_feature.astype('float32')/np.max(train_feature)
+# test_feature = test_feature.astype('float32')/np.max(test_feature)
+# tk_feature=tk_feature.astype('float32')/np.max(tk_feature)
+train_feature = (train_feature.astype('float32')-np.min(train_feature))/(np.max(train_feature)-np.min(train_feature))
+test_feature = (test_feature.astype('float32')-np.min(test_feature))/(np.max(test_feature)-np.min(test_feature))
+tk_feature=(tk_feature.astype('float32')-np.min(tk_feature))/(np.max(tk_feature)-np.min(tk_feature))
+# train_feature = train_feature.astype('float32')/73.0
+# test_feature = test_feature.astype('float32')/73.0
+# tk_feature=tk_feature.astype('float32')/73.0
 
-# train_feature_nosiy = train_feature
-# test_feature_nosiy = test_feature
-train_feature_nosiy = train_feature+0.005 * np.random.normal(loc=0., scale=1., size=train_feature.shape)
-test_feature_nosiy = test_feature+0.005 * np.random.normal(loc=0., scale=1., size=test_feature.shape)
+# #列归一化
+# min_max_scaler = preprocessing.MinMaxScaler()
+# train_feature = min_max_scaler.fit_transform(train_feature)
+# test_feature = min_max_scaler.fit_transform(test_feature)
+# tk_feature = min_max_scaler.fit_transform(tk_feature)
+
+# #行归一化
+# min_max_scaler1 = preprocessing.MinMaxScaler()
+# train_feature=train_feature.T
+# test_feature=test_feature.T
+# tk_feature=tk_feature.T
+# train_feature = min_max_scaler1.fit_transform(train_feature)
+# test_feature = min_max_scaler1.fit_transform(test_feature)
+# tk_feature = min_max_scaler1.fit_transform(tk_feature)
+# train_feature=train_feature.T
+# test_feature=test_feature.T
+# tk_feature=tk_feature.T
+
+train_feature_nosiy = train_feature
+test_feature_nosiy = test_feature
+# train_feature_nosiy = train_feature+0.005 * np.random.normal(loc=0., scale=1., size=train_feature.shape)
+# test_feature_nosiy = test_feature+0.005 * np.random.normal(loc=0., scale=1., size=test_feature.shape)
 # train_feature_nosiy = np.clip(train_feature_nosiy, 0., 1.)
 # test_feature_nosiy = np.clip(test_feature_nosiy, 0, 1.)
 
-input = Input(shape=(270,))
-encoded1 = Dense(128, activation='relu')(input)
+input1 = Input(shape=(270,))
+encoded1 = Dense(128, activation='relu')(input1)
 #encoded1 = Dense(128, activation='relu')(encoded1)
-encoded2 = Dense(2)(input)
+encoded2 = Dense(64, activation='relu')(encoded1)
 decoded1 = Dense(128, activation='relu')(encoded2)
 #decoded1 = Dense(128, activation='relu')(decoded1)
 #decoded1 = Dense(128, activation='relu')(decoded1)
@@ -118,53 +132,233 @@ decoded1 = Dense(128, activation='relu')(encoded2)
 decoded2 = Dense(270, activation='sigmoid')(decoded1)
 #decoded2 = Dense(270, activation='relu')(decoded1)
 
-autoencoder = Model(input=input, output=decoded2)
-#print(autoencoder.inputs)
-autoencoder_mid = Model(inputs=input, outputs=encoded2)
-
-autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
+autoencoder = Model(input=input1, output=decoded2)
+autoencoder.compile(optimizer='adam', loss='mse')
 #autoencoder.compile(optimizer='adam', loss='mse')
 autoencoder.summary()
-autoencoder.fit(train_feature_nosiy, train_feature, epochs=60, batch_size=128, verbose=1, validation_data=(test_feature_nosiy, test_feature))
+autoencoder.fit(train_feature_nosiy[:int(20*lin2)], train_feature[:int(20*lin2)], epochs=200, batch_size=128, verbose=1, validation_data=(test_feature_nosiy[:int(10*lin2)], test_feature[:int(10*lin2)]))
 
-# autoencoder.save("model")
-# model = load_model("model")
+train_predict = autoencoder.predict(train_feature_nosiy)
+#train_predict=np.concatenate((train_predict[:int(20*lin2)], train_feature_nosiy[int(20*lin2):]), axis=0)  # 将训练过的没带东西的数据和没有训练过的带了东西的数据拼接
+#train_predict=np.concatenate((train_predict[int(20*lin2):], train_feature_nosiy[:int(20*lin2)]), axis=0)
+test_predict = autoencoder.predict(test_feature_nosiy)
+#test_predict=np.concatenate((test_predict[:int(10*lin2)], test_feature_nosiy[int(10*lin2):]), axis=0)  # 拼接
+#test_predict=np.concatenate((test_predict[int(10*lin2):], test_feature_nosiy[:int(10*lin2)]), axis=0)
+tk_predict = autoencoder.predict(tk_feature)
+
+train_predict = autoencoder.predict(train_feature_nosiy)
+test_predict = autoencoder.predict(test_feature_nosiy)
+tk_predict = autoencoder.predict(tk_feature)
+print(train_predict)
+print(test_predict)
+sess = tf.Session()
+# Evaluate the tensor `c`.
+
+train_loss = tf.reduce_mean(tf.square(train_feature_nosiy - train_predict),axis=1)
+print(train_loss)
+print(sess.run(train_loss))
+print(sess.run(train_loss[:100]))
+print(sess.run(train_loss[4700:]))
+
+test_loss = tf.reduce_mean(tf.square(test_feature_nosiy - test_predict),axis=1)
+print(test_loss)
+print(sess.run(test_loss))
+print(sess.run(test_loss[:100]))
+print(sess.run(test_loss[2300:]))
+
+tk_loss= tf.reduce_mean(tf.square(tk_feature - tk_predict),axis=1)
+
+#设置经验基准m
+len_train=train_loss.shape[0]
+print(len_train)
+train_loss=train_loss.eval(session=sess)#转换为数组
+# m=(np.max(train_loss[:2400])+np.min(train_loss[2400:]))/2#取前后两部分最大和最小值的均值
+# m=np.mean(train_loss)#取平均值
+m=np.median(train_loss)#取中位数
+print("m为")
+print(m)
+pred_train=np.arange(int(len_train))
+for i in range(0,int(len_train)):
+    if train_loss[i]<=m:pred_train[i]=0
+    if train_loss[i]>m:pred_train[i]=1
+len_test=test_loss.shape[0]
+test_loss=test_loss.eval(session=sess)#转换为数组
+pred_test=np.arange(int(len_test))
+for i in range(0,int(len_test)):
+    if test_loss[i]<=m:pred_test[i]=0
+    if test_loss[i]>m:pred_test[i]=1
+len_tk=tk_loss.shape[0]
+tk_loss=tk_loss.eval(session=sess)#转换为数组
+pred_tk=np.arange(int(len_tk))
+for i in range(0,int(len_tk)):
+    if tk_loss[i]<=m:pred_tk[i]=0
+    if tk_loss[i]>m:pred_tk[i]=1
+#
+a1=[0,0]
+a2=[0,0]
+for i in range(0,int(len(pred_train)/2)):
+    if pred_train[i]==0:a1[0]=a1[0]+1
+    if pred_train[i]==1:a1[1]=a1[1]+1
+for j in range(int(len(pred_train)/2),int(len(pred_train))):
+    if pred_train[j] == 0: a2[0] = a2[0] + 1
+    if pred_train[j] == 1: a2[1] = a2[1] + 1
+print(a1)
+print(a2)
+if((a1[0]+a2[1])>=(a1[1]+a2[0])):
+    a=(a1[0]+a2[1])
+    c=0
+else:
+    a=(a1[1]+a2[0])
+    c=1
+acc_train=float(a)/float(len(pred_train))
+print("训练数据的聚类准确率为：")
+print(acc_train)
+#print(c)
+b1 = [0, 0]
+b2 = [0, 0]
+for i in range(0, int(len(pred_test) / 2)):
+    if pred_test[i] == 0:b1[0] = b1[0] + 1
+    if pred_test[i] == 1:b1[1] = b1[1] + 1
+for j in range(int(len(pred_test) / 2), int(len(pred_test))):
+    if pred_test[j] == 0:b2[0] = b2[0] + 1
+    if pred_test[j] == 1:b2[1] = b2[1] + 1
+print(b1)
+print(b2)
+if((b1[0]+b2[1])>=(b1[1]+b2[0])):
+    if (c==0):
+        b=(b1[0]+b2[1])
+    else:
+        b = (b1[1] + b2[0])
+else:
+    if(c==1):
+        b = (b1[1] + b2[0])
+    else:
+        b = (b1[0] + b2[1])
+acc_test=float(b)/float(len(pred_test))
+print("测试数据的聚类准确率为：")
+print(acc_test)
+
+#投票
+def get_max(shuzu):
+    s=[0,0]
+    for i in range(0,lin2):
+        if (shuzu[i]==0):s[0]=s[0]+1
+        else:s[1]=s[1]+1
+    if(s[0]>s[1]):return 0
+    if(s[0]<s[1]):return 1
+    if(s[0]==s[1]):return 2
+
+pred_train_vot=np.arange(len(pred_train)/lin2)
+print(len(pred_train_vot))
+for b in range(0, len(pred_train_vot)):
+    i=get_max(pred_train[b*lin2:(b+1)*lin2])
+    if(i==2):pred_train_vot[b]=pred_train_vot[b-1]
+    if (i == 0): pred_train_vot[b] = 0
+    if (i == 1): pred_train_vot[b] = 1
+print(pred_train_vot)
+a1=[0,0]
+a2=[0,0]
+for i in range(0,int(len(pred_train_vot)/2)):
+    if pred_train_vot[i]==0:a1[0]=a1[0]+1
+    if pred_train_vot[i]==1:a1[1]=a1[1]+1
+for j in range(int(len(pred_train_vot)/2),int(len(pred_train_vot))):
+    if pred_train_vot[j] == 0: a2[0] = a2[0] + 1
+    if pred_train_vot[j] == 1: a2[1] = a2[1] + 1
+print(a1)
+print(a2)
+if((a1[0]+a2[1])>=(a1[1]+a2[0])):
+    a=(a1[0]+a2[1])
+    c=0
+else:
+    a=(a1[1]+a2[0])
+    c=1
+acc_train_vot=float(a)/float(len(pred_train_vot))
+print("训练数据的投票后聚类准确率为：")
+print(acc_train_vot)
+
+pred_test_vot = np.arange(len(pred_test) / lin2)
+print(len(pred_test_vot))
+for b in range(0, len(pred_test_vot)):
+    i = get_max(pred_test[b * lin2:(b + 1) * lin2])
+    if (i == 2): pred_test_vot[b] = pred_test_vot[b - 1]
+    if (i == 0): pred_test_vot[b] = 0
+    if (i == 1): pred_test_vot[b] = 1
+print(pred_test_vot)
+b1 = [0, 0]
+b2 = [0, 0]
+for i in range(0, int(len(pred_test_vot) / 2)):
+    if pred_test_vot[i] == 0: b1[0] = b1[0] + 1
+    if pred_test_vot[i] == 1: b1[1] = b1[1] + 1
+for j in range(int(len(pred_test_vot) / 2), int(len(pred_test_vot))):
+    if pred_test_vot[j] == 0: b2[0] = b2[0] + 1
+    if pred_test_vot[j] == 1: b2[1] = b2[1] + 1
+print(b1)
+print(b2)
+if((b1[0]+b2[1])>=(b1[1]+b2[0])):
+    if (c==0):
+        b=(b1[0]+b2[1])
+    else:b = (b1[1] + b2[0])
+else:
+    if(c==1):
+        b = (b1[1] + b2[0])
+    else:b=(b1[0]+b2[1])
+acc_test_vot = float(b) / float(len(pred_test_vot))
+print("测试数据的投票后聚类准确率为：")
+print(acc_test_vot)
 
 
+t=[0,0]
+for i in range(0,len(pred_tk)):
+    if pred_tk[i]==0:t[0]=t[0]+1
+    if pred_tk[i]==1:t[1]=t[1]+1
+print(t)
+if(c==0):acc_tk=float(t[0])/float(len(pred_tk))
+if(c==1):acc_tk=float(t[1])/float(len(pred_tk))
+print("other的准确率为：")
+print(acc_tk)
+
+pred_tk_vot = np.arange(len(pred_tk) / lin2)
+print(len(pred_tk_vot))
+for b in range(0, len(pred_tk_vot)):
+    i = get_max(pred_tk[b * lin2:(b + 1) * lin2])
+    if (i == 2): pred_tk_vot[b] = pred_tk_vot[b - 1]
+    if (i == 0): pred_tk_vot[b] = 0
+    if (i == 1): pred_tk_vot[b] = 1
+print(pred_tk_vot)
+b1 = [0, 0]
+for i in range(0, int(len(pred_tk_vot))):
+    if pred_tk_vot[i] == 0: b1[0] = b1[0] + 1
+    if pred_tk_vot[i] == 1: b1[1] = b1[1] + 1
+if(c==0):acc_tk_vot=float(b1[0])/float(len(pred_tk_vot))
+if(c==1):acc_tk_vot=float(b1[1])/float(len(pred_tk_vot))
+print("投票后other的准确率为：")
+print(acc_tk_vot)
+
+
+input2 = Input(shape=(270,))
+en1 = Dense(128, activation='relu')(input2)
+#encoded1 = Dense(128, activation='relu')(encoded1)
+en2 = Dense(2)(input2)
+de1 = Dense(128, activation='relu')(en2)
+de2 = Dense(270, activation='sigmoid')(de1)
+
+autoencoder2 = Model(input=input2, output=de2)
+#print(autoencoder.inputs)
+autoencoder_mid = Model(inputs=input2, outputs=en2)
+
+autoencoder2.compile(optimizer='adam', loss='binary_crossentropy')
+#autoencoder.compile(optimizer='adam', loss='mse')
+autoencoder2.summary()
+autoencoder2.fit(train_predict, train_predict, epochs=100, batch_size=128, verbose=1, validation_data=(test_predict, test_predict))
 
 
 
 #decoded test images
-train_mid = autoencoder_mid.predict(train_feature_nosiy)
-test_mid = autoencoder_mid.predict(test_feature_nosiy)
-tk_mid = autoencoder_mid.predict(tk_feature)
+train_mid = autoencoder_mid.predict(train_predict)
+test_mid = autoencoder_mid.predict(test_predict)
+tk_mid = autoencoder_mid.predict(tk_predict)
 print(train_mid)
 print(test_mid)
-decoded_img = autoencoder.predict(test_feature_nosiy)
-autoencoder_loss = tf.reduce_mean(tf.square(test_feature_nosiy - decoded_img))
-#decoded_img1 = autoencoder.encoder(x_test_nosiy)
-# n = 10
-# plt.figure(figsize=(20, 4))
-# for i in range(n):
-#     #noisy data
-#     ax = plt.subplot(3, n, i+1)
-#     plt.imshow(test_feature_nosiy[i].reshape(15, 18))
-#     plt.gray()
-#     ax.get_xaxis().set_visible(False)
-#     ax.get_yaxis().set_visible(False)
-#     #predict
-#     ax = plt.subplot(3, n, i+1+n)
-#     plt.imshow(decoded_img[i].reshape(15, 18))
-#     plt.gray()
-#     ax.get_yaxis().set_visible(False)
-#     ax.get_xaxis().set_visible(False)
-#     #original
-#     ax = plt.subplot(3, n, i+1+2*n)
-#     plt.imshow(test_feature[i].reshape(15, 18))
-#     plt.gray()
-#     ax.get_yaxis().set_visible(False)
-#     ax.get_xaxis().set_visible(False)
-# plt.show()
 
 # 欧氏距离计算
 def distEclud(x, y):
@@ -299,17 +493,17 @@ print(acc_test)
 #投票
 def get_max(shuzu):
     s=[0,0]
-    for i in range(0,lin):
+    for i in range(0,lin2):
         if (shuzu[i]==0):s[0]=s[0]+1
         else:s[1]=s[1]+1
     if(s[0]>s[1]):return 0
     if(s[0]<s[1]):return 1
     if(s[0]==s[1]):return 2
 
-pred_train_vot=np.arange(len(pred_train)/lin)
+pred_train_vot=np.arange(len(pred_train)/lin2)
 print(len(pred_train_vot))
 for b in range(0, len(pred_train_vot)):
-    i=get_max(pred_train[b*lin:(b+1)*lin])
+    i=get_max(pred_train[b*lin2:(b+1)*lin2])
     if(i==2):pred_train_vot[b]=pred_train_vot[b-1]
     if (i == 0): pred_train_vot[b] = 0
     if (i == 1): pred_train_vot[b] = 1
@@ -334,10 +528,10 @@ acc_train_vot=float(a)/float(len(pred_train_vot))
 print("训练数据的投票后聚类准确率为：")
 print(acc_train_vot)
 
-pred_test_vot = np.arange(len(pred_test) / lin)
+pred_test_vot = np.arange(len(pred_test) / lin2)
 print(len(pred_test_vot))
 for b in range(0, len(pred_test_vot)):
-    i = get_max(pred_test[b * lin:(b + 1) * lin])
+    i = get_max(pred_test[b * lin2:(b + 1) * lin2])
     if (i == 2): pred_test_vot[b] = pred_test_vot[b - 1]
     if (i == 0): pred_test_vot[b] = 0
     if (i == 1): pred_test_vot[b] = 1
@@ -375,10 +569,10 @@ if(c==1):acc_tk=float(t[1])/float(len(pred_tk))
 print("other的准确率为：")
 print(acc_tk)
 
-pred_tk_vot = np.arange(len(pred_tk) / lin)
+pred_tk_vot = np.arange(len(pred_tk) / lin2)
 print(len(pred_tk_vot))
 for b in range(0, len(pred_tk_vot)):
-    i = get_max(pred_tk[b * lin:(b + 1) * lin])
+    i = get_max(pred_tk[b * lin2:(b + 1) * lin2])
     if (i == 2): pred_tk_vot[b] = pred_tk_vot[b - 1]
     if (i == 0): pred_tk_vot[b] = 0
     if (i == 1): pred_tk_vot[b] = 1
