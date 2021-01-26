@@ -183,8 +183,8 @@ input_shape = (original_dim, )
 # Build encoder
 inputs = Input(input_shape)
 h = Dense(128, activation='relu')(inputs)
-z_mean = Dense(latent_dim)(inputs)
-z_log_variance = Dense(latent_dim)(inputs)
+z_mean = Dense(latent_dim)(h)
+z_log_variance = Dense(latent_dim)(h)
 
 from keras.layers import Lambda
 from keras import backend as K
@@ -227,7 +227,7 @@ def vae_loss(x, x_reconstruction):
     # in 1 epoch, loss: 0.1557 - val_loss: 0.1401
     # in 50 epochs, loss: 0.0785 - val_loss: 0.0791
     #kl_loss = - 0.5 * K.sum(1 + z_log_variance - K.square(z_mean) - K.exp(z_log_variance), axis=-1)
-    kl_loss = - 4 * K.sum(1 + z_log_variance - K.square(z_mean) - K.exp(z_log_variance), axis=-1)
+    kl_loss = - 5 * K.sum(1 + z_log_variance - K.square(z_mean) - K.exp(z_log_variance), axis=-1)
     return K.mean(xent_loss + kl_loss)
 
 vae.compile(optimizer='adam', loss=vae_loss)

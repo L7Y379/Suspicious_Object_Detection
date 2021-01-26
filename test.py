@@ -1,20 +1,32 @@
 import numpy as np
-filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
-filetype = '.csv'
-filenames = []
-trainfile = []
-testfile = []
-for j in ["0", "1M"]:  # "1S", "2S"
-    for name in ['zb','ljy','tk','czn']:
+def file_array():
+    filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
+    filetype = '.csv'
+    filenames = []
+    trainfile = []
+    testfile = []
+    for j in ["0", "1M","2M"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
-            fn = filepath + name+"-2.5-M/" + name+"-"+ str(j) + "-" + str(i) + filetype
+            fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
         np.random.shuffle(filenames)
-        trainfile += filenames[:20]
-        testfile += filenames[20:]
+        if (j == "0"):
+            trainfile += filenames[:20]
+            testfile += filenames[20:]
+        if(j=="1M"):
+            trainfile += filenames[:10]
+            testfile += filenames[25:]
+        if (j == "2M"):
+            trainfile += filenames[:10]
+            testfile += filenames[25:]
         filenames = []
-trainfile = np.array(trainfile)#20*2
-testfile = np.array(testfile)#10*2
+    trainfile = np.array(trainfile)#20*2
+    testfile = np.array(testfile)#10*2
+    #print(testfile);
+    return trainfile, testfile
 
-print(trainfile)
-print(testfile)
+a,b=file_array()
+print(a.shape)
+print(a)
+print(b.shape)
+print(b)
