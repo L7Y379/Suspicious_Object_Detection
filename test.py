@@ -10,7 +10,7 @@ def file_array():
     testfile = []
     for j in ["0", "1M","2M"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
-            fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
+            fn = filepath + "ljy-2.5-M/" + "ljy-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
         #np.random.shuffle(filenames)
         if (j == "0"):
@@ -105,7 +105,24 @@ a=np.min(np.concatenate((train_feature,test_feature), axis=0))
 b=np.max(np.concatenate((train_feature,test_feature), axis=0))
 print(a)
 print(b)
-train_feature = (train_feature.astype('float32')-np.min(np.concatenate((train_feature,test_feature), axis=0)))/(np.max(np.concatenate((train_feature,test_feature), axis=0))-np.min(np.concatenate((train_feature,test_feature), axis=0)))
-test_feature = (test_feature.astype('float32')-np.min(np.concatenate((train_feature,test_feature), axis=0)))/(np.max(np.concatenate((train_feature,test_feature), axis=0))-np.min(np.concatenate((train_feature,test_feature), axis=0)))
+
+train_feature=train_feature-kmeans.cluster_centers_
+print(train_feature)
+train_feature=np.square(train_feature)
+print(train_feature)
+print(train_feature.shape)
+train_feature=np.sum(train_feature,axis=1)
+print(train_feature)
+print(train_feature.shape)
+train_feature=np.sqrt(train_feature)
+print(train_feature)
+print(train_feature.shape)
+k = np.arange(len(train_feature) / 240)
+print(k)
+for i in range(0,int(len(train_feature)/240)):
+    k[i] = np.mean(train_feature[i * 240:(i + 1) * 240])
+    print(k[i])
+# train_feature = (train_feature.astype('float32')-np.min(np.concatenate((train_feature,test_feature), axis=0)))/(np.max(np.concatenate((train_feature,test_feature), axis=0))-np.min(np.concatenate((train_feature,test_feature), axis=0)))
+# test_feature = (test_feature.astype('float32')-np.min(np.concatenate((train_feature,test_feature), axis=0)))/(np.max(np.concatenate((train_feature,test_feature), axis=0))-np.min(np.concatenate((train_feature,test_feature), axis=0)))
 
 
