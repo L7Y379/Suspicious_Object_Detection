@@ -17,17 +17,23 @@ def file_array():
     filenames = []
     trainfile = []
     testfile = []
-    for j in ["0", "1M"]:  # "1S", "2S"
-        for name in ['zb','ljy']:
-            for i in [i for i in range(0, 25)]:
-                fn = filepath + name+"-2.5-M/" + name+"-"+ str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-            np.random.shuffle(filenames)
-            trainfile += filenames[:20]
+    for j in ["0", "1M","2M"]:  # "1S", "2S"
+        for i in [i for i in range(0, 25)]:
+            fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
+            filenames += [fn]
+        np.random.shuffle(filenames)
+        if (j == "0"):
+            trainfile += filenames[:25]
             testfile += filenames[20:]
-            filenames = []
+        if (j == "1M"):
+            trainfile += filenames[:12]
+            testfile += filenames[22:]
+        if (j == "2M"):
+            trainfile += filenames[:13]
+            testfile += filenames[23:]
+        filenames = []
     trainfile = np.array(trainfile)#20*2
-    testfile = np.array(testfile)#5*2
+    testfile = np.array(testfile)#10*2
     #print(testfile);
     return trainfile, testfile
 
@@ -36,7 +42,7 @@ def file_array_other():
     filetype = '.csv'
     filenames = []
     for j in ["0","1M"]:  # "1S", "2S"
-        for i in [i for i in range(0, 25)]:
+        for i in [i for i in range(0, 30)]:
             fn = filepath + "czn-2.5-M/" + "czn-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
         np.random.shuffle(filenames)
@@ -45,6 +51,7 @@ def file_array_other():
 lin=120
 ww=1
 lin2=int((lin*2)/ww)
+print(lin2)
 def read_data(filenames):
     i = 0
     feature = []
@@ -85,6 +92,8 @@ def read_data(filenames):
 
 trainfile_array, testfile_array = file_array()#
 tk_files=file_array_other()
+print(trainfile_array)
+print(testfile_array)
 train_feature, train_label = read_data(trainfile_array)
 test_feature, test_label = read_data(testfile_array)
 tk_feature,tk_label=read_data(tk_files)
@@ -120,13 +129,14 @@ tk_feature=(tk_feature.astype('float32')-np.min(tk_feature))/(np.max(tk_feature)
 
 train_feature_nosiy = train_feature
 test_feature_nosiy = test_feature
-# train_feature_nosiy = np.clip(train_feature_nosiy, 0., 1.)
-# test_feature_nosiy = np.clip(test_feature_nosiy, 0, 1.)
-input = Input(shape=(270,))
+print(train_feature_nosiy.shape)
+print(test_feature.shape)
 
+input = Input(shape=(270,))
 encoded1 = Dense(128, activation='relu')(input)
 # encoded1 = Dense(128, activation='relu')(encoded1)
 encoded2 = Dense(64,activation='relu')(encoded1)
+
 decoded1 = Dense(128, activation='relu')(encoded2)
 # decoded1 = Dense(128, activation='relu')(decoded1)
 #decoded1 = Dense(128, activation='relu')(decoded1)
@@ -141,7 +151,7 @@ autoencoder_mid = Model(inputs=input, outputs=encoded2)
 autoencoder.compile(optimizer='adam', loss='mse')
 #autoencoder.compile(optimizer='adam', loss='mse')
 autoencoder.summary()
-autoencoder.fit(train_feature_nosiy[:9600], train_feature[:9600], epochs=200, batch_size=128, verbose=1, validation_data=(test_feature_nosiy[:4800], test_feature[:4800]))
+autoencoder.load_weights('oneclass-AE0~1mse-0~1M2M.h5')
 
 #decoded test images
 train_predict = autoencoder.predict(train_feature_nosiy)
@@ -201,11 +211,7 @@ for j in range(int(len(pred_train)/2),int(len(pred_train))):
     if pred_train[j] == 0: a2[0] = a2[0] + 1
     if pred_train[j] == 1: a2[1] = a2[1] + 1
 print(a1)
-print("没带东西正确判定的准确率为：", end='')
-print(float(a1[0])/float(a1[0]+a1[1]))
 print(a2)
-print("带了东西正确判定的准确率为：", end='')
-print(float(a2[1])/float(a2[0]+a2[1]))
 if((a1[0]+a2[1])>=(a1[1]+a2[0])):
     a=(a1[0]+a2[1])
     c=0
@@ -213,7 +219,7 @@ else:
     a=(a1[1]+a2[0])
     c=1
 acc_train=float(a)/float(len(pred_train))
-print("训练数据总体准确率为：")
+print("训练数据的聚类准确率为：")
 print(acc_train)
 #print(c)
 b1 = [0, 0]
@@ -225,11 +231,7 @@ for j in range(int(len(pred_test) / 2), int(len(pred_test))):
     if pred_test[j] == 0:b2[0] = b2[0] + 1
     if pred_test[j] == 1:b2[1] = b2[1] + 1
 print(b1)
-print("没带东西正确判定的准确率为：", end='')
-print(float(b1[0])/float(b1[0]+b1[1]))
 print(b2)
-print("带了东西正确判定的准确率为：", end='')
-print(float(b2[1])/float(b2[0]+b2[1]))
 if((b1[0]+b2[1])>=(b1[1]+b2[0])):
     if (c==0):
         b=(b1[0]+b2[1])
@@ -241,7 +243,7 @@ else:
     else:
         b = (b1[0] + b2[1])
 acc_test=float(b)/float(len(pred_test))
-print("测试数据总体准确率为：")
+print("测试数据的聚类准确率为：")
 print(acc_test)
 
 #投票
@@ -271,11 +273,7 @@ for j in range(int(len(pred_train_vot)/2),int(len(pred_train_vot))):
     if pred_train_vot[j] == 0: a2[0] = a2[0] + 1
     if pred_train_vot[j] == 1: a2[1] = a2[1] + 1
 print(a1)
-print("投票后没带东西正确判定的准确率为：", end='')
-print(float(a1[0])/float(a1[0]+a1[1]))
 print(a2)
-print("投票后带了东西正确判定的准确率为：", end='')
-print(float(a2[1])/float(a2[0]+a2[1]))
 if((a1[0]+a2[1])>=(a1[1]+a2[0])):
     a=(a1[0]+a2[1])
     c=0
@@ -283,7 +281,7 @@ else:
     a=(a1[1]+a2[0])
     c=1
 acc_train_vot=float(a)/float(len(pred_train_vot))
-print("训练数据的投票后准确率为：")
+print("训练数据的投票后聚类准确率为：")
 print(acc_train_vot)
 
 pred_test_vot = np.arange(len(pred_test) / lin2)
@@ -303,11 +301,7 @@ for j in range(int(len(pred_test_vot) / 2), int(len(pred_test_vot))):
     if pred_test_vot[j] == 0: b2[0] = b2[0] + 1
     if pred_test_vot[j] == 1: b2[1] = b2[1] + 1
 print(b1)
-print("投票后没带东西正确判定的准确率为：", end='')
-print(float(b1[0])/float(b1[0]+b1[1]))
 print(b2)
-print("投票后带了东西正确判定的准确率为：", end='')
-print(float(b2[1])/float(b2[0]+b2[1]))
 if((b1[0]+b2[1])>=(b1[1]+b2[0])):
     if (c==0):
         b=(b1[0]+b2[1])
@@ -317,7 +311,7 @@ else:
         b = (b1[1] + b2[0])
     else:b=(b1[0]+b2[1])
 acc_test_vot = float(b) / float(len(pred_test_vot))
-print("测试数据的投票后准确率为：")
+print("测试数据的投票后聚类准确率为：")
 print(acc_test_vot)
 
 

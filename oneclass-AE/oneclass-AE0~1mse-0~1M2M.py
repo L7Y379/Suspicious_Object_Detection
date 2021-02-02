@@ -99,12 +99,12 @@ test_feature, test_label = read_data(testfile_array)
 tk_feature,tk_label=read_data(tk_files)
 
 #全局归一化
-# train_feature = train_feature.astype('float32')/np.max(train_feature)
-# test_feature = test_feature.astype('float32')/np.max(test_feature)
-# tk_feature=tk_feature.astype('float32')/np.max(tk_feature)
-train_feature = (train_feature.astype('float32')-np.min(train_feature))/(np.max(train_feature)-np.min(train_feature))
-test_feature = (test_feature.astype('float32')-np.min(test_feature))/(np.max(test_feature)-np.min(test_feature))
-tk_feature=(tk_feature.astype('float32')-np.min(tk_feature))/(np.max(tk_feature)-np.min(tk_feature))
+train_feature = (train_feature.astype('float32')-np.min(np.concatenate((train_feature, test_feature), axis=0)))/(np.max(np.concatenate((train_feature, test_feature), axis=0))-np.min(np.concatenate((train_feature, test_feature), axis=0)))
+test_feature = (test_feature.astype('float32')-np.min(np.concatenate((train_feature, test_feature), axis=0)))/(np.max(np.concatenate((train_feature, test_feature), axis=0))-np.min(np.concatenate((train_feature, test_feature), axis=0)))
+tk_feature=(tk_feature.astype('float32')-np.min(np.concatenate((train_feature, test_feature), axis=0)))/(np.max(np.concatenate((train_feature, test_feature), axis=0))-np.min(np.concatenate((train_feature, test_feature), axis=0)))
+# train_feature = (train_feature.astype('float32')-np.min(train_feature))/(np.max(train_feature)-np.min(train_feature))
+# test_feature = (test_feature.astype('float32')-np.min(test_feature))/(np.max(test_feature)-np.min(test_feature))
+# tk_feature=(tk_feature.astype('float32')-np.min(tk_feature))/(np.max(tk_feature)-np.min(tk_feature))
 # train_feature = train_feature.astype('float32')/73.0
 # test_feature = test_feature.astype('float32')/73.0
 # tk_feature=tk_feature.astype('float32')/73.0
