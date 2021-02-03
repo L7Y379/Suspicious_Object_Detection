@@ -93,9 +93,9 @@ tk_feature,tk_label=read_data(tk_files)
 # train_feature = train_feature.astype('float32')/np.max(train_feature)
 # test_feature = test_feature.astype('float32')/np.max(test_feature)
 # tk_feature=tk_feature.astype('float32')/np.max(tk_feature)
-train_feature = (train_feature.astype('float32')-np.min(train_feature))/(np.max(train_feature)-np.min(train_feature))
-test_feature = (test_feature.astype('float32')-np.min(test_feature))/(np.max(test_feature)-np.min(test_feature))
-tk_feature=(tk_feature.astype('float32')-np.min(tk_feature))/(np.max(tk_feature)-np.min(tk_feature))
+train_feature = (train_feature.astype('float32')-np.min(np.concatenate((train_feature, test_feature), axis=0)))/(np.max(np.concatenate((train_feature, test_feature), axis=0))-np.min(np.concatenate((train_feature, test_feature), axis=0)))
+test_feature = (test_feature.astype('float32')-np.min(np.concatenate((train_feature, test_feature), axis=0)))/(np.max(np.concatenate((train_feature, test_feature), axis=0))-np.min(np.concatenate((train_feature, test_feature), axis=0)))
+tk_feature=(tk_feature.astype('float32')-np.min(np.concatenate((train_feature, test_feature), axis=0)))/(np.max(np.concatenate((train_feature, test_feature), axis=0))-np.min(np.concatenate((train_feature, test_feature), axis=0)))
 # train_feature = train_feature.astype('float32')/73.0
 # test_feature = test_feature.astype('float32')/73.0
 # tk_feature=tk_feature.astype('float32')/73.0
@@ -201,7 +201,11 @@ for j in range(int(len(pred_train)/2),int(len(pred_train))):
     if pred_train[j] == 0: a2[0] = a2[0] + 1
     if pred_train[j] == 1: a2[1] = a2[1] + 1
 print(a1)
+print("没带东西正确判定的准确率为：", end='')
+print(float(a1[0])/float(a1[0]+a1[1]))
 print(a2)
+print("带了东西正确判定的准确率为：", end='')
+print(float(a2[1])/float(a2[0]+a2[1]))
 if((a1[0]+a2[1])>=(a1[1]+a2[0])):
     a=(a1[0]+a2[1])
     c=0
@@ -209,7 +213,7 @@ else:
     a=(a1[1]+a2[0])
     c=1
 acc_train=float(a)/float(len(pred_train))
-print("训练数据的聚类准确率为：")
+print("训练数据总体准确率为：")
 print(acc_train)
 #print(c)
 b1 = [0, 0]
@@ -221,7 +225,11 @@ for j in range(int(len(pred_test) / 2), int(len(pred_test))):
     if pred_test[j] == 0:b2[0] = b2[0] + 1
     if pred_test[j] == 1:b2[1] = b2[1] + 1
 print(b1)
+print("没带东西正确判定的准确率为：", end='')
+print(float(b1[0])/float(b1[0]+b1[1]))
 print(b2)
+print("带了东西正确判定的准确率为：", end='')
+print(float(b2[1])/float(b2[0]+b2[1]))
 if((b1[0]+b2[1])>=(b1[1]+b2[0])):
     if (c==0):
         b=(b1[0]+b2[1])
@@ -233,7 +241,7 @@ else:
     else:
         b = (b1[0] + b2[1])
 acc_test=float(b)/float(len(pred_test))
-print("测试数据的聚类准确率为：")
+print("测试数据总体准确率为：")
 print(acc_test)
 
 #投票
@@ -263,7 +271,11 @@ for j in range(int(len(pred_train_vot)/2),int(len(pred_train_vot))):
     if pred_train_vot[j] == 0: a2[0] = a2[0] + 1
     if pred_train_vot[j] == 1: a2[1] = a2[1] + 1
 print(a1)
+print("投票后没带东西正确判定的准确率为：", end='')
+print(float(a1[0])/float(a1[0]+a1[1]))
 print(a2)
+print("投票后带了东西正确判定的准确率为：", end='')
+print(float(a2[1])/float(a2[0]+a2[1]))
 if((a1[0]+a2[1])>=(a1[1]+a2[0])):
     a=(a1[0]+a2[1])
     c=0
@@ -271,7 +283,7 @@ else:
     a=(a1[1]+a2[0])
     c=1
 acc_train_vot=float(a)/float(len(pred_train_vot))
-print("训练数据的投票后聚类准确率为：")
+print("训练数据的投票后准确率为：")
 print(acc_train_vot)
 
 pred_test_vot = np.arange(len(pred_test) / lin2)
@@ -291,7 +303,11 @@ for j in range(int(len(pred_test_vot) / 2), int(len(pred_test_vot))):
     if pred_test_vot[j] == 0: b2[0] = b2[0] + 1
     if pred_test_vot[j] == 1: b2[1] = b2[1] + 1
 print(b1)
+print("投票后没带东西正确判定的准确率为：", end='')
+print(float(b1[0])/float(b1[0]+b1[1]))
 print(b2)
+print("投票后带了东西正确判定的准确率为：", end='')
+print(float(b2[1])/float(b2[0]+b2[1]))
 if((b1[0]+b2[1])>=(b1[1]+b2[0])):
     if (c==0):
         b=(b1[0]+b2[1])
@@ -301,7 +317,7 @@ else:
         b = (b1[1] + b2[0])
     else:b=(b1[0]+b2[1])
 acc_test_vot = float(b) / float(len(pred_test_vot))
-print("测试数据的投票后聚类准确率为：")
+print("测试数据的投票后准确率为：")
 print(acc_test_vot)
 
 

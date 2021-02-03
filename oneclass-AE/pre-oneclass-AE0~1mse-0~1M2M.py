@@ -70,7 +70,7 @@ def file_array():
     testfile2 = []
     for j in ["0"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
-            fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
+            fn = filepath + "ljy-2.5-M/" + "ljy-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
     trainfile += filenames[:30]
     trainfile =np.array(trainfile)
@@ -83,7 +83,7 @@ def file_array():
     np.random.shuffle(trainfile)
     for j in ["0", "1M","2M"]:  # "1S", "2S"
         for i in [i for i in range(0, 25)]:
-            fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
+            fn = filepath + "ljy-2.5-M/" + "ljy-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
         np.random.shuffle(filenames)
         if (j == "0"):
@@ -164,8 +164,8 @@ autoencoder_mid = Model(inputs=input, outputs=encoded2)
 autoencoder.compile(optimizer='adam', loss='mse')
 #autoencoder.compile(optimizer='adam', loss='mse')
 autoencoder.summary()
-autoencoder.fit(train_feature_nosiy[:4800], train_feature[:4800], epochs=300, batch_size=128, verbose=1, validation_data=(test_feature_nosiy[:1200], test_feature[:1200]))
-autoencoder.save_weights('models/oneclass-AE0~1mse-0~1M2M/oneclass-AE0~1mse-0~1M2M.h5')
+autoencoder.fit(train_feature_nosiy[:4800], train_feature[:4800], epochs=30, batch_size=128, verbose=1, validation_data=(test_feature_nosiy[:1200], test_feature[:1200]))
+autoencoder.save_weights('models/pre-oneclass-AE0~1mse-0~1M2M/pre-oneclass-AE0~1mse-0~1M2M.h5')
 
 #decoded test images
 train_predict = autoencoder.predict(train_feature_nosiy)

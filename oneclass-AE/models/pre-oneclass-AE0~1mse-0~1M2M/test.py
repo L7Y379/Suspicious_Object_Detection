@@ -151,7 +151,7 @@ autoencoder_mid = Model(inputs=input, outputs=encoded2)
 autoencoder.compile(optimizer='adam', loss='mse')
 #autoencoder.compile(optimizer='adam', loss='mse')
 autoencoder.summary()
-autoencoder.load_weights('oneclass-AE0~1mse-0~1M2M.h5')
+autoencoder.load_weights('pre-oneclass-AE0~1mse-0~1M2M.h5')
 
 #decoded test images
 train_predict = autoencoder.predict(train_feature_nosiy)
