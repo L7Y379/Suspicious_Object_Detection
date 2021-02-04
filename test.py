@@ -129,53 +129,53 @@ def file_array_other():
     return filenames
 
 
-# trainfile_array, testfile_array = file_array()#
-# print(trainfile_array)
-# print(testfile_array)
-#
-# train_feature, train_label = read_data(trainfile_array)
-# test_feature, test_label = read_data(testfile_array)
-# print(train_feature.shape)
-# print(len(train_feature))
-#
-# kmeans=KMeans(n_clusters=1,n_init=50)
-# pred_train=kmeans.fit_predict(train_feature)
-# print(kmeans.cluster_centers_.shape)
-# print(kmeans.cluster_centers_)
-# k = np.arange(len(train_feature) / 240)
-# for i in range(0,int(len(train_feature)/240)):
-#     k[i]=np.square(np.mean(train_feature[i*240:(i+1)*240])-np.mean(train_feature))
-#     print(k[i])
-# k=k[np.argsort(k)]
-# print(k)
-# k=k[:25]
-# print(k)
-# print(np.mean(train_feature))
-# print(np.median(train_feature))
-# print(np.min(test_feature))
-# print(np.max(test_feature))
-# a=np.min(np.concatenate((train_feature,test_feature), axis=0))
-# b=np.max(np.concatenate((train_feature,test_feature), axis=0))
-# print(a)
-# print(b)
-#
-# train_feature=train_feature-kmeans.cluster_centers_
-# print(train_feature)
-# train_feature=np.square(train_feature)
-# print(train_feature)
-# print(train_feature.shape)
-# train_feature=np.sum(train_feature,axis=1)
-# print(train_feature)
-# print(train_feature.shape)
-# train_feature=np.sqrt(train_feature)
-# print(train_feature)
-# print(train_feature.shape)
-# k = np.arange(len(train_feature) / 240)
-# print(k)
-# for i in range(0,int(len(train_feature)/240)):
-#     k[i] = np.mean(train_feature[i * 240:(i + 1) * 240])
-#     print(k[i])
-# # train_feature = (train_feature.astype('float32')-np.min(np.concatenate((train_feature,test_feature), axis=0)))/(np.max(np.concatenate((train_feature,test_feature), axis=0))-np.min(np.concatenate((train_feature,test_feature), axis=0)))
-# # test_feature = (test_feature.astype('float32')-np.min(np.concatenate((train_feature,test_feature), axis=0)))/(np.max(np.concatenate((train_feature,test_feature), axis=0))-np.min(np.concatenate((train_feature,test_feature), axis=0)))
-#
-#
+trainfile_array, testfile_array = file_array()#
+print(trainfile_array)
+print(testfile_array)
+
+train_feature, train_label = read_data(trainfile_array)
+test_feature, test_label = read_data(testfile_array)
+print(train_feature.shape)
+print(len(train_feature))
+
+kmeans=KMeans(n_clusters=1,n_init=50)
+pred_train=kmeans.fit_predict(train_feature)
+print(kmeans.cluster_centers_.shape)
+print(kmeans.cluster_centers_)
+k = np.arange(len(train_feature) / 240)
+for i in range(0,int(len(train_feature)/240)):
+    k[i]=np.square(np.mean(train_feature[i*240:(i+1)*240])-np.mean(train_feature))
+    print(k[i])
+k=k[np.argsort(k)]
+print(k)
+k=k[:25]
+print(k)
+print(np.mean(train_feature))
+print(np.median(train_feature))
+print(np.min(test_feature))
+print(np.max(test_feature))
+a=np.min(np.concatenate((train_feature,test_feature), axis=0))
+b=np.max(np.concatenate((train_feature,test_feature), axis=0))
+print(a)
+print(b)
+
+train_feature=train_feature-kmeans.cluster_centers_
+print(train_feature)
+train_feature=np.square(train_feature)
+print(train_feature)
+print(train_feature.shape)
+train_feature=np.sum(train_feature,axis=1)
+print(train_feature)
+print(train_feature.shape)
+train_feature=np.sqrt(train_feature)
+print(train_feature)
+print(train_feature.shape)
+k = np.arange(len(train_feature) / 240)
+print(k)
+for i in range(0,int(len(train_feature)/240)):
+    k[i] = np.mean(train_feature[i * 240:(i + 1) * 240])
+    print(k[i])
+# train_feature = (train_feature.astype('float32')-np.min(np.concatenate((train_feature,test_feature), axis=0)))/(np.max(np.concatenate((train_feature,test_feature), axis=0))-np.min(np.concatenate((train_feature,test_feature), axis=0)))
+# test_feature = (test_feature.astype('float32')-np.min(np.concatenate((train_feature,test_feature), axis=0)))/(np.max(np.concatenate((train_feature,test_feature), axis=0))-np.min(np.concatenate((train_feature,test_feature), axis=0)))
+
+
