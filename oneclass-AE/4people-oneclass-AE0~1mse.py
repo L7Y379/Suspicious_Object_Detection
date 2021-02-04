@@ -43,7 +43,7 @@ def file_array_other():
     filenames = np.array(filenames)#20*2
     return filenames
 lin=120
-ww=2
+ww=1
 lin2=int((lin*2)/ww)
 def read_data(filenames):
     i = 0
@@ -141,7 +141,7 @@ autoencoder_mid = Model(inputs=input, outputs=encoded2)
 autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
 #autoencoder.compile(optimizer='adam', loss='mse')
 autoencoder.summary()
-autoencoder.fit(train_feature_nosiy[:9600], train_feature[:9600], epochs=500, batch_size=128, verbose=1, validation_data=(test_feature_nosiy[:4800], test_feature[:4800]))
+autoencoder.fit(train_feature_nosiy[:19200], train_feature[:19200], epochs=300, batch_size=128, verbose=1, validation_data=(test_feature_nosiy[:9600], test_feature[:9600]))
 
 #decoded test images
 train_predict = autoencoder.predict(train_feature_nosiy)
@@ -261,7 +261,7 @@ for b in range(0, len(pred_train_vot)):
     if(i==2):pred_train_vot[b]=pred_train_vot[b-1]
     if (i == 0): pred_train_vot[b] = 0
     if (i == 1): pred_train_vot[b] = 1
-print(pred_train_vot)
+#print(pred_train_vot)
 a1=[0,0]
 a2=[0,0]
 for i in range(0,int(len(pred_train_vot)/2)):
