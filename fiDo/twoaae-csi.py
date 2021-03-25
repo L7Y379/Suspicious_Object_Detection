@@ -67,6 +67,7 @@ def file_array():
             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
     trainfile += filenames[:30]
+    filenames = []
     trainfile =np.array(trainfile)
     feature,lable=read_data(trainfile)
 
@@ -81,35 +82,49 @@ def file_array():
     k = np.arange(30)
     for i in range(0, 30):
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:25]
     np.random.shuffle(trainfile)
-    for j in ["0", "1M","2M"]:  # "1S", "2S"
-        for i in [i for i in range(0, 25)]:
+
+    for j in ["1M"]:  # "1S", "2S"
+        for i in [i for i in range(0, 30)]:
             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
-        np.random.shuffle(filenames)
-        if (j == "0"):
-            testfile = trainfile[20:]
-            trainfile = trainfile[:20]
-        if (j == "1M"):
-            #trainfile2 += filenames[:10]
-            trainfile2 += filenames[:20]
-            #testfile2 += filenames[22:]
-            testfile2 += filenames[20:]
-        #if (j == "2M"):
-            #trainfile2 += filenames[:10]
-            #testfile2 += filenames[23:]
-        filenames = []
-    trainfile2 = np.array(trainfile2)#20*2
-    testfile2 = np.array(testfile2)  # 20*2
+    trainfile2 += filenames[:30]
+    filenames = []
+    trainfile2 =np.array(trainfile2)
+    feature,lable=read_data(trainfile2)
+
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    print(kmeans.cluster_centers_.shape)
+    print(kmeans.cluster_centers_)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(30)
+    for i in range(0, 30):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        print(k[i])
+    trainfile2 = trainfile2[np.argsort(k)]
+    trainfile2 = trainfile2[:25]
+    np.random.shuffle(trainfile2)
+
+
+    testfile = trainfile[20:]
+    trainfile = trainfile[:25]
+    testfile2 = trainfile2[20:]
+    trainfile2 = trainfile2[:25]
+
     trainfile=np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
     return trainfile, testfile
 
 
 
-def build_encoder1(latent_dim, img_shape):
+def build_encoder(latent_dim, img_shape):
     deterministic = 1
     img = Input(shape=img_shape)
     h = Flatten()(img)
@@ -119,6 +134,37 @@ def build_encoder1(latent_dim, img_shape):
     h = LeakyReLU(alpha=0.2)(h)
     latent_repr = Dense(latent_dim)(h)
     return Model(img, latent_repr)
+
+
+# In[24]:
+
+
+def build_discriminator(latent_dim):
+    model = Sequential()
+    model.add(Dense(512, input_dim=latent_dim))
+    model.add(LeakyReLU(alpha=0.2))
+    model.add(Dense(256))
+    model.add(LeakyReLU(alpha=0.2))
+    model.add(Dense(1, activation="sigmoid"))
+    encoded_repr = Input(shape=(latent_dim,))
+    validity = model(encoded_repr)
+    return Model(encoded_repr, validity)
+
+
+# In[25]:
+
+
+def build_decoder(latent_dim, img_shape):
+    model = Sequential()
+    model.add(Dense(512, input_dim=latent_dim))
+    model.add(LeakyReLU(alpha=0.2))
+    model.add(Dense(512))
+    model.add(LeakyReLU(alpha=0.2))
+    model.add(Dense(np.prod(img_shape), activation='tanh'))
+    model.add(Reshape(img_shape))
+    z = Input(shape=(latent_dim,))
+    img = model(z)
+    return Model(z, img)
 
 def build_encoder2(latent_dim, img_shape):
     deterministic = 1
@@ -131,19 +177,9 @@ def build_encoder2(latent_dim, img_shape):
     latent_repr = Dense(latent_dim)(h)
     return Model(img, latent_repr)
 
+
 # In[24]:
 
-
-def build_discriminator1(latent_dim):
-    model = Sequential()
-    model.add(Dense(512, input_dim=latent_dim))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(256))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(1, activation="sigmoid"))
-    encoded_repr = Input(shape=(latent_dim,))
-    validity = model(encoded_repr)
-    return Model(encoded_repr, validity)
 
 def build_discriminator2(latent_dim):
     model = Sequential()
@@ -155,20 +191,10 @@ def build_discriminator2(latent_dim):
     encoded_repr = Input(shape=(latent_dim,))
     validity = model(encoded_repr)
     return Model(encoded_repr, validity)
+
+
 # In[25]:
 
-
-def build_decoder1(latent_dim, img_shape):
-    model = Sequential()
-    model.add(Dense(512, input_dim=latent_dim))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(512))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(np.prod(img_shape), activation='tanh'))
-    model.add(Reshape(img_shape))
-    z = Input(shape=(latent_dim,))
-    img = model(z)
-    return Model(z, img)
 
 def build_decoder2(latent_dim, img_shape):
     model = Sequential()
@@ -181,7 +207,6 @@ def build_decoder2(latent_dim, img_shape):
     z = Input(shape=(latent_dim,))
     img = model(z)
     return Model(z, img)
-
 # The input are 28x28 images. The optimization used is Adam. The loss is binary cross-entropy.
 
 # In[26]:
@@ -196,18 +221,18 @@ img_shape = (img_rows, img_cols, channels)
 latent_dim = 2
 
 optimizer = Adam(0.0002, 0.5)
-
+optimizer2 = Adam(0.0002, 0.5)
 # Build and compile the discriminator
-discriminator1 = build_discriminator1(latent_dim)
-discriminator1.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+discriminator = build_discriminator(latent_dim)
+discriminator.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
 discriminator2 = build_discriminator2(latent_dim)
-discriminator2.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+discriminator2.compile(loss='binary_crossentropy', optimizer=optimizer2, metrics=['accuracy'])
 # In[27]:
 
 
 # Build the encoder / decoder
-encoder1 = build_encoder1(latent_dim, img_shape)
-decoder1 = build_decoder1(latent_dim, img_shape)
+encoder = build_encoder(latent_dim, img_shape)
+decoder = build_decoder(latent_dim, img_shape)
 encoder2 = build_encoder2(latent_dim, img_shape)
 decoder2 = build_decoder2(latent_dim, img_shape)
 # In[28]:
@@ -215,36 +240,36 @@ decoder2 = build_decoder2(latent_dim, img_shape)
 
 # The generator takes the image, encodes it and reconstructs it
 # from the encoding
-img1 = Input(shape=img_shape)
-encoded_repr1 = encoder1(img1)
-reconstructed_img1 = decoder1(encoded_repr1)
+img = Input(shape=img_shape)
+encoded_repr = encoder(img)
+reconstructed_img = decoder(encoded_repr)
 img2 = Input(shape=img_shape)
-encoded_repr2 = encoder1(img2)
+encoded_repr2 = encoder2(img)
 reconstructed_img2 = decoder2(encoded_repr2)
 # For the adversarial_autoencoder model we will only train the generator
 # It will say something like:
 #   UserWarning: Discrepancy between trainable weights and collected trainable weights,
 #   did you set `model.trainable` without calling `model.compile` after ?
 # We only set trainable to false for the discriminator when it is part of the autoencoder...
-discriminator1.trainable = False
+discriminator.trainable = False
 discriminator2.trainable = False
 # The discriminator determines validity of the encoding
-validity1 = discriminator1(encoded_repr1)
+validity = discriminator(encoded_repr)
 validity2 = discriminator2(encoded_repr2)
 # The adversarial_autoencoder model  (stacked generator and discriminator)
-adversarial_autoencoder1 = Model(img1, [reconstructed_img1, validity1])
-adversarial_autoencoder1.compile(loss=['mse', 'binary_crossentropy'], loss_weights=[0.999, 0.001], optimizer=optimizer)
-adversarial_autoencoder2 = Model(img2, [reconstructed_img2, validity2])
-adversarial_autoencoder2.compile(loss=['mse', 'binary_crossentropy'], loss_weights=[0.999, 0.001], optimizer=optimizer)
+adversarial_autoencoder = Model(img, [reconstructed_img, validity])
+adversarial_autoencoder.compile(loss=['mse', 'binary_crossentropy'], loss_weights=[0.999, 0.001], optimizer=optimizer)
+adversarial_autoencoder2 = Model(img, [reconstructed_img2, validity2])
+adversarial_autoencoder2.compile(loss=['mse', 'binary_crossentropy'], loss_weights=[0.999, 0.001], optimizer=optimizer2)
 # In[29]:
 
 
-discriminator1.summary()
+discriminator.summary()
 discriminator2.summary()
 # In[30]:
 
 
-epochs = 5000
+epochs = 10000
 batch_size = 128
 sample_interval = 100
 
@@ -257,23 +282,24 @@ train_feature, train_label = read_data(trainfile_array)
 test_feature, test_label = read_data(testfile_array)
 
 #全局归化为-1~1
+
 train_feature = ((train_feature.astype('float32')-np.min(train_feature))-(np.max(train_feature)-np.min(train_feature))/2.0)/((np.max(train_feature)-np.min(train_feature))/2)
 test_feature = ((test_feature.astype('float32')-np.min(test_feature))-(np.max(test_feature)-np.min(test_feature))/2.0)/((np.max(test_feature)-np.min(test_feature))/2)
 
-
-
-X_train1 =train_feature[:20*lin2]
+print(train_feature.shape)
+print(test_feature.shape)
+X_train1 =train_feature[25*lin2:]
 print(X_train1.shape)
-X_test1 =test_feature[:5*lin2]
+X_test1 =test_feature[5*lin2:]
 print(X_test1.shape)
 X_train1 = X_train1.reshape([X_train1.shape[0], img_rows, img_cols])
 X_test1 = X_test1.reshape([X_test1.shape[0], img_rows, img_cols])
 X_train1 = np.expand_dims(X_train1, axis=3)
 X_test1 = np.expand_dims(X_test1, axis=3)
 
-X_train2 =train_feature[20*lin2:]
+X_train2 =train_feature[:25*lin2]
 print(X_train2.shape)
-X_test2 =test_feature[5*lin2:]
+X_test2 =test_feature[:5*lin2]
 print(X_test2.shape)
 X_train2 = X_train2.reshape([X_train2.shape[0], img_rows, img_cols])
 X_test2 = X_test2.reshape([X_test2.shape[0], img_rows, img_cols])
@@ -285,6 +311,7 @@ fake1 = np.zeros((batch_size, 1))
 valid2 = np.ones((batch_size, 1))
 fake2 = np.zeros((batch_size, 1))
 
+
 # In[ ]:
 
 
@@ -295,11 +322,11 @@ def sample_prior(latent_dim, batch_size):
 # In[31]:
 
 
-def sample_images(latent_dim, decoder1, epoch):
+def sample_images(latent_dim, decoder, epoch):
     r, c = 5, 5
 
     z = sample_prior(latent_dim, r * c)
-    gen_imgs = decoder1.predict(z)
+    gen_imgs = decoder.predict(z)
 
     gen_imgs = 0.5 * gen_imgs + 0.5
 
@@ -315,6 +342,7 @@ def sample_images(latent_dim, decoder1, epoch):
 
 
 # # Training
+
 for epoch in range(epochs):
 
     # ---------------------
@@ -325,14 +353,14 @@ for epoch in range(epochs):
     idx = np.random.randint(0, X_train1.shape[0], batch_size)
     imgs = X_train1[idx]
 
-    latent_fake = encoder1.predict(imgs)
+    latent_fake = encoder.predict(imgs)
 
     # Here we generate the "TRUE" samples
     latent_real = sample_prior(latent_dim, batch_size)
 
     # Train the discriminator
-    d_loss_real = discriminator1.train_on_batch(latent_real, valid1)
-    d_loss_fake = discriminator1.train_on_batch(latent_fake, fake1)
+    d_loss_real = discriminator.train_on_batch(latent_real, valid1)
+    d_loss_fake = discriminator.train_on_batch(latent_fake, fake1)
     d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
 
     # ---------------------
@@ -340,7 +368,7 @@ for epoch in range(epochs):
     # ---------------------
 
     # Train the generator
-    g_loss = adversarial_autoencoder1.train_on_batch(imgs, [imgs, valid1])
+    g_loss = adversarial_autoencoder.train_on_batch(imgs, [imgs, valid1])
 
     # Plot the progress (every 10th epoch)
     if epoch % 10 == 0:
@@ -349,7 +377,7 @@ for epoch in range(epochs):
 
     # Save generated images (every sample interval, e.g. every 100th epoch)
     if epoch % sample_interval == 0:
-        sample_images(latent_dim, decoder1, epoch)
+        sample_images(latent_dim, decoder, epoch)
 
 for epoch in range(epochs):
 
@@ -385,32 +413,28 @@ for epoch in range(epochs):
 
     # Save generated images (every sample interval, e.g. every 100th epoch)
     if epoch % sample_interval == 0:
-        sample_images(latent_dim, decoder1, epoch)
-
-adversarial_autoencoder1.save_weights('models/aae-csi/aae-csi-1.h5')
-adversarial_autoencoder2.save_weights('models/aae-csi/aae-csi-2.h5')
-train_mid1 = encoder1.predict(X_train1)
-test_mid1 =encoder1.predict(X_test1)
+        sample_images(latent_dim, decoder2, epoch)
+discriminator.save_weights('models/aae-csi-epoch10000/discriminator.h5')
+discriminator2.save_weights('models/aae-csi-epoch10000/discriminator2.h5')
+encoder.save_weights('models/aae-csi-epoch10000/encoder.h5')
+encoder2.save_weights('models/aae-csi-epoch10000/encoder2.h5')
+adversarial_autoencoder.save_weights('models/aae-csi-epoch10000/adversarial_autoencoder.h5')
+adversarial_autoencoder2.save_weights('models/aae-csi-epoch10000/adversarial_autoencoder2.h5')
+train_mid1 = encoder.predict(X_train1)
+test_mid1 =encoder.predict(X_test1)
 train_mid2 = encoder2.predict(X_train2)
 test_mid2 =encoder2.predict(X_test2)
 print(train_mid1.shape)
+print(train_mid1)
+
 print(test_mid1.shape)
 print(train_mid2.shape)
+print(train_mid2)
 print(test_mid2.shape)
 m, n = train_mid1.shape
 for i in range(0,m):
-     plt.plot(train_mid1[i, 0], train_mid1[i, 1], 'ob')
+     plt.plot(train_mid1[i, 0], train_mid1[i, 1], 'or')
 for i in range(0,m):
-     plt.plot(train_mid2[i, 0], train_mid2[i, 1], 'or')
-
-# m, n = train_mid1.shape
-# for i in range(0,int(m/4)):
-#     plt.plot(train_mid[i, 0], train_mid[i, 1], 'ob')
-# for i in range(int(m/4),int(m/2)):
-#     plt.plot(train_mid[i, 0], train_mid[i, 1], 'or')
-# for i in range(int(m/2),int(3*m/4)):
-#     plt.plot(train_mid[i, 0], train_mid[i, 1], 'og')
-# for i in range(int(3*m/4),m):
-#     plt.plot(train_mid[i, 0], train_mid[i, 1], 'oy')
+     plt.plot(train_mid2[i, 0], train_mid2[i, 1], 'ob')
 plt.show()
 

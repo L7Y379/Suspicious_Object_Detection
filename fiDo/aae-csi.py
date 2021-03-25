@@ -80,6 +80,7 @@ def file_array():
             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
     trainfile += filenames[:30]
+    filenames = []
     trainfile =np.array(trainfile)
     feature,lable=read_data(trainfile)
 
@@ -94,28 +95,42 @@ def file_array():
     k = np.arange(30)
     for i in range(0, 30):
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:25]
     np.random.shuffle(trainfile)
-    for j in ["0", "1M","2M"]:  # "1S", "2S"
-        for i in [i for i in range(0, 25)]:
+
+    for j in ["1M"]:  # "1S", "2S"
+        for i in [i for i in range(0, 30)]:
             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
-        np.random.shuffle(filenames)
-        if (j == "0"):
-            testfile = trainfile[20:]
-            trainfile = trainfile[:20]
-        if (j == "1M"):
-            #trainfile2 += filenames[:10]
-            trainfile2 += filenames[:20]
-            #testfile2 += filenames[22:]
-            testfile2 += filenames[20:]
-        #if (j == "2M"):
-            #trainfile2 += filenames[:10]
-            #testfile2 += filenames[23:]
-        filenames = []
-    trainfile2 = np.array(trainfile2)#20*2
-    testfile2 = np.array(testfile2)  # 20*2
+    trainfile2 += filenames[:30]
+    filenames = []
+    trainfile2 =np.array(trainfile2)
+    feature,lable=read_data(trainfile2)
+
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    print(kmeans.cluster_centers_.shape)
+    print(kmeans.cluster_centers_)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(30)
+    for i in range(0, 30):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        print(k[i])
+    trainfile2 = trainfile2[np.argsort(k)]
+    trainfile2 = trainfile2[:25]
+    np.random.shuffle(trainfile2)
+
+
+    testfile = trainfile[20:]
+    trainfile = trainfile[:20]
+    testfile2 = trainfile2[20:]
+    trainfile2 = trainfile2[:20]
+
     trainfile=np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
     return trainfile, testfile
@@ -306,7 +321,7 @@ discriminator.summary()
 # In[30]:
 
 
-epochs = 5000
+epochs = 500
 batch_size = 128
 sample_interval = 100
 
@@ -446,28 +461,6 @@ k = 2
 centroids, clusterAssment = KMeans1(train_mid, k)
 showCluster(train_mid, k, centroids, clusterAssment)
 
-def showCluster(dataSet, k, centroids, clusterAssment):
-    m, n = dataSet.shape
-    if n != 2:
-        print("数据不是二维的")
-        return 1
-
-    mark = ['or', 'ob', 'og', 'ok', '^r', '+r', 'sr', 'dr', '<r', 'pr']
-    if k > len(mark):
-        print("k值太大了")
-        return 1
-
-    # 绘制所有的样本
-    for i in range(m):
-        markIndex = int(clusterAssment[i, 0])
-        plt.plot(dataSet[i, 0], dataSet[i, 1], mark[markIndex])
-
-    mark = ['Dr', 'Db', 'Dg', 'Dk', '^b', '+b', 'sb', 'db', '<b', 'pb']
-    # 绘制质心
-    for i in range(k):
-        plt.plot(centroids[i, 0], centroids[i, 1], mark[i])
-
-    plt.show()
 
 m, n = train_mid.shape
 for i in range(0,int(m/4)):

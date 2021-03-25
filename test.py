@@ -1,7 +1,21 @@
-import numpy as np
 import pandas as pd
 import os
 from sklearn.cluster import KMeans
+from keras.datasets import mnist
+from keras.layers import Input, Dense, Reshape, Flatten, Dropout, multiply, GaussianNoise
+from keras.layers import BatchNormalization, Activation, Embedding, ZeroPadding2D
+from keras.layers import MaxPooling2D
+from keras.layers import Lambda
+from keras.layers.advanced_activations import LeakyReLU
+from keras.layers.convolutional import UpSampling2D, Conv2D
+from keras.models import Sequential, Model
+from keras.optimizers import Adam
+from keras import losses
+from keras.utils import to_categorical
+import keras.backend as K
+import matplotlib.pyplot as plt
+import numpy as np
+
 lin=120
 ww=1
 lin2=int((lin*2)/ww)
@@ -37,11 +51,8 @@ def read_data(filenames):
             i = i + 1
         else:
             feature = np.concatenate((feature, temp_feature), axis=0)  # 拼接
-            #label = np.concatenate((label, temp_label), axis=0)
-    #data = np.concatenate((feature, label), axis=1)
-    #np.random.shuffle(feature)
+
     return np.array(feature[:, :270]), np.array(feature[:, 270:])
-    #return np.array(feature[:, 134:136]), np.array(feature[:, 134:136])
 def file_array():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
     filetype = '.csv'
@@ -55,127 +66,63 @@ def file_array():
             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
     trainfile += filenames[:30]
+    filenames = []
     trainfile =np.array(trainfile)
     feature,lable=read_data(trainfile)
-    k = np.arange(len(feature) / 240)
-    for i in range(0, int(len(feature) / 240)):
-        k[i] = np.square(np.mean(feature[i * 240:(i + 1) * 240]) - np.mean(feature))
+
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    print(kmeans.cluster_centers_.shape)
+    print(kmeans.cluster_centers_)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(30)
+    for i in range(0, 30):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:25]
     np.random.shuffle(trainfile)
-    for j in ["0", "1M","2M"]:  # "1S", "2S"
-        for i in [i for i in range(0, 25)]:
-            fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
-            filenames += [fn]
-        #np.random.shuffle(filenames)
-        if (j == "0"):
-            testfile = trainfile[20:]
-            trainfile = trainfile[:20]
-        if (j == "1M"):
-            trainfile2 += filenames[:10]
-            testfile2 += filenames[22:]
-        if (j == "2M"):
-            trainfile2 += filenames[:10]
-            testfile2 += filenames[23:]
-        filenames = []
-    trainfile2 = np.array(trainfile2)#20*2
-    testfile2 = np.array(testfile2)  # 20*2
-    trainfile=np.concatenate((trainfile, trainfile2), axis=0)
-    testfile = np.concatenate((testfile, testfile2), axis=0)
-    #print(testfile);
-    return trainfile, testfile
-trainfile_array,testfile_array=file_array()
-print(trainfile_array)
-print(testfile_array)
-train_feature, train_label = read_data(trainfile_array)
-test_feature, test_label = read_data(testfile_array)
-print(train_feature.shape)
-print(test_feature.shape)
-# def file_array():
-#     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
-#     filetype = '.csv'
-#     filenames = []
-#     trainfile = []
-#     testfile = []
-#     for j in ["0", "1M","2M"]:  # "1S", "2S"
-#         for i in [i for i in range(0, 30)]:
-#             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
-#             filenames += [fn]
-#         print(filenames)#np.random.shuffle(filenames)
-#         if (j == "0"):
-#             trainfile += filenames[:30]
-#             testfile += filenames[20:]
-#         if (j == "1M"):
-#             trainfile += filenames[:0]
-#             testfile += filenames[22:]
-#         if (j == "2M"):
-#             trainfile += filenames[:0]
-#             testfile += filenames[23:]
-#         filenames = []
-#     trainfile = np.array(trainfile)#20*2
-#     testfile = np.array(testfile)#5*2
-#     return trainfile, testfile
 
-def file_array_other():
-    filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
-    filetype = '.csv'
-    filenames = []
-    for j in ["0","1M"]:  # "1S", "2S"
+    for j in ["1M"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
             fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
-        #np.random.shuffle(filenames)
-    filenames = np.array(filenames)#20*2
-    return filenames
+    trainfile2 += filenames[:30]
+    filenames = []
+    trainfile2 =np.array(trainfile2)
+    feature,lable=read_data(trainfile2)
 
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    print(kmeans.cluster_centers_.shape)
+    print(kmeans.cluster_centers_)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(30)
+    for i in range(0, 30):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        print(k[i])
+    trainfile2 = trainfile2[np.argsort(k)]
+    trainfile2 = trainfile2[:25]
+    np.random.shuffle(trainfile2)
+
+
+    testfile = trainfile[20:]
+    trainfile = trainfile[:20]
+    testfile2 = trainfile2[20:]
+    trainfile2 = trainfile2[:20]
+
+    trainfile=np.concatenate((trainfile, trainfile2), axis=0)
+    testfile = np.concatenate((testfile, testfile2), axis=0)
+    return trainfile, testfile
 
 trainfile_array, testfile_array = file_array()#
 print(trainfile_array)
+print(trainfile_array.shape)
 print(testfile_array)
-
-train_feature, train_label = read_data(trainfile_array)
-test_feature, test_label = read_data(testfile_array)
-print(train_feature.shape)
-print(len(train_feature))
-
-kmeans=KMeans(n_clusters=1,n_init=50)
-pred_train=kmeans.fit_predict(train_feature)
-print(kmeans.cluster_centers_.shape)
-print(kmeans.cluster_centers_)
-k = np.arange(len(train_feature) / 240)
-for i in range(0,int(len(train_feature)/240)):
-    k[i]=np.square(np.mean(train_feature[i*240:(i+1)*240])-np.mean(train_feature))
-    print(k[i])
-k=k[np.argsort(k)]
-print(k)
-k=k[:25]
-print(k)
-print(np.mean(train_feature))
-print(np.median(train_feature))
-print(np.min(test_feature))
-print(np.max(test_feature))
-a=np.min(np.concatenate((train_feature,test_feature), axis=0))
-b=np.max(np.concatenate((train_feature,test_feature), axis=0))
-print(a)
-print(b)
-
-train_feature=train_feature-kmeans.cluster_centers_
-print(train_feature)
-train_feature=np.square(train_feature)
-print(train_feature)
-print(train_feature.shape)
-train_feature=np.sum(train_feature,axis=1)
-print(train_feature)
-print(train_feature.shape)
-train_feature=np.sqrt(train_feature)
-print(train_feature)
-print(train_feature.shape)
-k = np.arange(len(train_feature) / 240)
-print(k)
-for i in range(0,int(len(train_feature)/240)):
-    k[i] = np.mean(train_feature[i * 240:(i + 1) * 240])
-    print(k[i])
-# train_feature = (train_feature.astype('float32')-np.min(np.concatenate((train_feature,test_feature), axis=0)))/(np.max(np.concatenate((train_feature,test_feature), axis=0))-np.min(np.concatenate((train_feature,test_feature), axis=0)))
-# test_feature = (test_feature.astype('float32')-np.min(np.concatenate((train_feature,test_feature), axis=0)))/(np.max(np.concatenate((train_feature,test_feature), axis=0))-np.min(np.concatenate((train_feature,test_feature), axis=0)))
-
-
+print(testfile_array.shape)
