@@ -112,27 +112,14 @@ def file_array():
     trainfile2 = trainfile2[:25]
     np.random.shuffle(trainfile2)
 
-
     testfile = trainfile[20:]
-    trainfile = trainfile[:20]
+    trainfile = trainfile[:25]
     testfile2 = trainfile2[20:]
-    trainfile2 = trainfile2[:20]
+    trainfile2 = trainfile2[:25]
 
     trainfile=np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
     return trainfile, testfile
-
-
-
-# In the case of a non-deterministic autoencoder we have a layer with random variables where we sample from using the renormalization trick. See my website on [inference](https://www.annevanrossum.com/blog/2018/01/30/inference-in-deep-learning/) and other [variance reduction methods](https://www.annevanrossum.com/blog/2018/05/26/random-gradients/).
-
-# In[22]:
-
-
-
-# The encoder, discriminator, and decoder have layers of size 512 or 256 and are densely connected. I have not experimented much with the number of nodes. Regarding the activation function leaky rectifiers are used. A rectifier is a function of the form: $f(x) = \max(0,x)$, in other words, making sure the values don't go below zero, but not bounding it from above. The leaky rectifiers are defined through $f(x) = x$ for $x > 0$ and $f(x) = x \alpha$ otherwise. This makes it less likely to have them "stuck" when all there inputs become negative.
-
-# In[23]:
 
 
 def build_encoder(latent_dim, img_shape):
@@ -299,7 +286,7 @@ test_feature = ((test_feature.astype('float32')-np.min(test_feature))-(np.max(te
 
 print(train_feature)
 print(test_feature)
-X_train1 =train_feature[20*lin2:]
+X_train1 =train_feature[25*lin2:]
 print(X_train1.shape)
 X_test1 =test_feature[5*lin2:]
 print(X_test1.shape)
@@ -308,7 +295,7 @@ X_test1 = X_test1.reshape([X_test1.shape[0], img_rows, img_cols])
 X_train1 = np.expand_dims(X_train1, axis=3)
 X_test1 = np.expand_dims(X_test1, axis=3)
 
-X_train2 =train_feature[:20*lin2]
+X_train2 =train_feature[:25*lin2]
 print(X_train2.shape)
 X_test2 =test_feature[:5*lin2]
 print(X_test2.shape)
@@ -333,21 +320,89 @@ encoder2.load_weights('models/aae-csi/encoder2.h5')
 adversarial_autoencoder.load_weights('models/aae-csi/adversarial_autoencoder.h5')
 adversarial_autoencoder2.load_weights('models/aae-csi/adversarial_autoencoder2.h5')
 
-train_mid1 = encoder.predict(X_train1)
-test_mid1 =encoder.predict(X_test1)
-train_mid2 = encoder2.predict(X_train2)
-test_mid2 =encoder2.predict(X_test2)
-print(train_mid1.shape)
-print(train_mid1)
 
-print(test_mid1.shape)
-print(train_mid2.shape)
-print(train_mid2)
-print(test_mid2.shape)
-m, n = train_mid1.shape
+data=sample_prior(latent_dim, 2*25*lin2)
+m, n = data.shape
+print(data.shape)
 for i in range(0,m):
-     plt.plot(train_mid1[i, 0], train_mid1[i, 1], 'or')
-for i in range(0,m):
-     plt.plot(train_mid2[i, 0], train_mid2[i, 1], 'ob')
+    plt.plot(data[i, 0], data[i, 1], 'or')
 plt.show()
+scdata1=decoder.predict(data)
+scdata2=decoder2.predict(data)
+print(scdata1.shape)
+#print(scdata1[1])
+print(scdata2.shape)
+#print(scdata2[1])
+X_SCdata1 = np.concatenate((X_train1, scdata1), axis=0)#源数据和生成数据结合（不带东西），带标签
+X_SCdata2 = np.concatenate((X_train2, scdata2), axis=0)
+print(X_SCdata1.shape)
+print(X_SCdata2.shape)
+
+#获取不带标签的数据
+def other_file_array():
+    filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
+    filetype = '.csv'
+    filenames = []
+    trainfile = []
+    trainfile2 = []
+    testfile = []
+    testfile2 = []
+    for name in ['ljy','tk','czn']:
+        for j in ["0"]:  # "1S", "2S"
+            for i in [i for i in range(0, 30)]:
+                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+
+    trainfile += filenames[:120]
+    trainfile = np.array(trainfile)
+    feature, lable = read_data(trainfile)
+
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    print(kmeans.cluster_centers_.shape)
+    print(kmeans.cluster_centers_)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    print(feature)
+    k = np.arange(120)
+    for i in range(0, 120):
+        k[i] = np.mean(feature[i * 240:(i + 1) * 240])
+    trainfile = trainfile[np.argsort(k)]
+    trainfile = trainfile[:100]
+    np.random.shuffle(trainfile)
+    testfile = trainfile[80:]
+    trainfile = trainfile[:80]
+
+    for name in ['zb','ljy','tk','czn']:
+        for j in ["0", "1M", "2M"]:  # "1S", "2S"
+            for i in [i for i in range(0, 25)]:
+                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+            np.random.shuffle(filenames)
+            if (j == "1M"):
+                trainfile2 += filenames[:10]
+                testfile2 += filenames[22:]
+            if (j == "2M"):
+                trainfile2 += filenames[:10]
+                testfile2 += filenames[23:]
+            filenames = []
+    trainfile2 = np.array(trainfile2)  # 20*2
+    testfile2 = np.array(testfile2)  # 20*2
+    trainfile = np.concatenate((trainfile, trainfile2), axis=0)
+    testfile = np.concatenate((testfile, testfile2), axis=0)
+    return trainfile, testfile
+# train_mid1 = encoder.predict(X_train1)
+# train_mid2 = encoder2.predict(X_train2)
+# print(train_mid1.shape)
+# print(train_mid1)
+# print(train_mid2.shape)
+# print(train_mid2)
+# m, n = train_mid1.shape
+# for i in range(0,m):
+#      plt.plot(train_mid1[i, 0], train_mid1[i, 1], 'or')
+# for i in range(0,m):
+#      plt.plot(train_mid2[i, 0], train_mid2[i, 1], 'ob')
+# plt.show()
 
