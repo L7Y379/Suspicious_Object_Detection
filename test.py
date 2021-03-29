@@ -1,3 +1,4 @@
+#带危险品的用一个aae重构，不带危险品的用另一个aae重构，重构数据比源数据多十倍
 import pandas as pd
 import os
 from sklearn.cluster import KMeans
@@ -111,18 +112,98 @@ def file_array():
     trainfile2 = trainfile2[:25]
     np.random.shuffle(trainfile2)
 
-
     testfile = trainfile[20:]
-    trainfile = trainfile[:20]
+    trainfile = trainfile[:25]
     testfile2 = trainfile2[20:]
-    trainfile2 = trainfile2[:20]
+    trainfile2 = trainfile2[:25]
 
     trainfile=np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
     return trainfile, testfile
+#获取不带标签的数据
+def other_file_array():
+    filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
+    filetype = '.csv'
+    filenames = []
+    trainfile = []
+    trainfile2 = []
+    testfile = []
+    testfile2 = []
+    for name in ['ljy','tk','czn']:
+        for j in ["0"]:  # "1S", "2S"
+            for i in [i for i in range(0, 30)]:
+                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+
+    trainfile += filenames[:90]
+    filenames = []
+    trainfile = np.array(trainfile)
+    feature, lable = read_data(trainfile)
+
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    print(kmeans.cluster_centers_.shape)
+    print(kmeans.cluster_centers_)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    print(feature)
+    k = np.arange(90)
+    for i in range(0, 90):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        print(k[i])
+    trainfile = trainfile[np.argsort(k)]
+    trainfile = trainfile[:75]
+    #np.random.shuffle(trainfile)
+
+
+    for name in ['ljy','tk','czn']:
+        for j in ["1M"]:  # "1S", "2S"
+            for i in [i for i in range(0, 30)]:
+                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+    trainfile2 += filenames[:90]
+    filenames = []
+    trainfile2 = np.array(trainfile2)
+    feature, lable = read_data(trainfile2)
+
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    print(kmeans.cluster_centers_.shape)
+    print(kmeans.cluster_centers_)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(90)
+    for i in range(0, 90):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        print(k[i])
+    trainfile2 = trainfile2[np.argsort(k)]
+    trainfile2 = trainfile2[:75]
+    #np.random.shuffle(trainfile2)
+
+    testfile = trainfile[60:]
+    trainfile = trainfile[:75]
+    testfile2 = trainfile2[60:]
+    trainfile2 = trainfile2[:75]
+
+    trainfile = np.concatenate((trainfile, trainfile2), axis=0)
+    testfile = np.concatenate((testfile, testfile2), axis=0)
+    return trainfile, testfile
 
 trainfile_array, testfile_array = file_array()#
+trainfile_other, testfile_other = other_file_array()#
 print(trainfile_array)
 print(trainfile_array.shape)
 print(testfile_array)
 print(testfile_array.shape)
+
+
+print(trainfile_other)
+print(trainfile_other.shape)
+print(testfile_other)
+print(testfile_other.shape)
+print(trainfile_other[:75])
+print(trainfile_other[75:])
