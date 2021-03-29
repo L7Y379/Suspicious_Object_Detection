@@ -351,8 +351,8 @@ train_feature, train_label = read_data(trainfile_array)
 test_feature, test_label = read_data(testfile_array)
 
 trainfile_other, testfile_other = other_file_array()#
-train_feature_ot, train_label_ot = read_data(trainfile_array)
-test_feature_ot, test_label_ot = read_data(testfile_array)
+train_feature_ot, train_label_ot = read_data(trainfile_other)
+test_feature_ot, test_label_ot = read_data(testfile_other)
 #全局归化为-1~1
 
 train_feature = ((train_feature.astype('float32')-np.min(train_feature))-(np.max(train_feature)-np.min(train_feature))/2.0)/((np.max(train_feature)-np.min(train_feature))/2)
