@@ -11,10 +11,6 @@ from keras.layers.advanced_activations import LeakyReLU
 from keras.layers.convolutional import UpSampling2D, Conv2D
 from keras.models import Sequential, Model
 from keras.optimizers import Adam
-from keras import losses
-from keras.utils import to_categorical
-import keras.backend as K
-import matplotlib.pyplot as plt
 import numpy as np
 from keras.utils import np_utils
 lin=120
@@ -52,7 +48,7 @@ def read_data(filenames):
         else:
             feature = np.concatenate((feature, temp_feature), axis=0)  # 拼接
             label = np.concatenate((label, temp_label), axis=0)
-    label=np_utils.to_categorical(label)
+    label = np_utils.to_categorical(label)
     return np.array(feature[:, :270]), np.array(label)
 def file_array():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
@@ -82,7 +78,7 @@ def file_array():
     k = np.arange(30)
     for i in range(0, 30):
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        #print(k[i])
+        print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:25]
     np.random.shuffle(trainfile)
@@ -107,7 +103,7 @@ def file_array():
     k = np.arange(30)
     for i in range(0, 30):
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        #print(k[i])
+        print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
     trainfile2 = trainfile2[:25]
     np.random.shuffle(trainfile2)
@@ -152,7 +148,7 @@ def other_file_array():
     k = np.arange(90)
     for i in range(0, 90):
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        #print(k[i])
+        print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:75]
     #np.random.shuffle(trainfile)
@@ -179,7 +175,7 @@ def other_file_array():
     k = np.arange(90)
     for i in range(0, 90):
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        #print(k[i])
+        print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
     trainfile2 = trainfile2[:75]
     #np.random.shuffle(trainfile2)
@@ -349,10 +345,7 @@ print(trainfile_array)
 print(testfile_array)
 train_feature, train_label = read_data(trainfile_array)
 test_feature, test_label = read_data(testfile_array)
-print("train_feature")
-print(train_feature.shape)
-print(train_label.shape)
-print(train_label)
+
 trainfile_other, testfile_other = other_file_array()#
 train_feature_ot, train_label_ot = read_data(trainfile_other)
 test_feature_ot, test_label_ot = read_data(testfile_other)
@@ -406,28 +399,13 @@ encoder2.load_weights('models/aae-csi/encoder2.h5')
 adversarial_autoencoder.load_weights('models/aae-csi/adversarial_autoencoder.h5')
 adversarial_autoencoder2.load_weights('models/aae-csi/adversarial_autoencoder2.h5')
 
+
 train_mid1 = encoder.predict(X_train1)
 train_mid2 = encoder2.predict(X_train2)
-# m, n = train_mid1.shape
-# print(train_mid1.shape)
-# for i in range(0,m):
-#     plt.plot(train_mid1[i, 0], train_mid1[i, 1], 'or')
-# for i in range(0,m):
-#     plt.plot(train_mid2[i, 0], train_mid2[i, 1], 'ob')
-# plt.show()
 
 data=sample_prior(latent_dim, 2*25*lin2)
-# m, n = data.shape
-# print(data.shape)
-# for i in range(0,m):
-#     plt.plot(data[i, 0], data[i, 1], 'or')
-# plt.show()
 scdata1=decoder.predict(data)
 scdata2=decoder2.predict(data)
-print(scdata1.shape)
-#print(scdata1[1])
-print(scdata2.shape)
-#print(scdata2[1])
 X_SCdata1 = np.concatenate((X_train1, scdata1), axis=0)#源数据和生成数据结合（不带东西），带标签
 X_SCdata2 = np.concatenate((X_train2, scdata2), axis=0)#源数据和生成数据结合（带东西），带标签
 X_SCdata1_label=np.concatenate((train_label[:6000], train_label[:6000]), axis=0)
@@ -436,15 +414,92 @@ X_SCdata2_label=np.concatenate((train_label[6000:], train_label[6000:]), axis=0)
 X_SCdata2_label=np.concatenate((X_SCdata2_label, train_label[6000:]), axis=0)
 X_SCdata=np.concatenate((X_SCdata1,X_SCdata2), axis=0)
 X_SCdata_label=np.concatenate((X_SCdata1_label,X_SCdata2_label), axis=0)
-print(X_SCdata1.shape)
-print(X_SCdata2.shape)
-print(X_SCdata1_label.shape)
-print(X_SCdata2_label.shape)
-print(X_SCdata1_label)
-print(X_SCdata2_label)
-print(X_SCdata.shape)
-print(X_SCdata_label.shape)
 all_data=np.concatenate((X_SCdata1,X_SCdata2), axis=0)
 all_data=np.concatenate((all_data,train_feature_ot), axis=0)
-print(all_data.shape)
 
+
+def build_ed(latent_dim, img_shape):
+    deterministic = 1
+    img = Input(shape=img_shape)
+    h = Flatten()(img)
+    h = Dense(512)(h)
+    h = LeakyReLU(alpha=0.2)(h)
+    h = Dense(512)(h)
+    h = LeakyReLU(alpha=0.2)(h)
+    latent_repr = Dense(latent_dim)(h)
+    return Model(img, latent_repr)
+
+def build_class(latent_dim):
+    model = Sequential()
+    model.add(Dense(512, input_dim=latent_dim))
+    model.add(LeakyReLU(alpha=0.2))
+    model.add(Dense(256))
+    model.add(LeakyReLU(alpha=0.2))
+    model.add(Dense(2, activation="softmax"))
+    encoded_repr = Input(shape=(latent_dim,))
+    validity = model(encoded_repr)
+    return Model(encoded_repr, validity)
+
+def build_dd(latent_dim, img_shape):
+    model = Sequential()
+    model.add(Dense(512, input_dim=latent_dim))
+    model.add(LeakyReLU(alpha=0.2))
+    model.add(Dense(512))
+    model.add(LeakyReLU(alpha=0.2))
+    model.add(Dense(np.prod(img_shape), activation='tanh'))
+    model.add(Reshape(img_shape))
+    z = Input(shape=(latent_dim,))
+    img = model(z)
+    return Model(z, img)
+
+opt = Adam(0.0002, 0.5)
+opt2 = Adam(0.0002, 0.5)
+classer = build_class(latent_dim)
+classer.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
+ed = build_ed(latent_dim, img_shape)
+dd = build_dd(latent_dim, img_shape)
+img3 = Input(shape=img_shape)
+encoded_repr3 = encoder(img3)
+reconstructed_img3 = decoder(encoded_repr3)
+classer.trainable = False
+validity = classer(encoded_repr)
+sc_fido = Model(img,reconstructed_img)
+sc_fido.compile(loss='mse', optimizer=opt)
+
+classer.summary()
+
+# # Training
+
+for epoch in range(epochs):
+
+    # ---------------------
+    #  Train classer
+    # ---------------------
+
+    # Select a random batch of images
+    idx = np.random.randint(0, X_SCdata.shape[0], batch_size)
+    imgs = X_SCdata[idx]
+
+    latent_mid = ed.predict(imgs)
+    c_loss = classer.train_on_batch(latent_mid,X_SCdata_label[idx])
+
+    # ---------------------
+    #  Train Generator
+    # ---------------------
+
+    # Train the generator
+
+    idx2 = np.random.randint(0, all_data.shape[0], batch_size)
+    imgs2 = all_data[idx]
+    g_loss = sc_fido.train_on_batch(imgs2,imgs2)
+
+    # Plot the progress (every 10th epoch)
+    if epoch % 10 == 0:
+        print("%d [D loss: %f, acc: %.2f%%] [G loss: %f]" % (
+        epoch, c_loss[0], 100 * c_loss[1], g_loss))
+
+
+classer.save_weights('models/fido/classer.h5')
+ed.save_weights('models/fido/ed.h5')
+dd.save_weights('models/fido/dd.h5')
+sc_fido.save_weights('models/fido/sc_fido.h5')
