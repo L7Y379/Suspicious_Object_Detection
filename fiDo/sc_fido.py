@@ -453,17 +453,16 @@ def build_dd(latent_dim, img_shape):
     return Model(z, img)
 
 opt = Adam(0.0002, 0.5)
-opt2 = Adam(0.0002, 0.5)
 classer = build_class(latent_dim)
 classer.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 ed = build_ed(latent_dim, img_shape)
 dd = build_dd(latent_dim, img_shape)
 img3 = Input(shape=img_shape)
-encoded_repr3 = encoder(img3)
-reconstructed_img3 = decoder(encoded_repr3)
+encoded_repr3 = ed(img3)
+reconstructed_img3 = dd(encoded_repr3)
 classer.trainable = False
-validity = classer(encoded_repr)
-sc_fido = Model(img,reconstructed_img)
+validity = classer(encoded_repr3)
+sc_fido = Model(img3,reconstructed_img3)
 sc_fido.compile(loss='mse', optimizer=opt)
 
 classer.summary()

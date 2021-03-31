@@ -419,7 +419,7 @@ X_SCdata_label=np.concatenate((X_SCdata1_label,X_SCdata2_label), axis=0)
 all_data=np.concatenate((X_SCdata1,X_SCdata2), axis=0)
 all_data=np.concatenate((all_data,train_feature_ot), axis=0)
 
-
+latent_dim = 64
 def build_ed(latent_dim, img_shape):
     deterministic = 1
     img = Input(shape=img_shape)
@@ -461,18 +461,17 @@ classer.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accura
 ed = build_ed(latent_dim, img_shape)
 dd = build_dd(latent_dim, img_shape)
 img3 = Input(shape=img_shape)
-encoded_repr3 = encoder(img3)
-reconstructed_img3 = decoder(encoded_repr3)
+encoded_repr3 = ed(img3)
+reconstructed_img3 = dd(encoded_repr3)
 classer.trainable = False
-validity = classer(encoded_repr)
-sc_fido = Model(img,reconstructed_img)
+sc_fido = Model(img3,reconstructed_img3)
 sc_fido.compile(loss='mse', optimizer=opt)
 classer.summary()
 
-classer.load_weights('models/fido/classer.h5')
-ed.load_weights('models/fido/ed.h5')
-dd.load_weights('models/fido/dd.h5')
-sc_fido.load_weights('models/fido/sc_fido.h5')
+classer.load_weights('models/fido2/classer.h5')
+ed.load_weights('models/fido2/ed.h5')
+dd.load_weights('models/fido2/dd.h5')
+sc_fido.load_weights('models/fido2/sc_fido.h5')
 
 non_mid=ed.predict(X_SCdata1[:6000])
 non_pre=classer.predict(non_mid)
