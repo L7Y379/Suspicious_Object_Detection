@@ -1,4 +1,5 @@
 #带危险品的用一个aae重构，不带危险品的用另一个aae重构，重构数据比源数据多十倍
+#latent_dim1 = 2  latent_dim2 = 2
 import pandas as pd
 import os
 from sklearn.cluster import KMeans
