@@ -64,14 +64,16 @@ def file_array():
     trainfile2 = []
     testfile = []
     testfile2 = []
-    for j in ["0"]:  # "1S", "2S"
-        for i in [i for i in range(0, 30)]:
-            fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
-            filenames += [fn]
-    trainfile += filenames[:30]
+    for name in ['zb', 'tk', 'czn']:
+        for j in ["0"]:  # "1S", "2S"
+            for i in [i for i in range(0, 30)]:
+                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+
+    trainfile += filenames[:90]
     filenames = []
-    trainfile =np.array(trainfile)
-    feature,lable=read_data(trainfile)
+    trainfile = np.array(trainfile)
+    feature, lable = read_data(trainfile)
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
@@ -81,22 +83,24 @@ def file_array():
     feature = np.square(feature)
     feature = np.sum(feature, axis=1)
     feature = np.sqrt(feature)
-    k = np.arange(30)
-    for i in range(0, 30):
+    print(feature)
+    k = np.arange(90)
+    for i in range(0, 90):
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        print(k[i])
+        # print(k[i])
     trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:25]
-    np.random.shuffle(trainfile)
+    trainfile = trainfile[:75]
+    # np.random.shuffle(trainfile)
 
-    for j in ["1M"]:  # "1S", "2S"
-        for i in [i for i in range(0, 30)]:
-            fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
-            filenames += [fn]
-    trainfile2 += filenames[:30]
+    for name in ['zb', 'tk', 'czn']:
+        for j in ["1M"]:  # "1S", "2S"
+            for i in [i for i in range(0, 30)]:
+                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+    trainfile2 += filenames[:90]
     filenames = []
-    trainfile2 =np.array(trainfile2)
-    feature,lable=read_data(trainfile2)
+    trainfile2 = np.array(trainfile2)
+    feature, lable = read_data(trainfile2)
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
@@ -106,21 +110,20 @@ def file_array():
     feature = np.square(feature)
     feature = np.sum(feature, axis=1)
     feature = np.sqrt(feature)
-    k = np.arange(30)
-    for i in range(0, 30):
+    k = np.arange(90)
+    for i in range(0, 90):
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        print(k[i])
+        # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
-    trainfile2 = trainfile2[:25]
-    np.random.shuffle(trainfile2)
+    trainfile2 = trainfile2[:75]
+    # np.random.shuffle(trainfile2)
 
+    testfile = trainfile[60:]
+    trainfile = trainfile[:75]
+    testfile2 = trainfile2[60:]
+    trainfile2 = trainfile2[:75]
 
-    testfile = trainfile[20:]
-    trainfile = trainfile[:25]
-    testfile2 = trainfile2[20:]
-    trainfile2 = trainfile2[:25]
-
-    trainfile=np.concatenate((trainfile, trainfile2), axis=0)
+    trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
     return trainfile, testfile
 
@@ -272,7 +275,7 @@ discriminator2.summary()
 
 
 epochs = 2000
-batch_size = 2000
+batch_size = 6000
 sample_interval = 100
 
 

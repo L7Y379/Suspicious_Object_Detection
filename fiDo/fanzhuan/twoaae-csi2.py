@@ -290,18 +290,18 @@ test_feature = ((test_feature.astype('float32')-np.min(test_feature))-(np.max(te
 
 print(train_feature.shape)
 print(test_feature.shape)
-X_train1 =train_feature[25*lin2:]
+X_train1 =train_feature[:25*lin2]
 print(X_train1.shape)
-X_test1 =test_feature[5*lin2:]
+X_test1 =test_feature[:5*lin2]
 print(X_test1.shape)
 X_train1 = X_train1.reshape([X_train1.shape[0], img_rows, img_cols])
 X_test1 = X_test1.reshape([X_test1.shape[0], img_rows, img_cols])
 X_train1 = np.expand_dims(X_train1, axis=3)
 X_test1 = np.expand_dims(X_test1, axis=3)
 
-X_train2 =train_feature[:25*lin2]
+X_train2 =train_feature[25*lin2:]
 print(X_train2.shape)
-X_test2 =test_feature[:5*lin2]
+X_test2 =test_feature[5*lin2:]
 print(X_test2.shape)
 X_train2 = X_train2.reshape([X_train2.shape[0], img_rows, img_cols])
 X_test2 = X_test2.reshape([X_test2.shape[0], img_rows, img_cols])

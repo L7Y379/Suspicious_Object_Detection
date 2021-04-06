@@ -288,7 +288,7 @@ channels = 1
 img_shape = (img_rows, img_cols, channels)
 # Results can be found in just_2_rv
 # latent_dim = 2
-latent_dim = 2
+latent_dim = 10
 
 optimizer = Adam(0.0002, 0.5)
 optimizer2 = Adam(0.0002, 0.5)
@@ -400,19 +400,30 @@ fake2 = np.zeros((batch_size, 1))
 def sample_prior(latent_dim, batch_size):
     return np.random.normal(size=(batch_size, latent_dim))
 
-discriminator.load_weights('models/aae-csi/discriminator.h5')
-discriminator2.load_weights('models/aae-csi/discriminator2.h5')
-encoder.load_weights('models/aae-csi/encoder.h5')
-encoder2.load_weights('models/aae-csi/encoder2.h5')
-adversarial_autoencoder.load_weights('models/aae-csi/adversarial_autoencoder.h5')
-adversarial_autoencoder2.load_weights('models/aae-csi/adversarial_autoencoder2.h5')
+discriminator.load_weights('models/aae-csi2/discriminator.h5')
+discriminator2.load_weights('models/aae-csi2/discriminator2.h5')
+encoder.load_weights('models/aae-csi2/encoder.h5')
+encoder2.load_weights('models/aae-csi2/encoder2.h5')
+adversarial_autoencoder.load_weights('models/aae-csi2/adversarial_autoencoder.h5')
+adversarial_autoencoder2.load_weights('models/aae-csi2/adversarial_autoencoder2.h5')
 
 train_mid1 = encoder.predict(X_train1)
 train_mid2 = encoder2.predict(X_train2)
-
+print(train_mid1.shape)
+m, n = train_mid1.shape
+print(train_mid1.shape)
+for i in range(0,m):
+    plt.plot(train_mid1[i, 0], train_mid1[i, 1], 'or')
+for i in range(0,m):
+    plt.plot(train_mid2[i, 0], train_mid2[i, 1], 'ob')
+plt.show()
 
 data=sample_prior(latent_dim, 2*25*lin2)
-
+m, n = data.shape
+print(data.shape)
+for i in range(0,m):
+    plt.plot(data[i, 0], data[i, 1], 'or')
+plt.show()
 scdata1=decoder.predict(data)
 scdata2=decoder2.predict(data)
 print(scdata1.shape)
@@ -438,4 +449,3 @@ print(X_SCdata_label.shape)
 all_data=np.concatenate((X_SCdata1,X_SCdata2), axis=0)
 all_data=np.concatenate((all_data,train_feature_ot), axis=0)
 print(all_data.shape)
-

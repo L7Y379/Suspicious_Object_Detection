@@ -288,18 +288,18 @@ test_feature = ((test_feature.astype('float32')-np.min(test_feature))-(np.max(te
 
 print(train_feature.shape)
 print(test_feature.shape)
-X_train1 =train_feature[25*lin2:]
+X_train1 =train_feature[:25*lin2]
 print(X_train1.shape)
-X_test1 =test_feature[5*lin2:]
+X_test1 =test_feature[:5*lin2]
 print(X_test1.shape)
 X_train1 = X_train1.reshape([X_train1.shape[0], img_rows, img_cols])
 X_test1 = X_test1.reshape([X_test1.shape[0], img_rows, img_cols])
 X_train1 = np.expand_dims(X_train1, axis=3)
 X_test1 = np.expand_dims(X_test1, axis=3)
 
-X_train2 =train_feature[:25*lin2]
+X_train2 =train_feature[25*lin2:]
 print(X_train2.shape)
-X_test2 =test_feature[:5*lin2]
+X_test2 =test_feature[5*lin2:]
 print(X_test2.shape)
 X_train2 = X_train2.reshape([X_train2.shape[0], img_rows, img_cols])
 X_test2 = X_test2.reshape([X_test2.shape[0], img_rows, img_cols])
@@ -376,8 +376,8 @@ for epoch in range(epochs):
         epoch, d_loss[0], 100 * d_loss[1], g_loss[0], g_loss[1]))
 
     # Save generated images (every sample interval, e.g. every 100th epoch)
-    if epoch % sample_interval == 0:
-        sample_images(latent_dim, decoder, epoch)
+    # if epoch % sample_interval == 0:
+    #     sample_images(latent_dim, decoder, epoch)
 
 for epoch in range(epochs):
 
@@ -412,14 +412,14 @@ for epoch in range(epochs):
         epoch, d_loss[0], 100 * d_loss[1], g_loss[0], g_loss[1]))
 
     # Save generated images (every sample interval, e.g. every 100th epoch)
-    if epoch % sample_interval == 0:
-        sample_images(latent_dim, decoder2, epoch)
-discriminator.save_weights('models/aae-csi-epoch10000/discriminator.h5')
-discriminator2.save_weights('models/aae-csi-epoch10000/discriminator2.h5')
-encoder.save_weights('models/aae-csi-epoch10000/encoder.h5')
-encoder2.save_weights('models/aae-csi-epoch10000/encoder2.h5')
-adversarial_autoencoder.save_weights('models/aae-csi-epoch10000/adversarial_autoencoder.h5')
-adversarial_autoencoder2.save_weights('models/aae-csi-epoch10000/adversarial_autoencoder2.h5')
+    # if epoch % sample_interval == 0:
+    #     sample_images(latent_dim, decoder2, epoch)
+discriminator.save_weights('models/aae-csi/discriminator.h5')
+discriminator2.save_weights('models/aae-csi/discriminator2.h5')
+encoder.save_weights('models/aae-csi/encoder.h5')
+encoder2.save_weights('models/aae-csi/encoder2.h5')
+adversarial_autoencoder.save_weights('models/aae-csi/adversarial_autoencoder.h5')
+adversarial_autoencoder2.save_weights('models/aae-csi/adversarial_autoencoder2.h5')
 train_mid1 = encoder.predict(X_train1)
 test_mid1 =encoder.predict(X_test1)
 train_mid2 = encoder2.predict(X_train2)
