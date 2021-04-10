@@ -473,9 +473,9 @@ ed.load_weights('models/fido3_lat10-64upclasser(1)/ed.h5')
 dd.load_weights('models/fido3_lat10-64upclasser(1)/dd.h5')
 sc_fido.load_weights('models/fido3_lat10-64upclasser(1)/sc_fido.h5')
 
-non_mid=ed.predict(X_SCdata1[:18000])
+non_mid=ed.predict(X_train1)
 non_pre=classer.predict(non_mid)
-yes_mid=ed.predict(X_SCdata2[:18000])
+yes_mid=ed.predict(X_train2)
 yes_pre=classer.predict(yes_mid)
 print(non_mid)
 print(non_mid.shape)
@@ -565,6 +565,101 @@ print(a2)
 print("带东西源标签数据准确率：")
 print(acc_yes_pre)
 print("投票后带东西源标签数据准确率：")
+print(acc_yes_pre_vot)
+
+
+non_mid=ed.predict(X_SCdata1[:18000])
+non_pre=classer.predict(non_mid)
+yes_mid=ed.predict(X_SCdata2[:18000])
+yes_pre=classer.predict(yes_mid)
+print(non_mid)
+print(non_mid.shape)
+print(yes_mid)
+print(yes_mid.shape)
+print(non_pre)
+print(non_pre.shape)
+print(yes_pre)
+print(yes_pre.shape)
+
+a1=[0,0]
+a2=[0,0]
+k1=[0,0]
+non_pre_1 = np.arange(len(non_pre))
+for i in range(0,int(len(non_pre))):
+    if non_pre[i][0]>=non_pre[i][1]:
+        a1[0]=a1[0]+1
+        non_pre_1[i] =1
+    if non_pre[i][0] < non_pre[i][1]:
+        a1[1] = a1[1] + 1
+        non_pre_1[i] = 0
+
+acc_non_pre=float(a1[0])/float(len(non_pre))
+a1=[0,0]
+for i in range(0,int(len(non_pre_1))):
+    if non_pre_1[i]==1:
+        k1[0]=k1[0]+1
+        a1[0] = a1[0] + 1
+    if non_pre_1[i] == 0:
+        k1[1] = k1[1] + 1
+        a1[1] = a1[1] + 1
+    if (k1[0]+k1[1]==lin2):
+        if k1[0]>=k1[1]:
+            a2[0]=a2[0]+1
+        if k1[0]<k1[1]:
+            a2[1]=a2[1]+1
+        k1=[0,0]
+acc_non_pre_vot=float(a2[0])/float(len(non_pre_1)/lin2)
+print(a1)
+print(a2)
+
+
+
+print("合成的不带东西源标签数据准确率：")
+print(acc_non_pre)
+print("投票后合成的不带东西源标签数据准确率：")
+print(acc_non_pre_vot)
+
+
+a1=[0,0]
+a2=[0,0]
+k1=[0,0]
+for i in range(0,int(len(yes_pre))):
+    if yes_pre[i][0]>yes_pre[i][1]:a1[0]=a1[0]+1
+    if yes_pre[i][0] <= yes_pre[i][1]: a1[1] = a1[1] + 1
+# print("a1")
+print(a1)
+# acc_yes_pre=float(a1[1])/float(len(yes_pre))
+a1=[0,0]
+yes_pre_1 = np.arange(len(yes_pre))
+for i in range(0,int(len(yes_pre))):
+    if yes_pre[i][0]>yes_pre[i][1]:
+        a1[0]=a1[0]+1
+        yes_pre_1[i] =1
+    if yes_pre[i][0] <= yes_pre[i][1]:
+        a1[1] = a1[1] + 1
+        yes_pre_1[i] = 0
+
+acc_yes_pre=float(a1[1])/float(len(yes_pre))
+a1=[0,0]
+for i in range(0,int(len(yes_pre_1))):
+    if yes_pre_1[i]==1:
+        k1[0]=k1[0]+1
+        a1[0] = a1[0] + 1
+    if yes_pre_1[i] == 0:
+        k1[1] = k1[1] + 1
+        a1[1] = a1[1] + 1
+    if (k1[0]+k1[1]==lin2):
+        if k1[0]>k1[1]:
+            a2[0]=a2[0]+1
+        if k1[0]<=k1[1]:
+            a2[1]=a2[1]+1
+        k1=[0,0]
+acc_yes_pre_vot=float(a2[1])/float(len(yes_pre_1)/lin2)
+print(a1)
+print(a2)
+print("合成的带东西源标签数据准确率：")
+print(acc_yes_pre)
+print("投票后合成的带东西源标签数据准确率：")
 print(acc_yes_pre_vot)
 
 
