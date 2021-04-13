@@ -54,6 +54,7 @@ def read_data(filenames):
             feature = np.concatenate((feature, temp_feature), axis=0)  # 拼接
 
     return np.array(feature[:, :270]), np.array(feature[:, 270:])
+
 def file_array():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
     filetype = '.csv'
@@ -82,6 +83,8 @@ def file_array():
     k = np.arange(30)
     for i in range(0, 30):
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        print("wenjian")
+        print(feature[i * lin2:(i + 1) * lin2])
         print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:25]
@@ -194,16 +197,16 @@ def other_file_array():
     return trainfile, testfile
 
 trainfile_array, testfile_array = file_array()#
-trainfile_other, testfile_other = other_file_array()#
+#trainfile_other, testfile_other = other_file_array()#
 print(trainfile_array)
 print(trainfile_array.shape)
 print(testfile_array)
 print(testfile_array.shape)
 
 
-print(trainfile_other)
-print(trainfile_other.shape)
-print(testfile_other)
-print(testfile_other.shape)
-print(trainfile_other[:75])
-print(trainfile_other[75:])
+# print(trainfile_other)
+# print(trainfile_other.shape)
+# print(testfile_other)
+# print(testfile_other.shape)
+# print(trainfile_other[:75])
+# print(trainfile_other[75:])
