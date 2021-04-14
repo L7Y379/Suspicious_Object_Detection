@@ -15,7 +15,7 @@ from keras.optimizers import Adam
 import numpy as np
 from keras.utils import np_utils
 import time
-lin=90
+lin=196#170
 ww=1
 lin2=int((lin*2)/ww)
 def read_data(filenames):
@@ -384,12 +384,12 @@ fake2 = np.zeros((batch_size, 1))
 def sample_prior(latent_dim, batch_size):
     return np.random.normal(size=(batch_size, latent_dim))
 
-discriminator.load_weights('models/aae-csi2(1)/discriminator.h5')
-discriminator2.load_weights('models/aae-csi2(1)/discriminator2.h5')
-encoder.load_weights('models/aae-csi2(1)/encoder.h5')
-encoder2.load_weights('models/aae-csi2(1)/encoder2.h5')
-adversarial_autoencoder.load_weights('models/aae-csi2(1)/adversarial_autoencoder.h5')
-adversarial_autoencoder2.load_weights('models/aae-csi2(1)/adversarial_autoencoder2.h5')
+discriminator.load_weights('models/aae-csi2/discriminator.h5')
+discriminator2.load_weights('models/aae-csi2/discriminator2.h5')
+encoder.load_weights('models/aae-csi2/encoder.h5')
+encoder2.load_weights('models/aae-csi2/encoder2.h5')
+adversarial_autoencoder.load_weights('models/aae-csi2/adversarial_autoencoder.h5')
+adversarial_autoencoder2.load_weights('models/aae-csi2/adversarial_autoencoder2.h5')
 
 
 train_mid1 = encoder.predict(X_train1)
@@ -401,8 +401,8 @@ scdata2=decoder2.predict(data)
 
 X_SCdata1=0.5*X_train1+0.5*scdata1
 X_SCdata2=0.5*X_train2+0.5*scdata2
-X_SCdata1_label=train_label[:13500]
-X_SCdata2_label=train_label[13500:]
+X_SCdata1_label=train_label[:lin2*75]
+X_SCdata2_label=train_label[lin2*75:]
 
 
 # X_SCdata1 = np.concatenate((X_train1, scdata1), axis=0)#源数据和生成数据结合（不带东西），带标签
@@ -469,10 +469,10 @@ sc_fido = Model(img3,reconstructed_img3)
 sc_fido.compile(loss='mse', optimizer=opt)
 classer.summary()
 
-classer.load_weights('models/fido3_lat10-64upclasser(1)csi(1)/classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser(1)csi(1)/ed.h5')
-dd.load_weights('models/fido3_lat10-64upclasser(1)csi(1)/dd.h5')
-sc_fido.load_weights('models/fido3_lat10-64upclasser(1)csi(1)/sc_fido.h5')
+classer.load_weights('models/fido3_lat10-64upclasser/classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser/ed.h5')
+dd.load_weights('models/fido3_lat10-64upclasser/dd.h5')
+sc_fido.load_weights('models/fido3_lat10-64upclasser/sc_fido.h5')
 
 non_mid=ed.predict(X_train1)
 non_pre=classer.predict(non_mid)
@@ -569,9 +569,9 @@ print("投票后带东西源标签数据准确率：")
 print(acc_yes_pre_vot)
 
 
-non_mid=ed.predict(X_SCdata1[:13500])
+non_mid=ed.predict(X_SCdata1[:lin2*75])
 non_pre=classer.predict(non_mid)
-yes_mid=ed.predict(X_SCdata2[:13500])
+yes_mid=ed.predict(X_SCdata2[:lin2*75])
 yes_pre=classer.predict(yes_mid)
 print(non_mid)
 print(non_mid.shape)
@@ -760,9 +760,9 @@ print(acc_yes_pre_vot)
 
 
 
-non_mid3=ed.predict(train_feature_ot[:4500])
+non_mid3=ed.predict(train_feature_ot[:lin2*25])
 non_pre3=classer.predict(non_mid3)
-yes_mid3=ed.predict(train_feature_ot[4500:])
+yes_mid3=ed.predict(train_feature_ot[lin2*25:])
 yes_pre3=classer.predict(yes_mid3)
 print(non_mid3)
 print(non_mid3.shape)

@@ -400,8 +400,8 @@ scdata2=decoder2.predict(data)
 
 X_SCdata1=0.5*X_train1+0.5*scdata1
 X_SCdata2=0.5*X_train2+0.5*scdata2
-X_SCdata1_label=train_label[:18000]
-X_SCdata2_label=train_label[18000:]
+X_SCdata1_label=train_label[:lin2*75]
+X_SCdata2_label=train_label[lin2*75:]
 
 
 # X_SCdata1 = np.concatenate((X_train1, scdata1), axis=0)#源数据和生成数据结合（不带东西），带标签
@@ -759,9 +759,9 @@ print(acc_yes_pre_vot)
 
 
 
-non_mid3=ed.predict(train_feature_ot[:6000])
+non_mid3=ed.predict(train_feature_ot[:lin2*25])
 non_pre3=classer.predict(non_mid3)
-yes_mid3=ed.predict(train_feature_ot[6000:])
+yes_mid3=ed.predict(train_feature_ot[lin2*25:])
 yes_pre3=classer.predict(yes_mid3)
 print(non_mid3)
 print(non_mid3.shape)
