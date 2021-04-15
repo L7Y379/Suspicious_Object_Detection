@@ -11,12 +11,12 @@ from sklearn.cluster import KMeans
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 def file_array_other():
-    filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
+    filepath = 'D:/my bad/Suspicious object detection/data/caiji/CSV/'
     filetype = '.csv'
     filenames = []
     for j in ["0","1M"]:  # "1S", "2S"
-        for i in [i for i in range(0, 30)]:
-            fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
+        for i in [i for i in range(0, 20)]:
+            fn = filepath + "hsj-2.5-M/" + "hsj-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
         np.random.shuffle(filenames)
     filenames = np.array(filenames)#20*2
@@ -59,7 +59,7 @@ def read_data(filenames):
 
     return np.array(feature[:, :270]), np.array(feature[:, 270:])
 def file_array():
-    filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
+    filepath = 'D:/my bad/Suspicious object detection/data/caiji/CSV/'
     filetype = '.csv'
     filenames = []
     trainfile = []
@@ -67,10 +67,10 @@ def file_array():
     testfile = []
     testfile2 = []
     for j in ["0"]:  # "1S", "2S"
-        for i in [i for i in range(0, 30)]:
-            fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
+        for i in [i for i in range(0, 20)]:
+            fn = filepath + "cyh-2.5-M/" + "cyh-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
-    trainfile += filenames[:30]
+    trainfile += filenames[:20]
     trainfile =np.array(trainfile)
     feature,lable=read_data(trainfile)
 
@@ -82,26 +82,23 @@ def file_array():
     feature = np.square(feature)
     feature = np.sum(feature, axis=1)
     feature = np.sqrt(feature)
-    k = np.arange(30)
-    for i in range(0, 30):
+    k = np.arange(20)
+    for i in range(0, 20):
         k[i] = np.mean(feature[i * 240:(i + 1) * 240])
     trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:25]
+    trainfile = trainfile[:18]
     np.random.shuffle(trainfile)
-    for j in ["0", "1M","2M"]:  # "1S", "2S"
-        for i in [i for i in range(0, 25)]:
-            fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
+    for j in ["0", "1M"]:  # "1S", "2S"
+        for i in [i for i in range(0, 20)]:
+            fn = filepath + "gzy-2.5-M/" + "gzy-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
         np.random.shuffle(filenames)
         if (j == "0"):
-            testfile = trainfile[20:]
-            trainfile = trainfile[:20]
+            testfile = trainfile[15:]
+            trainfile = trainfile[:15]
         if (j == "1M"):
-            trainfile2 += filenames[:10]
-            testfile2 += filenames[22:]
-        if (j == "2M"):
-            trainfile2 += filenames[:10]
-            testfile2 += filenames[23:]
+            trainfile2 += filenames[:15]
+            testfile2 += filenames[17:]
         filenames = []
     trainfile2 = np.array(trainfile2)#20*2
     testfile2 = np.array(testfile2)  # 20*2
@@ -170,8 +167,8 @@ autoencoder_mid = Model(inputs=input, outputs=encoded2)
 autoencoder.compile(optimizer='adam', loss='mse')
 #autoencoder.compile(optimizer='adam', loss='mse')
 autoencoder.summary()
-autoencoder.fit(train_feature_nosiy[:4800], train_feature[:4800], epochs=300, batch_size=128, verbose=1, validation_data=(test_feature_nosiy[:1200], test_feature[:1200]))
-autoencoder.save_weights('models/Kpre-oneclass-AE0~1mse-0~1M2M/pre-oneclass-AE0~1mse-0~1M2M.h5')
+autoencoder.fit(train_feature_nosiy[:3600], train_feature[:3600], epochs=600, batch_size=128, verbose=1, validation_data=(test_feature_nosiy[:720], test_feature[:720]))
+autoencoder.save_weights('models/Kpre-oneclass-AE0~1mse-0~1M/pre-oneclass-AE0~1mse-0~1M.h5')
 
 #decoded test images
 train_predict = autoencoder.predict(train_feature_nosiy)
@@ -185,14 +182,12 @@ sess = tf.Session()
 train_loss = tf.reduce_mean(tf.square(train_feature_nosiy - train_predict),axis=1)
 print(train_loss)
 print(sess.run(train_loss))
-print(sess.run(train_loss[:100]))
-print(sess.run(train_loss[4700:]))
+
 
 test_loss = tf.reduce_mean(tf.square(test_feature_nosiy - test_predict),axis=1)
 print(test_loss)
 print(sess.run(test_loss))
-print(sess.run(test_loss[:100]))
-print(sess.run(test_loss[2300:]))
+
 
 tk_loss= tf.reduce_mean(tf.square(tk_feature - tk_predict),axis=1)
 

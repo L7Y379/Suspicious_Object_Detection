@@ -155,8 +155,11 @@ def other_file_array():
     k = np.arange(160)
     for i in range(0, 160):
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        print(i)
-        print(k[i])
+        if(i%20==0):
+            print()
+            print(i)
+        print(feature[i * lin2:(i + 1) * lin2])
+        print(k[i],end="  ")
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:75]
     #np.random.shuffle(trainfile)

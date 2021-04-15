@@ -1,5 +1,4 @@
 #带危险品的用一个aae重构，不带危险品的用另一个aae重构，重构数据比源数据多十倍
-#取一段路径的180个数据，（之前取得240）
 import pandas as pd
 import os
 from sklearn.cluster import KMeans
@@ -15,7 +14,7 @@ from keras.optimizers import Adam
 import numpy as np
 from keras.utils import np_utils
 import time
-lin=190#170
+lin=120
 ww=1
 lin2=int((lin*2)/ww)
 def read_data(filenames):
@@ -53,20 +52,20 @@ def read_data(filenames):
     label = np_utils.to_categorical(label)
     return np.array(feature[:, :270]), np.array(label)
 def file_array():
-    filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
+    filepath = 'D:/my bad/Suspicious object detection/data/caiji/CSV/'
     filetype = '.csv'
     filenames = []
     trainfile = []
     trainfile2 = []
     testfile = []
     testfile2 = []
-    for name in ['zb', 'ljy', 'czn']:
+    for name in ['zb', 'zhw', 'tk']:
         for j in ["0"]:  # "1S", "2S"
-            for i in [i for i in range(0, 30)]:
+            for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
                 filenames += [fn]
 
-    trainfile += filenames[:90]
+    trainfile += filenames[:60]
     filenames = []
     trainfile = np.array(trainfile)
     feature, lable = read_data(trainfile)
@@ -80,20 +79,20 @@ def file_array():
     feature = np.sum(feature, axis=1)
     feature = np.sqrt(feature)
     print(feature)
-    k = np.arange(90)
-    for i in range(0, 90):
+    k = np.arange(60)
+    for i in range(0, 60):
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:75]
+    trainfile = trainfile[:50]
     # np.random.shuffle(trainfile)
 
-    for name in ['zb', 'ljy', 'czn']:
+    for name in ['zb', 'zhw', 'tk']:
         for j in ["1M"]:  # "1S", "2S"
-            for i in [i for i in range(0, 30)]:
+            for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
                 filenames += [fn]
-    trainfile2 += filenames[:90]
+    trainfile2 += filenames[:60]
     filenames = []
     trainfile2 = np.array(trainfile2)
     feature, lable = read_data(trainfile2)
@@ -106,18 +105,18 @@ def file_array():
     feature = np.square(feature)
     feature = np.sum(feature, axis=1)
     feature = np.sqrt(feature)
-    k = np.arange(90)
-    for i in range(0, 90):
+    k = np.arange(60)
+    for i in range(0, 60):
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
-    trainfile2 = trainfile2[:75]
+    trainfile2 = trainfile2[:50]
     # np.random.shuffle(trainfile2)
 
-    testfile = trainfile[60:]
-    trainfile = trainfile[:75]
-    testfile2 = trainfile2[60:]
-    trainfile2 = trainfile2[:75]
+    testfile = trainfile[40:]
+    trainfile = trainfile[:50]
+    testfile2 = trainfile2[40:]
+    trainfile2 = trainfile2[:50]
 
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
@@ -125,7 +124,7 @@ def file_array():
 
 #获取不带标签的数据
 def other_file_array():
-    filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
+    filepath = 'D:/my bad/Suspicious object detection/data/caiji/CSV/'
     filetype = '.csv'
     filenames = []
     trainfile = []
@@ -133,10 +132,10 @@ def other_file_array():
     testfile = []
     testfile2 = []
     for j in ["0"]:  # "1S", "2S"
-        for i in [i for i in range(0, 30)]:
-            fn = filepath + "tk-2.5-M/" + "tk-" + str(j) + "-" + str(i) + filetype
+        for i in [i for i in range(0, 20)]:
+            fn = filepath + "cyh-2.5-M/" + "cyh-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
-    trainfile += filenames[:30]
+    trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
     feature, lable = read_data(trainfile)
@@ -149,19 +148,19 @@ def other_file_array():
     feature = np.square(feature)
     feature = np.sum(feature, axis=1)
     feature = np.sqrt(feature)
-    k = np.arange(30)
-    for i in range(0, 30):
+    k = np.arange(20)
+    for i in range(0, 20):
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:25]
+    trainfile = trainfile[:18]
     np.random.shuffle(trainfile)
 
     for j in ["1M"]:  # "1S", "2S"
-        for i in [i for i in range(0, 30)]:
-            fn = filepath + "tk-2.5-M/" + "tk-" + str(j) + "-" + str(i) + filetype
+        for i in [i for i in range(0, 20)]:
+            fn = filepath + "cyh-2.5-M/" + "cyh-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
-    trainfile2 += filenames[:30]
+    trainfile2 += filenames[:20]
     filenames = []
     trainfile2 = np.array(trainfile2)
     feature, lable = read_data(trainfile2)
@@ -174,18 +173,18 @@ def other_file_array():
     feature = np.square(feature)
     feature = np.sum(feature, axis=1)
     feature = np.sqrt(feature)
-    k = np.arange(30)
-    for i in range(0, 30):
+    k = np.arange(20)
+    for i in range(0, 20):
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
-    trainfile2 = trainfile2[:25]
+    trainfile2 = trainfile2[:18]
     np.random.shuffle(trainfile2)
 
-    testfile = trainfile[20:]
-    trainfile = trainfile[:25]
-    testfile2 = trainfile2[20:]
-    trainfile2 = trainfile2[:25]
+    testfile = trainfile[15:]
+    trainfile = trainfile[:18]
+    testfile2 = trainfile2[15:]
+    trainfile2 = trainfile2[:18]
 
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
@@ -350,7 +349,7 @@ test_feature_ot = ((test_feature_ot.astype('float32')-np.min(test_feature_ot))-(
 
 print(train_feature)
 print(test_feature)
-X_train1 =train_feature[:75*lin2]
+X_train1 =train_feature[:50*lin2]
 print(X_train1.shape)
 X_test1 =test_feature[:5*lin2]
 print(X_test1.shape)
@@ -359,7 +358,7 @@ X_test1 = X_test1.reshape([X_test1.shape[0], img_rows, img_cols])
 X_train1 = np.expand_dims(X_train1, axis=3)
 X_test1 = np.expand_dims(X_test1, axis=3)
 
-X_train2 =train_feature[75*lin2:]
+X_train2 =train_feature[50*lin2:]
 print(X_train2.shape)
 X_test2 =test_feature[5*lin2:]
 print(X_test2.shape)
@@ -395,14 +394,14 @@ adversarial_autoencoder2.load_weights('models/aae-csi2/adversarial_autoencoder2.
 train_mid1 = encoder.predict(X_train1)
 train_mid2 = encoder2.predict(X_train2)
 
-data=sample_prior(latent_dim, 3*25*lin2)
+data=sample_prior(latent_dim, 50*lin2)
 scdata1=decoder.predict(data)
 scdata2=decoder2.predict(data)
 
 X_SCdata1=0.5*X_train1+0.5*scdata1
 X_SCdata2=0.5*X_train2+0.5*scdata2
-X_SCdata1_label=train_label[:lin2*75]
-X_SCdata2_label=train_label[lin2*75:]
+X_SCdata1_label=train_label[:lin2*50]
+X_SCdata2_label=train_label[lin2*50:]
 
 
 # X_SCdata1 = np.concatenate((X_train1, scdata1), axis=0)#源数据和生成数据结合（不带东西），带标签
@@ -569,9 +568,9 @@ print("投票后带东西源标签数据准确率：")
 print(acc_yes_pre_vot)
 
 
-non_mid=ed.predict(X_SCdata1[:lin2*75])
+non_mid=ed.predict(X_SCdata1[:12000])
 non_pre=classer.predict(non_mid)
-yes_mid=ed.predict(X_SCdata2[:lin2*75])
+yes_mid=ed.predict(X_SCdata2[:12000])
 yes_pre=classer.predict(yes_mid)
 print(non_mid)
 print(non_mid.shape)
@@ -663,100 +662,6 @@ print(acc_yes_pre)
 print("投票后合成的带东西源标签数据准确率：")
 print(acc_yes_pre_vot)
 
-
-# non_mid2=ed.predict(X_SCdata1[18000:])
-# non_pre2=classer.predict(non_mid2)
-# yes_mid2=ed.predict(X_SCdata2[18000:])
-# yes_pre2=classer.predict(yes_mid2)
-# print(non_mid2)
-# print(non_mid2.shape)
-# print(yes_mid2)
-# print(yes_mid2.shape)
-# print(non_pre2)
-# print(non_pre2.shape)
-# print(yes_pre2)
-# print(yes_pre2.shape)
-#
-# a1=[0,0]
-# a2=[0,0]
-# k1=[0,0]
-# non_pre2_1 = np.arange(len(non_pre2))
-# for i in range(0,int(len(non_pre2))):
-#     if non_pre2[i][0]>=non_pre2[i][1]:
-#         a1[0]=a1[0]+1
-#         non_pre2_1[i] =1
-#     if non_pre2[i][0] < non_pre2[i][1]:
-#         a1[1] = a1[1] + 1
-#         non_pre2_1[i] = 0
-#
-# acc_non_pre2=float(a1[0])/float(len(non_pre2))
-# a1=[0,0]
-# for i in range(0,int(len(non_pre2_1))):
-#     if non_pre2_1[i]==1:
-#         k1[0]=k1[0]+1
-#         a1[0] = a1[0] + 1
-#     if non_pre2_1[i] == 0:
-#         k1[1] = k1[1] + 1
-#         a1[1] = a1[1] + 1
-#     if (k1[0]+k1[1]==lin2):
-#         if k1[0]>=k1[1]:
-#             a2[0]=a2[0]+1
-#         if k1[0]<k1[1]:
-#             a2[1]=a2[1]+1
-#         k1=[0,0]
-# acc_non_pre2_vot=float(a2[0])/float(len(non_pre2_1)/lin2)
-# print(a1)
-# print(a2)
-#
-#
-#
-# print("生成的不带东西源标签数据准确率：")
-# print(acc_non_pre2)
-# print("投票后生成的不带东西源标签数据准确率：")
-# print(acc_non_pre2_vot)
-#
-#
-# a1=[0,0]
-# a2=[0,0]
-# k1=[0,0]
-# for i in range(0,int(len(yes_pre2))):
-#     if yes_pre2[i][0]>yes_pre2[i][1]:a1[0]=a1[0]+1
-#     if yes_pre2[i][0] <= yes_pre2[i][1]: a1[1] = a1[1] + 1
-# # print("a1")
-# print(a1)
-# # acc_yes_pre=float(a1[1])/float(len(yes_pre))
-# a1=[0,0]
-# yes_pre2_1 = np.arange(len(yes_pre2))
-# for i in range(0,int(len(yes_pre2))):
-#     if yes_pre2[i][0]>yes_pre2[i][1]:
-#         a1[0]=a1[0]+1
-#         yes_pre2_1[i] =1
-#     if yes_pre2[i][0] <= yes_pre2[i][1]:
-#         a1[1] = a1[1] + 1
-#         yes_pre2_1[i] = 0
-#
-# acc_yes_pre2=float(a1[1])/float(len(yes_pre2))
-# a1=[0,0]
-# for i in range(0,int(len(yes_pre2_1))):
-#     if yes_pre2_1[i]==1:
-#         k1[0]=k1[0]+1
-#         a1[0] = a1[0] + 1
-#     if yes_pre2_1[i] == 0:
-#         k1[1] = k1[1] + 1
-#         a1[1] = a1[1] + 1
-#     if (k1[0]+k1[1]==lin2):
-#         if k1[0]>k1[1]:
-#             a2[0]=a2[0]+1
-#         if k1[0]<=k1[1]:
-#             a2[1]=a2[1]+1
-#         k1=[0,0]
-# acc_yes_pre2_vot=float(a2[1])/float(len(yes_pre2_1)/lin2)
-# print(a1)
-# print(a2)
-# print("生成的带东西源标签数据准确率：")
-# print(acc_yes_pre2)
-# print("投票后生成的带东西源标签数据准确率：")
-# print(acc_yes_pre2_vot)
 
 
 

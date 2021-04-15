@@ -1,5 +1,4 @@
 #带危险品的用一个aae重构，不带危险品的用另一个aae重构，重构数据比源数据多十倍
-#取一段路径的180个数据，（之前取得240）
 import pandas as pd
 import os
 from sklearn.cluster import KMeans
@@ -14,8 +13,7 @@ from keras.models import Sequential, Model
 from keras.optimizers import Adam
 import numpy as np
 from keras.utils import np_utils
-import time
-lin=190#170
+lin=196
 ww=1
 lin2=int((lin*2)/ww)
 def read_data(filenames):
@@ -203,6 +201,9 @@ def build_encoder(latent_dim, img_shape):
     return Model(img, latent_repr)
 
 
+# In[24]:
+
+
 def build_discriminator(latent_dim):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
@@ -213,6 +214,9 @@ def build_discriminator(latent_dim):
     encoded_repr = Input(shape=(latent_dim,))
     validity = model(encoded_repr)
     return Model(encoded_repr, validity)
+
+
+# In[25]:
 
 
 def build_decoder(latent_dim, img_shape):
@@ -239,6 +243,9 @@ def build_encoder2(latent_dim, img_shape):
     return Model(img, latent_repr)
 
 
+# In[24]:
+
+
 def build_discriminator2(latent_dim):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
@@ -249,6 +256,9 @@ def build_discriminator2(latent_dim):
     encoded_repr = Input(shape=(latent_dim,))
     validity = model(encoded_repr)
     return Model(encoded_repr, validity)
+
+
+# In[25]:
 
 
 def build_decoder2(latent_dim, img_shape):
@@ -434,8 +444,6 @@ def build_class(latent_dim):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(512))
-    model.add(LeakyReLU(alpha=0.2))
     model.add(Dense(256))
     model.add(LeakyReLU(alpha=0.2))
     model.add(Dense(2, activation="softmax"))
@@ -469,14 +477,14 @@ sc_fido = Model(img3,reconstructed_img3)
 sc_fido.compile(loss='mse', optimizer=opt)
 classer.summary()
 
-classer.load_weights('models/fido3_lat10-64upclasser/classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser/ed.h5')
-dd.load_weights('models/fido3_lat10-64upclasser/dd.h5')
-sc_fido.load_weights('models/fido3_lat10-64upclasser/sc_fido.h5')
+classer.load_weights('models/fido3_lat10-64/classer.h5')
+ed.load_weights('models/fido3_lat10-64/ed.h5')
+dd.load_weights('models/fido3_lat10-64/dd.h5')
+sc_fido.load_weights('models/fido3_lat10-64/sc_fido.h5')
 
-non_mid=ed.predict(X_train1)
+non_mid=ed.predict(X_SCdata1[:lin2*75])
 non_pre=classer.predict(non_mid)
-yes_mid=ed.predict(X_train2)
+yes_mid=ed.predict(X_SCdata2[:lin2*75])
 yes_pre=classer.predict(yes_mid)
 print(non_mid)
 print(non_mid.shape)
@@ -566,101 +574,6 @@ print(a2)
 print("带东西源标签数据准确率：")
 print(acc_yes_pre)
 print("投票后带东西源标签数据准确率：")
-print(acc_yes_pre_vot)
-
-
-non_mid=ed.predict(X_SCdata1[:lin2*75])
-non_pre=classer.predict(non_mid)
-yes_mid=ed.predict(X_SCdata2[:lin2*75])
-yes_pre=classer.predict(yes_mid)
-print(non_mid)
-print(non_mid.shape)
-print(yes_mid)
-print(yes_mid.shape)
-print(non_pre)
-print(non_pre.shape)
-print(yes_pre)
-print(yes_pre.shape)
-
-a1=[0,0]
-a2=[0,0]
-k1=[0,0]
-non_pre_1 = np.arange(len(non_pre))
-for i in range(0,int(len(non_pre))):
-    if non_pre[i][0]>=non_pre[i][1]:
-        a1[0]=a1[0]+1
-        non_pre_1[i] =1
-    if non_pre[i][0] < non_pre[i][1]:
-        a1[1] = a1[1] + 1
-        non_pre_1[i] = 0
-
-acc_non_pre=float(a1[0])/float(len(non_pre))
-a1=[0,0]
-for i in range(0,int(len(non_pre_1))):
-    if non_pre_1[i]==1:
-        k1[0]=k1[0]+1
-        a1[0] = a1[0] + 1
-    if non_pre_1[i] == 0:
-        k1[1] = k1[1] + 1
-        a1[1] = a1[1] + 1
-    if (k1[0]+k1[1]==lin2):
-        if k1[0]>=k1[1]:
-            a2[0]=a2[0]+1
-        if k1[0]<k1[1]:
-            a2[1]=a2[1]+1
-        k1=[0,0]
-acc_non_pre_vot=float(a2[0])/float(len(non_pre_1)/lin2)
-print(a1)
-print(a2)
-
-
-
-print("合成的不带东西源标签数据准确率：")
-print(acc_non_pre)
-print("投票后合成的不带东西源标签数据准确率：")
-print(acc_non_pre_vot)
-
-
-a1=[0,0]
-a2=[0,0]
-k1=[0,0]
-for i in range(0,int(len(yes_pre))):
-    if yes_pre[i][0]>yes_pre[i][1]:a1[0]=a1[0]+1
-    if yes_pre[i][0] <= yes_pre[i][1]: a1[1] = a1[1] + 1
-# print("a1")
-print(a1)
-# acc_yes_pre=float(a1[1])/float(len(yes_pre))
-a1=[0,0]
-yes_pre_1 = np.arange(len(yes_pre))
-for i in range(0,int(len(yes_pre))):
-    if yes_pre[i][0]>yes_pre[i][1]:
-        a1[0]=a1[0]+1
-        yes_pre_1[i] =1
-    if yes_pre[i][0] <= yes_pre[i][1]:
-        a1[1] = a1[1] + 1
-        yes_pre_1[i] = 0
-
-acc_yes_pre=float(a1[1])/float(len(yes_pre))
-a1=[0,0]
-for i in range(0,int(len(yes_pre_1))):
-    if yes_pre_1[i]==1:
-        k1[0]=k1[0]+1
-        a1[0] = a1[0] + 1
-    if yes_pre_1[i] == 0:
-        k1[1] = k1[1] + 1
-        a1[1] = a1[1] + 1
-    if (k1[0]+k1[1]==lin2):
-        if k1[0]>k1[1]:
-            a2[0]=a2[0]+1
-        if k1[0]<=k1[1]:
-            a2[1]=a2[1]+1
-        k1=[0,0]
-acc_yes_pre_vot=float(a2[1])/float(len(yes_pre_1)/lin2)
-print(a1)
-print(a2)
-print("合成的带东西源标签数据准确率：")
-print(acc_yes_pre)
-print("投票后合成的带东西源标签数据准确率：")
 print(acc_yes_pre_vot)
 
 

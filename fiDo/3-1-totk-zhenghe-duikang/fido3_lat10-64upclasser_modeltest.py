@@ -1,5 +1,4 @@
 #带危险品的用一个aae重构，不带危险品的用另一个aae重构，重构数据比源数据多十倍
-#取一段路径的180个数据，（之前取得240）
 import pandas as pd
 import os
 from sklearn.cluster import KMeans
@@ -15,7 +14,7 @@ from keras.optimizers import Adam
 import numpy as np
 from keras.utils import np_utils
 import time
-lin=190#170
+lin=120
 ww=1
 lin2=int((lin*2)/ww)
 def read_data(filenames):
@@ -569,9 +568,9 @@ print("投票后带东西源标签数据准确率：")
 print(acc_yes_pre_vot)
 
 
-non_mid=ed.predict(X_SCdata1[:lin2*75])
+non_mid=ed.predict(X_SCdata1[:18000])
 non_pre=classer.predict(non_mid)
-yes_mid=ed.predict(X_SCdata2[:lin2*75])
+yes_mid=ed.predict(X_SCdata2[:18000])
 yes_pre=classer.predict(yes_mid)
 print(non_mid)
 print(non_mid.shape)

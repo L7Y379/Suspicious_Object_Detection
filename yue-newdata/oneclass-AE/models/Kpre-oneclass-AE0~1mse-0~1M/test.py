@@ -7,8 +7,35 @@ import numpy as np
 from tensorflow.python.keras.models import load_model
 import pandas as pd
 import os
-from sklearn.cluster import KMeans
+from sklearn import preprocessing
+import matplotlib.pyplot as plt
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
+def file_array():
+    filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
+    filetype = '.csv'
+    filenames = []
+    trainfile = []
+    testfile = []
+    for j in ["0", "1M","2M"]:  # "1S", "2S"
+        for i in [i for i in range(0, 25)]:
+            fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
+            filenames += [fn]
+        np.random.shuffle(filenames)
+        if (j == "0"):
+            trainfile += filenames[:25]
+            testfile += filenames[20:]
+        if (j == "1M"):
+            trainfile += filenames[:12]
+            testfile += filenames[22:]
+        if (j == "2M"):
+            trainfile += filenames[:13]
+            testfile += filenames[23:]
+        filenames = []
+    trainfile = np.array(trainfile)#20*2
+    testfile = np.array(testfile)#10*2
+    #print(testfile);
+    return trainfile, testfile
 
 def file_array_other():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
@@ -16,7 +43,7 @@ def file_array_other():
     filenames = []
     for j in ["0","1M"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
-            fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
+            fn = filepath + "czn-2.5-M/" + "czn-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
         np.random.shuffle(filenames)
     filenames = np.array(filenames)#20*2
@@ -24,6 +51,7 @@ def file_array_other():
 lin=120
 ww=1
 lin2=int((lin*2)/ww)
+print(lin2)
 def read_data(filenames):
     i = 0
     feature = []
@@ -56,58 +84,11 @@ def read_data(filenames):
             i = i + 1
         else:
             feature = np.concatenate((feature, temp_feature), axis=0)  # 拼接
-
+            #label = np.concatenate((label, temp_label), axis=0)
+    #data = np.concatenate((feature, label), axis=1)
+    #np.random.shuffle(feature)
     return np.array(feature[:, :270]), np.array(feature[:, 270:])
-def file_array():
-    filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
-    filetype = '.csv'
-    filenames = []
-    trainfile = []
-    trainfile2 = []
-    testfile = []
-    testfile2 = []
-    for j in ["0"]:  # "1S", "2S"
-        for i in [i for i in range(0, 30)]:
-            fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
-            filenames += [fn]
-    trainfile += filenames[:30]
-    trainfile =np.array(trainfile)
-    feature,lable=read_data(trainfile)
-
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    print(kmeans.cluster_centers_.shape)
-    print(kmeans.cluster_centers_)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(30)
-    for i in range(0, 30):
-        k[i] = np.mean(feature[i * 240:(i + 1) * 240])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:25]
-    np.random.shuffle(trainfile)
-    for j in ["0", "1M","2M"]:  # "1S", "2S"
-        for i in [i for i in range(0, 25)]:
-            fn = filepath + "zb-2.5-M/" + "zb-" + str(j) + "-" + str(i) + filetype
-            filenames += [fn]
-        np.random.shuffle(filenames)
-        if (j == "0"):
-            testfile = trainfile[20:]
-            trainfile = trainfile[:20]
-        if (j == "1M"):
-            trainfile2 += filenames[:10]
-            testfile2 += filenames[22:]
-        if (j == "2M"):
-            trainfile2 += filenames[:10]
-            testfile2 += filenames[23:]
-        filenames = []
-    trainfile2 = np.array(trainfile2)#20*2
-    testfile2 = np.array(testfile2)  # 20*2
-    trainfile=np.concatenate((trainfile, trainfile2), axis=0)
-    testfile = np.concatenate((testfile, testfile2), axis=0)
-    return trainfile, testfile
+    #return np.array(feature[:, 134:136]), np.array(feature[:, 134:136])
 
 trainfile_array, testfile_array = file_array()#
 tk_files=file_array_other()
@@ -118,12 +99,12 @@ test_feature, test_label = read_data(testfile_array)
 tk_feature,tk_label=read_data(tk_files)
 
 #全局归一化
-train_feature = (train_feature.astype('float32')-np.min(np.concatenate((train_feature, test_feature), axis=0)))/(np.max(np.concatenate((train_feature, test_feature), axis=0))-np.min(np.concatenate((train_feature, test_feature), axis=0)))
-test_feature = (test_feature.astype('float32')-np.min(np.concatenate((train_feature, test_feature), axis=0)))/(np.max(np.concatenate((train_feature, test_feature), axis=0))-np.min(np.concatenate((train_feature, test_feature), axis=0)))
-tk_feature=(tk_feature.astype('float32')-np.min(np.concatenate((train_feature, test_feature), axis=0)))/(np.max(np.concatenate((train_feature, test_feature), axis=0))-np.min(np.concatenate((train_feature, test_feature), axis=0)))
-# train_feature = (train_feature.astype('float32')-np.min(train_feature))/(np.max(train_feature)-np.min(train_feature))
-# test_feature = (test_feature.astype('float32')-np.min(test_feature))/(np.max(test_feature)-np.min(test_feature))
-# tk_feature=(tk_feature.astype('float32')-np.min(tk_feature))/(np.max(tk_feature)-np.min(tk_feature))
+# train_feature = train_feature.astype('float32')/np.max(train_feature)
+# test_feature = test_feature.astype('float32')/np.max(test_feature)
+# tk_feature=tk_feature.astype('float32')/np.max(tk_feature)
+train_feature = (train_feature.astype('float32')-np.min(train_feature))/(np.max(train_feature)-np.min(train_feature))
+test_feature = (test_feature.astype('float32')-np.min(test_feature))/(np.max(test_feature)-np.min(test_feature))
+tk_feature=(tk_feature.astype('float32')-np.min(tk_feature))/(np.max(tk_feature)-np.min(tk_feature))
 # train_feature = train_feature.astype('float32')/73.0
 # test_feature = test_feature.astype('float32')/73.0
 # tk_feature=tk_feature.astype('float32')/73.0
@@ -170,8 +151,7 @@ autoencoder_mid = Model(inputs=input, outputs=encoded2)
 autoencoder.compile(optimizer='adam', loss='mse')
 #autoencoder.compile(optimizer='adam', loss='mse')
 autoencoder.summary()
-autoencoder.fit(train_feature_nosiy[:4800], train_feature[:4800], epochs=300, batch_size=128, verbose=1, validation_data=(test_feature_nosiy[:1200], test_feature[:1200]))
-autoencoder.save_weights('models/Kpre-oneclass-AE0~1mse-0~1M2M/pre-oneclass-AE0~1mse-0~1M2M.h5')
+autoencoder.load_weights('pre-oneclass-AE0~1mse-0~1M2M.h5')
 
 #decoded test images
 train_predict = autoencoder.predict(train_feature_nosiy)
@@ -231,11 +211,7 @@ for j in range(int(len(pred_train)/2),int(len(pred_train))):
     if pred_train[j] == 0: a2[0] = a2[0] + 1
     if pred_train[j] == 1: a2[1] = a2[1] + 1
 print(a1)
-print("没带东西正确判定的准确率为：", end='')
-print(float(a1[0])/float(a1[0]+a1[1]))
 print(a2)
-print("带了东西正确判定的准确率为：", end='')
-print(float(a2[1])/float(a2[0]+a2[1]))
 if((a1[0]+a2[1])>=(a1[1]+a2[0])):
     a=(a1[0]+a2[1])
     c=0
@@ -243,7 +219,7 @@ else:
     a=(a1[1]+a2[0])
     c=1
 acc_train=float(a)/float(len(pred_train))
-print("训练数据总体准确率为：")
+print("训练数据的聚类准确率为：")
 print(acc_train)
 #print(c)
 b1 = [0, 0]
@@ -255,11 +231,7 @@ for j in range(int(len(pred_test) / 2), int(len(pred_test))):
     if pred_test[j] == 0:b2[0] = b2[0] + 1
     if pred_test[j] == 1:b2[1] = b2[1] + 1
 print(b1)
-print("没带东西正确判定的准确率为：", end='')
-print(float(b1[0])/float(b1[0]+b1[1]))
 print(b2)
-print("带了东西正确判定的准确率为：", end='')
-print(float(b2[1])/float(b2[0]+b2[1]))
 if((b1[0]+b2[1])>=(b1[1]+b2[0])):
     if (c==0):
         b=(b1[0]+b2[1])
@@ -271,7 +243,7 @@ else:
     else:
         b = (b1[0] + b2[1])
 acc_test=float(b)/float(len(pred_test))
-print("测试数据总体准确率为：")
+print("测试数据的聚类准确率为：")
 print(acc_test)
 
 #投票
@@ -301,11 +273,7 @@ for j in range(int(len(pred_train_vot)/2),int(len(pred_train_vot))):
     if pred_train_vot[j] == 0: a2[0] = a2[0] + 1
     if pred_train_vot[j] == 1: a2[1] = a2[1] + 1
 print(a1)
-print("投票后没带东西正确判定的准确率为：", end='')
-print(float(a1[0])/float(a1[0]+a1[1]))
 print(a2)
-print("投票后带了东西正确判定的准确率为：", end='')
-print(float(a2[1])/float(a2[0]+a2[1]))
 if((a1[0]+a2[1])>=(a1[1]+a2[0])):
     a=(a1[0]+a2[1])
     c=0
@@ -313,7 +281,7 @@ else:
     a=(a1[1]+a2[0])
     c=1
 acc_train_vot=float(a)/float(len(pred_train_vot))
-print("训练数据的投票后准确率为：")
+print("训练数据的投票后聚类准确率为：")
 print(acc_train_vot)
 
 pred_test_vot = np.arange(len(pred_test) / lin2)
@@ -333,11 +301,7 @@ for j in range(int(len(pred_test_vot) / 2), int(len(pred_test_vot))):
     if pred_test_vot[j] == 0: b2[0] = b2[0] + 1
     if pred_test_vot[j] == 1: b2[1] = b2[1] + 1
 print(b1)
-print("投票后没带东西正确判定的准确率为：", end='')
-print(float(b1[0])/float(b1[0]+b1[1]))
 print(b2)
-print("投票后带了东西正确判定的准确率为：", end='')
-print(float(b2[1])/float(b2[0]+b2[1]))
 if((b1[0]+b2[1])>=(b1[1]+b2[0])):
     if (c==0):
         b=(b1[0]+b2[1])
@@ -347,7 +311,7 @@ else:
         b = (b1[1] + b2[0])
     else:b=(b1[0]+b2[1])
 acc_test_vot = float(b) / float(len(pred_test_vot))
-print("测试数据的投票后准确率为：")
+print("测试数据的投票后聚类准确率为：")
 print(acc_test_vot)
 
 
