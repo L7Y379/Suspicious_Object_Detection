@@ -507,7 +507,7 @@ for epoch in range(epochs):
     # Train the generator
 
     idx2 = np.random.randint(0, all_data.shape[0], batch_size)
-    imgs2 = all_data[idx]
+    imgs2 = all_data[idx2]
     g_loss = sc_fido.train_on_batch(imgs2,imgs2)
 
     # Plot the progress (every 10th epoch)

@@ -317,14 +317,9 @@ valid2 = np.ones((batch_size, 1))
 fake2 = np.zeros((batch_size, 1))
 
 
-# In[ ]:
-
-
 def sample_prior(latent_dim, batch_size):
     return np.random.normal(size=(batch_size, latent_dim))
 
-
-# In[31]:
 
 
 def sample_images(latent_dim, decoder, epoch):

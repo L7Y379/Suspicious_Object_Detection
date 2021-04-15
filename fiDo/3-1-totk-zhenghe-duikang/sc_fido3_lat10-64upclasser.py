@@ -23,6 +23,7 @@ def read_data(filenames):
     i = 0
     feature = []
     label = []
+    label2 = []
     for filename in filenames:
         if os.path.exists(filename) == False:
             print(filename + " doesn't exit.")
@@ -35,6 +36,7 @@ def read_data(filenames):
         temp_feature = csvdata[idx,]
         # 贴标签
         temp_label = -1  # 初始化
+        temp_label2 = -1  # 初始化
         if ('-0-' in filename):
             temp_label = 0
         elif ('-1M-' in filename):
@@ -43,16 +45,29 @@ def read_data(filenames):
             temp_label = 2
         elif ('-3M-' in filename):
             temp_label = 3
+
+        if ('zb' in filename):
+            temp_label2 = 0
+        elif ('ljy' in filename):
+            temp_label2 = 1
+        elif ('czn' in filename):
+            temp_label2 = 2
+        elif ('tk' in filename):
+            temp_label2 = 3
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
+        temp_label2 = np.tile(temp_label2, (temp_feature.shape[0],))
         if i == 0:
             feature = temp_feature
             label = temp_label
+            label2 = temp_label2
             i = i + 1
         else:
             feature = np.concatenate((feature, temp_feature), axis=0)  # 拼接
             label = np.concatenate((label, temp_label), axis=0)
+            label2 = np.concatenate((label2, temp_label2), axis=0)
     label = np_utils.to_categorical(label)
-    return np.array(feature[:, :270]), np.array(label)
+    label2 = np_utils.to_categorical(label2)
+    return np.array(feature[:, :270]), np.array(label),np.array(label2)
 
 def file_array():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
@@ -71,7 +86,7 @@ def file_array():
     trainfile += filenames[:90]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable = read_data(trainfile)
+    feature, lable,domain_label = read_data(trainfile)
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
@@ -98,7 +113,7 @@ def file_array():
     trainfile2 += filenames[:90]
     filenames = []
     trainfile2 = np.array(trainfile2)
-    feature, lable = read_data(trainfile2)
+    feature, lable,domain_label = read_data(trainfile2)
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
@@ -114,7 +129,7 @@ def file_array():
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
     trainfile2 = trainfile2[:75]
-    # np.random.shuffle(trainfile2)
+    np.random.shuffle(trainfile2)
 
     testfile = trainfile[60:]
     trainfile = trainfile[:75]
@@ -141,7 +156,7 @@ def other_file_array():
     trainfile += filenames[:30]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable = read_data(trainfile)
+    feature, lable,domain_label = read_data(trainfile)
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
@@ -166,7 +181,7 @@ def other_file_array():
     trainfile2 += filenames[:30]
     filenames = []
     trainfile2 = np.array(trainfile2)
-    feature, lable = read_data(trainfile2)
+    feature, lable,domain_label = read_data(trainfile2)
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
@@ -219,10 +234,6 @@ def build_discriminator(latent_dim):
     validity = model(encoded_repr)
     return Model(encoded_repr, validity)
 
-
-# In[25]:
-
-
 def build_decoder(latent_dim, img_shape):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
@@ -246,10 +257,6 @@ def build_encoder2(latent_dim, img_shape):
     latent_repr = Dense(latent_dim)(h)
     return Model(img, latent_repr)
 
-
-# In[24]:
-
-
 def build_discriminator2(latent_dim):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
@@ -260,10 +267,6 @@ def build_discriminator2(latent_dim):
     encoded_repr = Input(shape=(latent_dim,))
     validity = model(encoded_repr)
     return Model(encoded_repr, validity)
-
-
-# In[25]:
-
 
 def build_decoder2(latent_dim, img_shape):
     model = Sequential()
@@ -276,10 +279,6 @@ def build_decoder2(latent_dim, img_shape):
     z = Input(shape=(latent_dim,))
     img = model(z)
     return Model(z, img)
-# The input are 28x28 images. The optimization used is Adam. The loss is binary cross-entropy.
-
-# In[26]:
-
 
 img_rows = 15
 img_cols = 18
@@ -347,12 +346,12 @@ sample_interval = 100
 trainfile_array, testfile_array = file_array()#
 print(trainfile_array)
 print(testfile_array)
-train_feature, train_label = read_data(trainfile_array)
-test_feature, test_label = read_data(testfile_array)
+train_feature, train_label,train_domain_label = read_data(trainfile_array)
+test_feature, test_label,test_domain_label = read_data(testfile_array)
 
 trainfile_other, testfile_other = other_file_array()#
-train_feature_ot, train_label_ot = read_data(trainfile_other)
-test_feature_ot, test_label_ot = read_data(testfile_other)
+train_feature_ot, train_label_ot,train_domain_label_ot = read_data(trainfile_other)
+test_feature_ot, test_label_ot,test_domain_label_ot = read_data(testfile_other)
 #全局归化为-1~1
 a=np.concatenate((train_feature, train_feature_ot), axis=0)
 train_feature = ((train_feature.astype('float32')-np.min(a))-(np.max(a)-np.min(a))/2.0)/((np.max(a)-np.min(a))/2)
@@ -413,8 +412,11 @@ scdata2=decoder2.predict(data)
 
 X_SCdata1=0.5*X_train1+0.5*scdata1
 X_SCdata2=0.5*X_train2+0.5*scdata2
-X_SCdata1_label=train_label[:18000]
-X_SCdata2_label=train_label[18000:]
+X_SCdata1_label=train_label[:3*25*lin2]
+X_SCdata2_label=train_label[3*25*lin2:]
+X_SCdata1_domain_label=train_domain_label[:3*25*lin2]
+X_SCdata2_domain_label=train_domain_label[3*25*lin2:]
+
 
 
 # X_SCdata1 = np.concatenate((X_train1, scdata1), axis=0)#源数据和生成数据结合（不带东西），带标签
@@ -425,6 +427,8 @@ X_SCdata2_label=train_label[18000:]
 
 X_SCdata=np.concatenate((X_SCdata1,X_SCdata2), axis=0)
 X_SCdata_label=np.concatenate((X_SCdata1_label,X_SCdata2_label), axis=0)
+X_SCdata_domain_label=np.concatenate((X_SCdata1_domain_label,X_SCdata2_domain_label), axis=0)
+
 all_data=np.concatenate((X_SCdata1,X_SCdata2), axis=0)
 print(all_data.shape)
 all_data=np.concatenate((all_data,train_feature_ot), axis=0)
@@ -454,6 +458,19 @@ def build_class(latent_dim):
     validity = model(encoded_repr)
     return Model(encoded_repr, validity)
 
+def build_dis(latent_dim):
+    model = Sequential()
+    model.add(Dense(512, input_dim=latent_dim))
+    model.add(LeakyReLU(alpha=0.2))
+    model.add(Dense(512))
+    model.add(LeakyReLU(alpha=0.2))
+    model.add(Dense(256))
+    model.add(LeakyReLU(alpha=0.2))
+    model.add(Dense(3, activation="softmax"))
+    encoded_repr = Input(shape=(latent_dim,))
+    validity = model(encoded_repr)
+    return Model(encoded_repr, validity)
+
 def build_dd(latent_dim, img_shape):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
@@ -469,16 +486,26 @@ def build_dd(latent_dim, img_shape):
 opt = Adam(0.0002, 0.5)
 classer = build_class(latent_dim)
 classer.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
+dis=build_dis(latent_dim)
+dis.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 ed = build_ed(latent_dim, img_shape)
 dd = build_dd(latent_dim, img_shape)
+
 img3 = Input(shape=img_shape)
 encoded_repr3 = ed(img3)
 reconstructed_img3 = dd(encoded_repr3)
-classer.trainable = False
-sc_fido = Model(img3,reconstructed_img3)
-sc_fido.compile(loss='mse', optimizer=opt)
-classer.summary()
 
+# img4 = Input(shape=img_shape)
+# encoded_repr4 = ed(img4)
+# reconstructed_img4 = dd(encoded_repr4)
+classer.trainable = False
+dis.trainable = False
+validity = dis(encoded_repr3)
+sc_fido = Model(img3,reconstructed_img3)
+sc_fido = Model(img3, [reconstructed_img3, validity])
+sc_fido.compile(loss=['mse','categorical_crossentropy'], loss_weights=[0.5, 0.5], optimizer=opt)
+classer.summary()
+dis.summary()
 # # Training
 
 for epoch in range(epochs):
@@ -493,6 +520,11 @@ for epoch in range(epochs):
 
     latent_mid = ed.predict(imgs)
     c_loss = classer.train_on_batch(latent_mid,X_SCdata_label[idx])
+    # ---------------------
+    #  Train dis
+    # ---------------------
+    d_loss = dis.train_on_batch(latent_mid, X_SCdata_domain_label[idx])
+
 
     # ---------------------
     #  Train Generator
@@ -501,13 +533,12 @@ for epoch in range(epochs):
     # Train the generator
 
     idx2 = np.random.randint(0, all_data.shape[0], batch_size)
-    imgs2 = all_data[idx]
-    g_loss = sc_fido.train_on_batch(imgs2,imgs2)
-
+    imgs2 = all_data[idx2]
+    g_loss = sc_fido.train_on_batch(imgs2,[imgs2, X_SCdata_domain_label[idx2]])
     # Plot the progress (every 10th epoch)
     if epoch % 10 == 0:
-        print("%d [D loss: %f, acc: %.2f%%] [G loss: %f]" % (
-        epoch, c_loss[0], 100 * c_loss[1], g_loss))
+        print("%d [危险品分类损失为 loss: %f, 正确率acc: %.2f%%,域分类损失为 loss: %f, 正确率acc: %.2f%%] [重构损失loss: %f, 域分类损失: %f]" % (
+        epoch, c_loss[0], 100 * c_loss[1],d_loss[0],100 * d_loss[1], g_loss[0], g_loss[1]))
 
 
 classer.save_weights('models/fido3_lat10-64upclasser/classer.h5')
