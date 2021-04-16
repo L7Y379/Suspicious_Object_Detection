@@ -21,6 +21,7 @@ def read_data(filenames):
     i = 0
     feature = []
     label = []
+    label2 = []
     for filename in filenames:
         if os.path.exists(filename) == False:
             print(filename + " doesn't exit.")
@@ -33,6 +34,7 @@ def read_data(filenames):
         temp_feature = csvdata[idx,]
         # 贴标签
         temp_label = -1  # 初始化
+        temp_label2 = -1  # 初始化
         if ('-0-' in filename):
             temp_label = 0
         elif ('-1M-' in filename):
@@ -41,16 +43,30 @@ def read_data(filenames):
             temp_label = 2
         elif ('-3M-' in filename):
             temp_label = 3
+
+        if ('zb' in filename):
+            temp_label2 = 0
+        elif ('ljy' in filename):
+            temp_label2 = 1
+        elif ('czn' in filename):
+            temp_label2 = 2
+        elif ('tk' in filename):
+            temp_label2 = 3
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
+        temp_label2 = np.tile(temp_label2, (temp_feature.shape[0],))
         if i == 0:
             feature = temp_feature
             label = temp_label
+            label2 = temp_label2
             i = i + 1
         else:
             feature = np.concatenate((feature, temp_feature), axis=0)  # 拼接
             label = np.concatenate((label, temp_label), axis=0)
+            label2 = np.concatenate((label2, temp_label2), axis=0)
     label = np_utils.to_categorical(label)
-    return np.array(feature[:, :270]), np.array(label)
+    label2 = np_utils.to_categorical(label2)
+    return np.array(feature[:, :270]), np.array(label),np.array(label2)
+
 def file_array():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
     filetype = '.csv'
@@ -68,7 +84,7 @@ def file_array():
     trainfile += filenames[:90]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable = read_data(trainfile)
+    feature, lable,domain_label = read_data(trainfile)
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
@@ -95,7 +111,7 @@ def file_array():
     trainfile2 += filenames[:90]
     filenames = []
     trainfile2 = np.array(trainfile2)
-    feature, lable = read_data(trainfile2)
+    feature, lable,domain_label = read_data(trainfile2)
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
@@ -111,7 +127,7 @@ def file_array():
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
     trainfile2 = trainfile2[:75]
-    # np.random.shuffle(trainfile2)
+    np.random.shuffle(trainfile2)
 
     testfile = trainfile[60:]
     trainfile = trainfile[:75]
@@ -138,7 +154,7 @@ def other_file_array():
     trainfile += filenames[:30]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable = read_data(trainfile)
+    feature, lable,domain_label = read_data(trainfile)
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
@@ -163,7 +179,7 @@ def other_file_array():
     trainfile2 += filenames[:30]
     filenames = []
     trainfile2 = np.array(trainfile2)
-    feature, lable = read_data(trainfile2)
+    feature, lable,domain_label = read_data(trainfile2)
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
@@ -261,9 +277,7 @@ def build_decoder2(latent_dim, img_shape):
     z = Input(shape=(latent_dim,))
     img = model(z)
     return Model(z, img)
-# The input are 28x28 images. The optimization used is Adam. The loss is binary cross-entropy.
 
-# In[26]:
 
 
 img_rows = 15
@@ -332,14 +346,14 @@ sample_interval = 100
 trainfile_array, testfile_array = file_array()#
 print(trainfile_array)
 print(testfile_array)
-train_feature, train_label = read_data(trainfile_array)
-test_feature, test_label = read_data(testfile_array)
+train_feature, train_label ,train_domain_label= read_data(trainfile_array)
+test_feature, test_label,test_domain_label = read_data(testfile_array)
 
 trainfile_other, testfile_other = other_file_array()#
 print(trainfile_other)
 print(trainfile_other.shape)
-train_feature_ot, train_label_ot = read_data(trainfile_other)
-test_feature_ot, test_label_ot = read_data(testfile_other)
+train_feature_ot, train_label_ot,train_domain_label_ot = read_data(trainfile_other)
+test_feature_ot, test_label_ot,test_domain_label_ot = read_data(testfile_other)
 #全局归化为-1~1
 a=np.concatenate((train_feature, train_feature_ot), axis=0)
 train_feature = ((train_feature.astype('float32')-np.min(a))-(np.max(a)-np.min(a))/2.0)/((np.max(a)-np.min(a))/2)
@@ -402,7 +416,8 @@ X_SCdata1=0.5*X_train1+0.5*scdata1
 X_SCdata2=0.5*X_train2+0.5*scdata2
 X_SCdata1_label=train_label[:lin2*75]
 X_SCdata2_label=train_label[lin2*75:]
-
+X_SCdata1_domain_label=train_domain_label[:3*25*lin2]
+X_SCdata2_domain_label=train_domain_label[3*25*lin2:]
 
 # X_SCdata1 = np.concatenate((X_train1, scdata1), axis=0)#源数据和生成数据结合（不带东西），带标签
 # X_SCdata2 = np.concatenate((X_train2, scdata2), axis=0)#源数据和生成数据结合（带东西），带标签
@@ -412,8 +427,11 @@ X_SCdata2_label=train_label[lin2*75:]
 
 X_SCdata=np.concatenate((X_SCdata1,X_SCdata2), axis=0)
 X_SCdata_label=np.concatenate((X_SCdata1_label,X_SCdata2_label), axis=0)
+X_SCdata_domain_label=np.concatenate((X_SCdata1_domain_label,X_SCdata2_domain_label), axis=0)
 all_data=np.concatenate((X_SCdata1,X_SCdata2), axis=0)
 print(all_data.shape)
+all_data=np.concatenate((all_data,train_feature_ot), axis=0)
+all_data=np.concatenate((all_data,train_feature_ot), axis=0)
 all_data=np.concatenate((all_data,train_feature_ot), axis=0)
 print(all_data.shape)
 
@@ -422,6 +440,8 @@ def build_ed(latent_dim, img_shape):
     deterministic = 1
     img = Input(shape=img_shape)
     h = Flatten()(img)
+    h = Dense(512)(h)
+    h = LeakyReLU(alpha=0.2)(h)
     h = Dense(512)(h)
     h = LeakyReLU(alpha=0.2)(h)
     h = Dense(512)(h)
@@ -442,9 +462,24 @@ def build_class(latent_dim):
     validity = model(encoded_repr)
     return Model(encoded_repr, validity)
 
+def build_dis(latent_dim):
+    model = Sequential()
+    model.add(Dense(512, input_dim=latent_dim))
+    model.add(LeakyReLU(alpha=0.2))
+    model.add(Dense(512))
+    model.add(LeakyReLU(alpha=0.2))
+    model.add(Dense(256))
+    model.add(LeakyReLU(alpha=0.2))
+    model.add(Dense(3, activation="softmax"))
+    encoded_repr = Input(shape=(latent_dim,))
+    validity = model(encoded_repr)
+    return Model(encoded_repr, validity)
+
 def build_dd(latent_dim, img_shape):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
+    model.add(LeakyReLU(alpha=0.2))
+    model.add(Dense(512))
     model.add(LeakyReLU(alpha=0.2))
     model.add(Dense(512))
     model.add(LeakyReLU(alpha=0.2))
@@ -458,20 +493,30 @@ opt = Adam(0.0002, 0.5)
 opt2 = Adam(0.0002, 0.5)
 classer = build_class(latent_dim)
 classer.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
+dis=build_dis(latent_dim)
+dis.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 ed = build_ed(latent_dim, img_shape)
 dd = build_dd(latent_dim, img_shape)
 img3 = Input(shape=img_shape)
 encoded_repr3 = ed(img3)
 reconstructed_img3 = dd(encoded_repr3)
 classer.trainable = False
-sc_fido = Model(img3,reconstructed_img3)
-sc_fido.compile(loss='mse', optimizer=opt)
+dis.trainable = False
+validity = dis(encoded_repr3)
+sc_fido1 = Model(img3,reconstructed_img3)
+sc_fido2 = Model(img3, validity)
+sc_fido1.compile(loss='mse', optimizer=opt)
+sc_fido2.compile(loss='categorical_crossentropy',  optimizer=opt,metrics=['accuracy'])
 classer.summary()
+dis.summary()
 
-classer.load_weights('models/fido3_lat10-64upclasser/classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser/ed.h5')
-dd.load_weights('models/fido3_lat10-64upclasser/dd.h5')
-sc_fido.load_weights('models/fido3_lat10-64upclasser/sc_fido.h5')
+classer.load_weights('models/fido3_lat10-64upclasser2/classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser2/ed.h5')
+dd.load_weights('models/fido3_lat10-64upclasser2/dd.h5')
+dis.load_weights('models/fido3_lat10-64upclasser2/dis.h5')
+sc_fido1.load_weights('models/fido3_lat10-64upclasser2/sc_fido1.h5')
+sc_fido2.load_weights('models/fido3_lat10-64upclasser2/sc_fido2.h5')
+
 
 non_mid=ed.predict(X_train1)
 non_pre=classer.predict(non_mid)
@@ -568,9 +613,9 @@ print("投票后带东西源标签数据准确率：")
 print(acc_yes_pre_vot)
 
 
-non_mid=ed.predict(X_SCdata1[:18000])
+non_mid=ed.predict(X_SCdata1[:75*lin2])
 non_pre=classer.predict(non_mid)
-yes_mid=ed.predict(X_SCdata2[:18000])
+yes_mid=ed.predict(X_SCdata2[:75*lin2])
 yes_pre=classer.predict(yes_mid)
 print(non_mid)
 print(non_mid.shape)
@@ -661,102 +706,6 @@ print("合成的带东西源标签数据准确率：")
 print(acc_yes_pre)
 print("投票后合成的带东西源标签数据准确率：")
 print(acc_yes_pre_vot)
-
-
-# non_mid2=ed.predict(X_SCdata1[18000:])
-# non_pre2=classer.predict(non_mid2)
-# yes_mid2=ed.predict(X_SCdata2[18000:])
-# yes_pre2=classer.predict(yes_mid2)
-# print(non_mid2)
-# print(non_mid2.shape)
-# print(yes_mid2)
-# print(yes_mid2.shape)
-# print(non_pre2)
-# print(non_pre2.shape)
-# print(yes_pre2)
-# print(yes_pre2.shape)
-#
-# a1=[0,0]
-# a2=[0,0]
-# k1=[0,0]
-# non_pre2_1 = np.arange(len(non_pre2))
-# for i in range(0,int(len(non_pre2))):
-#     if non_pre2[i][0]>=non_pre2[i][1]:
-#         a1[0]=a1[0]+1
-#         non_pre2_1[i] =1
-#     if non_pre2[i][0] < non_pre2[i][1]:
-#         a1[1] = a1[1] + 1
-#         non_pre2_1[i] = 0
-#
-# acc_non_pre2=float(a1[0])/float(len(non_pre2))
-# a1=[0,0]
-# for i in range(0,int(len(non_pre2_1))):
-#     if non_pre2_1[i]==1:
-#         k1[0]=k1[0]+1
-#         a1[0] = a1[0] + 1
-#     if non_pre2_1[i] == 0:
-#         k1[1] = k1[1] + 1
-#         a1[1] = a1[1] + 1
-#     if (k1[0]+k1[1]==lin2):
-#         if k1[0]>=k1[1]:
-#             a2[0]=a2[0]+1
-#         if k1[0]<k1[1]:
-#             a2[1]=a2[1]+1
-#         k1=[0,0]
-# acc_non_pre2_vot=float(a2[0])/float(len(non_pre2_1)/lin2)
-# print(a1)
-# print(a2)
-#
-#
-#
-# print("生成的不带东西源标签数据准确率：")
-# print(acc_non_pre2)
-# print("投票后生成的不带东西源标签数据准确率：")
-# print(acc_non_pre2_vot)
-#
-#
-# a1=[0,0]
-# a2=[0,0]
-# k1=[0,0]
-# for i in range(0,int(len(yes_pre2))):
-#     if yes_pre2[i][0]>yes_pre2[i][1]:a1[0]=a1[0]+1
-#     if yes_pre2[i][0] <= yes_pre2[i][1]: a1[1] = a1[1] + 1
-# # print("a1")
-# print(a1)
-# # acc_yes_pre=float(a1[1])/float(len(yes_pre))
-# a1=[0,0]
-# yes_pre2_1 = np.arange(len(yes_pre2))
-# for i in range(0,int(len(yes_pre2))):
-#     if yes_pre2[i][0]>yes_pre2[i][1]:
-#         a1[0]=a1[0]+1
-#         yes_pre2_1[i] =1
-#     if yes_pre2[i][0] <= yes_pre2[i][1]:
-#         a1[1] = a1[1] + 1
-#         yes_pre2_1[i] = 0
-#
-# acc_yes_pre2=float(a1[1])/float(len(yes_pre2))
-# a1=[0,0]
-# for i in range(0,int(len(yes_pre2_1))):
-#     if yes_pre2_1[i]==1:
-#         k1[0]=k1[0]+1
-#         a1[0] = a1[0] + 1
-#     if yes_pre2_1[i] == 0:
-#         k1[1] = k1[1] + 1
-#         a1[1] = a1[1] + 1
-#     if (k1[0]+k1[1]==lin2):
-#         if k1[0]>k1[1]:
-#             a2[0]=a2[0]+1
-#         if k1[0]<=k1[1]:
-#             a2[1]=a2[1]+1
-#         k1=[0,0]
-# acc_yes_pre2_vot=float(a2[1])/float(len(yes_pre2_1)/lin2)
-# print(a1)
-# print(a2)
-# print("生成的带东西源标签数据准确率：")
-# print(acc_yes_pre2)
-# print("投票后生成的带东西源标签数据准确率：")
-# print(acc_yes_pre2_vot)
-
 
 
 non_mid3=ed.predict(train_feature_ot[:lin2*25])

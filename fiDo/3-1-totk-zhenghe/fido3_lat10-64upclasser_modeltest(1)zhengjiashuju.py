@@ -14,7 +14,7 @@ from keras.optimizers import Adam
 import numpy as np
 from keras.utils import np_utils
 import time
-lin=190
+lin=185
 ww=1
 lin2=int((lin*2)/ww)
 def read_data(filenames):

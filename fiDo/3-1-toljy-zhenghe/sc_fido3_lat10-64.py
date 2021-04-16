@@ -427,6 +427,8 @@ X_SCdata_label=np.concatenate((X_SCdata1_label,X_SCdata2_label), axis=0)
 all_data=np.concatenate((X_SCdata1,X_SCdata2), axis=0)
 print(all_data.shape)
 all_data=np.concatenate((all_data,train_feature_ot), axis=0)
+all_data=np.concatenate((all_data,train_feature_ot), axis=0)
+all_data=np.concatenate((all_data,train_feature_ot), axis=0)
 print(all_data.shape)
 latent_dim = 64
 def build_ed(latent_dim, img_shape):
@@ -443,6 +445,8 @@ def build_ed(latent_dim, img_shape):
 def build_class(latent_dim):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
+    model.add(LeakyReLU(alpha=0.2))
+    model.add(Dense(512))
     model.add(LeakyReLU(alpha=0.2))
     model.add(Dense(256))
     model.add(LeakyReLU(alpha=0.2))

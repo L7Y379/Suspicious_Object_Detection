@@ -208,10 +208,6 @@ def build_encoder(latent_dim, img_shape):
     latent_repr = Dense(latent_dim)(h)
     return Model(img, latent_repr)
 
-
-# In[24]:
-
-
 def build_discriminator(latent_dim):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
@@ -222,10 +218,6 @@ def build_discriminator(latent_dim):
     encoded_repr = Input(shape=(latent_dim,))
     validity = model(encoded_repr)
     return Model(encoded_repr, validity)
-
-
-# In[25]:
-
 
 def build_decoder(latent_dim, img_shape):
     model = Sequential()
@@ -250,10 +242,6 @@ def build_encoder2(latent_dim, img_shape):
     latent_repr = Dense(latent_dim)(h)
     return Model(img, latent_repr)
 
-
-# In[24]:
-
-
 def build_discriminator2(latent_dim):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
@@ -264,10 +252,6 @@ def build_discriminator2(latent_dim):
     encoded_repr = Input(shape=(latent_dim,))
     validity = model(encoded_repr)
     return Model(encoded_repr, validity)
-
-
-# In[25]:
-
 
 def build_decoder2(latent_dim, img_shape):
     model = Sequential()
@@ -280,10 +264,6 @@ def build_decoder2(latent_dim, img_shape):
     z = Input(shape=(latent_dim,))
     img = model(z)
     return Model(z, img)
-# The input are 28x28 images. The optimization used is Adam. The loss is binary cross-entropy.
-
-# In[26]:
-
 
 img_rows = 15
 img_cols = 18
@@ -300,8 +280,6 @@ discriminator = build_discriminator(latent_dim)
 discriminator.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
 discriminator2 = build_discriminator2(latent_dim)
 discriminator2.compile(loss='binary_crossentropy', optimizer=optimizer2, metrics=['accuracy'])
-# In[27]:
-
 
 # Build the encoder / decoder
 encoder = build_encoder(latent_dim, img_shape)

@@ -2,6 +2,8 @@
 #latent_dim1 = 10  latent_dim2 = 64
 #train_feature = ((train_feature.astype('float32')-np.min(a))-(np.max(a)-np.min(a))/2.0)/((np.max(a)-np.min(a))/2)
 #classer  512 512 256 2
+#dis 512  512  256 3
+#加入对抗训练，使得提取域无关特征
 import pandas as pd
 import os
 from sklearn.cluster import KMeans
@@ -16,6 +18,9 @@ from keras.models import Sequential, Model
 from keras.optimizers import Adam
 import numpy as np
 from keras.utils import np_utils
+import time
+localtime1 = time.asctime( time.localtime(time.time()) )
+print ("本地时间为 :", localtime1)
 lin=120
 ww=1
 lin2=int((lin*2)/ww)
@@ -337,8 +342,8 @@ discriminator2.summary()
 # In[30]:
 
 
-epochs = 3000
-batch_size = 12000
+epochs = 5000
+batch_size = 20000
 sample_interval = 100
 
 
@@ -432,12 +437,16 @@ X_SCdata_domain_label=np.concatenate((X_SCdata1_domain_label,X_SCdata2_domain_la
 all_data=np.concatenate((X_SCdata1,X_SCdata2), axis=0)
 print(all_data.shape)
 all_data=np.concatenate((all_data,train_feature_ot), axis=0)
+all_data=np.concatenate((all_data,train_feature_ot), axis=0)
+all_data=np.concatenate((all_data,train_feature_ot), axis=0)
 print(all_data.shape)
 latent_dim = 64
 def build_ed(latent_dim, img_shape):
     deterministic = 1
     img = Input(shape=img_shape)
     h = Flatten()(img)
+    h = Dense(512)(h)
+    h = LeakyReLU(alpha=0.2)(h)
     h = Dense(512)(h)
     h = LeakyReLU(alpha=0.2)(h)
     h = Dense(512)(h)
@@ -477,6 +486,8 @@ def build_dd(latent_dim, img_shape):
     model.add(LeakyReLU(alpha=0.2))
     model.add(Dense(512))
     model.add(LeakyReLU(alpha=0.2))
+    model.add(Dense(512))
+    model.add(LeakyReLU(alpha=0.2))
     model.add(Dense(np.prod(img_shape), activation='tanh'))
     model.add(Reshape(img_shape))
     z = Input(shape=(latent_dim,))
@@ -501,9 +512,10 @@ reconstructed_img3 = dd(encoded_repr3)
 classer.trainable = False
 dis.trainable = False
 validity = dis(encoded_repr3)
-sc_fido = Model(img3,reconstructed_img3)
-sc_fido = Model(img3, [reconstructed_img3, validity])
-sc_fido.compile(loss=['mse','categorical_crossentropy'], loss_weights=[0.5, 0.5], optimizer=opt)
+sc_fido1 = Model(img3,reconstructed_img3)
+sc_fido2 = Model(img3, validity)
+sc_fido1.compile(loss='mse', optimizer=opt)
+sc_fido2.compile(loss='categorical_crossentropy',  optimizer=opt,metrics=['accuracy'])
 classer.summary()
 dis.summary()
 # # Training
@@ -531,17 +543,27 @@ for epoch in range(epochs):
     # ---------------------
 
     # Train the generator
+    sc_fido2_loss=sc_fido2.train_on_batch(imgs,X_SCdata_domain_label[idx])
+    # ---------------------
+    #  Train chonggou
+    # ---------------------
 
     idx2 = np.random.randint(0, all_data.shape[0], batch_size)
     imgs2 = all_data[idx2]
-    g_loss = sc_fido.train_on_batch(imgs2,[imgs2, X_SCdata_domain_label[idx2]])
+    sc_fido1_loss = sc_fido1.train_on_batch(imgs2,imgs2)
     # Plot the progress (every 10th epoch)
     if epoch % 10 == 0:
-        print("%d [危险品分类损失为 loss: %f, 正确率acc: %.2f%%,域分类损失为 loss: %f, 正确率acc: %.2f%%] [重构损失loss: %f, 域分类损失: %f]" % (
-        epoch, c_loss[0], 100 * c_loss[1],d_loss[0],100 * d_loss[1], g_loss[0], g_loss[1]))
+        print("%d [危险品分类loss: %f,acc: %.2f%%,域分类判别器loss: %f,acc: %.2f%%,域分类生成器loss: %f,acc: %.2f%%,重构loss: %f]" % (
+        epoch, c_loss[0], 100 * c_loss[1],d_loss[0],100 * d_loss[1], sc_fido2_loss[0], sc_fido2_loss[1],sc_fido1_loss))
 
 
-classer.save_weights('models/fido3_lat10-64upclasser/classer.h5')
-ed.save_weights('models/fido3_lat10-64upclasser/ed.h5')
-dd.save_weights('models/fido3_lat10-64upclasser/dd.h5')
-sc_fido.save_weights('models/fido3_lat10-64upclasser/sc_fido.h5')
+classer.save_weights('models/fido3_lat10-64upclasser2/classer.h5')
+ed.save_weights('models/fido3_lat10-64upclasser2/ed.h5')
+dd.save_weights('models/fido3_lat10-64upclasser2/dd.h5')
+dis.save_weights('models/fido3_lat10-64upclasser2/dis.h5')
+sc_fido1.save_weights('models/fido3_lat10-64upclasser2/sc_fido1.h5')
+sc_fido2.save_weights('models/fido3_lat10-64upclasser2/sc_fido2.h5')
+
+localtime2 = time.asctime( time.localtime(time.time()) )
+print ("开始时间为 :", localtime1)
+print ("结束时间为 :", localtime2)
