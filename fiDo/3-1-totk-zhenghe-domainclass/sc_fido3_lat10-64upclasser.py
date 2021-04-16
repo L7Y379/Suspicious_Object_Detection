@@ -539,12 +539,12 @@ for epoch in range(epochs):
         epoch, c_loss[0], 100 * c_loss[1],d_loss[0],100 * d_loss[1], sc_fido_loss))
 
 
-classer.save_weights('models/fido3_lat10-64upclasser2/classer.h5')
-ed.save_weights('models/fido3_lat10-64upclasser2/ed.h5')
-dd.save_weights('models/fido3_lat10-64upclasser2/dd.h5')
-dis.save_weights('models/fido3_lat10-64upclasser2/dis.h5')
-dis_model.save_weights('models/fido3_lat10-64upclasser2/dis_model.h5')
-sc_fido.save_weights('models/fido3_lat10-64upclasser2/sc_fido.h5')
+classer.save_weights('models/fido3_lat10-64upclasser/classer.h5')
+ed.save_weights('models/fido3_lat10-64upclasser/ed.h5')
+dd.save_weights('models/fido3_lat10-64upclasser2dd.h5')
+dis.save_weights('models/fido3_lat10-64upclasser/dis.h5')
+dis_model.save_weights('models/fido3_lat10-64upclasser/dis_model.h5')
+sc_fido.save_weights('models/fido3_lat10-64upclasser/sc_fido.h5')
 
 localtime2 = time.asctime( time.localtime(time.time()) )
 print ("开始时间为 :", localtime1)
