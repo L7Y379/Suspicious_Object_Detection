@@ -515,10 +515,10 @@ sc_fido.load_weights('models/fido3_lat10-64upclasser2/sc_fido.h5')
 
 
 non_mid=ed.predict(X_train1)
-non_mid=non_mid[:,latent_dim:]
+non_mid=non_mid[:,:latent_dim]
 non_pre=classer.predict(non_mid)
 yes_mid=ed.predict(X_train2)
-yes_mid=yes_mid[:,latent_dim:]
+yes_mid=yes_mid[:,:latent_dim]
 yes_pre=classer.predict(yes_mid)
 print(non_mid)
 print(non_mid.shape)
@@ -612,10 +612,10 @@ print(acc_yes_pre_vot)
 
 
 non_mid=ed.predict(X_SCdata1[:75*lin2])
-non_mid=non_mid[:,latent_dim:]
+non_mid=non_mid[:,:latent_dim]
 non_pre=classer.predict(non_mid)
 yes_mid=ed.predict(X_SCdata2[:75*lin2])
-yes_mid=yes_mid[:,latent_dim:]
+yes_mid=yes_mid[:,:latent_dim]
 yes_pre=classer.predict(yes_mid)
 print(non_mid)
 print(non_mid.shape)
@@ -709,10 +709,10 @@ print(acc_yes_pre_vot)
 
 
 non_mid3=ed.predict(train_feature_ot[:lin2*25])
-non_mid=non_mid[:,latent_dim:]
+non_mid3=non_mid3[:,:latent_dim]
 non_pre3=classer.predict(non_mid3)
 yes_mid3=ed.predict(train_feature_ot[lin2*25:])
-yes_mid=yes_mid[:,latent_dim:]
+yes_mid3=yes_mid3[:,:latent_dim]
 yes_pre3=classer.predict(yes_mid3)
 print(non_mid3)
 print(non_mid3.shape)
