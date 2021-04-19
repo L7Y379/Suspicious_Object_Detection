@@ -537,11 +537,12 @@ for epoch in range(epochs):
     if epoch % 10 == 0:
         print("%d [危险品分类loss: %f,acc: %.2f%%,域分类loss: %f,acc: %.2f%%,重构loss: %f]" % (
         epoch, c_loss[0], 100 * c_loss[1],d_loss[0],100 * d_loss[1], sc_fido_loss))
-
+    if (100 * c_loss[1]>=97):
+        break
 
 classer.save_weights('models/fido3_lat10-64upclasser/classer.h5')
 ed.save_weights('models/fido3_lat10-64upclasser/ed.h5')
-dd.save_weights('models/fido3_lat10-64upclasser2dd.h5')
+dd.save_weights('models/fido3_lat10-64upclasser/dd.h5')
 dis.save_weights('models/fido3_lat10-64upclasser/dis.h5')
 dis_model.save_weights('models/fido3_lat10-64upclasser/dis_model.h5')
 sc_fido.save_weights('models/fido3_lat10-64upclasser/sc_fido.h5')
