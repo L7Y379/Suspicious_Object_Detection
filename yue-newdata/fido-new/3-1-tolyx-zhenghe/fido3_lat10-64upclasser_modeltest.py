@@ -59,7 +59,7 @@ def file_array():
     trainfile2 = []
     testfile = []
     testfile2 = []
-    for name in ['zb', 'zhw', 'tk']:
+    for name in ['cyh', 'zhw', 'tk']:
         for j in ["0"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -87,7 +87,7 @@ def file_array():
     trainfile = trainfile[:50]
     # np.random.shuffle(trainfile)
 
-    for name in ['zb', 'zhw', 'tk']:
+    for name in ['cyh', 'zhw', 'tk']:
         for j in ["1M"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -133,7 +133,7 @@ def other_file_array():
     testfile2 = []
     for j in ["0"]:  # "1S", "2S"
         for i in [i for i in range(0, 20)]:
-            fn = filepath + "cyh-2.5-M/" + "cyh-" + str(j) + "-" + str(i) + filetype
+            fn = filepath + "lyx-2.5-M/" + "lyx-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
     trainfile += filenames[:20]
     filenames = []
@@ -158,7 +158,7 @@ def other_file_array():
 
     for j in ["1M"]:  # "1S", "2S"
         for i in [i for i in range(0, 20)]:
-            fn = filepath + "cyh-2.5-M/" + "cyh-" + str(j) + "-" + str(i) + filetype
+            fn = filepath + "lyx-2.5-M/" + "lyx-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
     trainfile2 += filenames[:20]
     filenames = []
