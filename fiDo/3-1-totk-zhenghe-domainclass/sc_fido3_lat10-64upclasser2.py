@@ -437,11 +437,17 @@ def build_ed(latent_dim2, img_shape):
     deterministic = 1
     img = Input(shape=img_shape)
     h = Flatten()(img)
-    h = Dense(512)(h)
+    # h = Dense(512)(h)
+    # h = LeakyReLU(alpha=0.2)(h)
+    # h = Dense(512)(h)
+    # h = LeakyReLU(alpha=0.2)(h)
+    # h = Dense(512)(h)
+    # h = LeakyReLU(alpha=0.2)(h)
+    h = Dense(800)(h)
     h = LeakyReLU(alpha=0.2)(h)
-    h = Dense(512)(h)
+    h = Dense(800)(h)
     h = LeakyReLU(alpha=0.2)(h)
-    h = Dense(512)(h)
+    h = Dense(800)(h)
     h = LeakyReLU(alpha=0.2)(h)
     latent_repr = Dense(latent_dim2)(h)
     return Model(img, latent_repr)
@@ -474,12 +480,18 @@ def build_dis(latent_dim):
 
 def build_dd(latent_dim2, img_shape):
     model = Sequential()
-    model.add(Dense(512, input_dim=latent_dim2))
+    model.add(Dense(800, input_dim=latent_dim2))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(512))
+    model.add(Dense(800))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(512))
+    model.add(Dense(800))
     model.add(LeakyReLU(alpha=0.2))
+    # model.add(Dense(512, input_dim=latent_dim2))
+    # model.add(LeakyReLU(alpha=0.2))
+    # model.add(Dense(512))
+    # model.add(LeakyReLU(alpha=0.2))
+    # model.add(Dense(512))
+    # model.add(LeakyReLU(alpha=0.2))
     model.add(Dense(np.prod(img_shape), activation='tanh'))
     model.add(Reshape(img_shape))
     z = Input(shape=(latent_dim2,))
@@ -540,9 +552,11 @@ for epoch in range(epochs):
     if epoch % 10 == 0:
         print("%d [危险品分类loss: %f,acc: %.2f%%,域分类loss: %f,acc: %.2f%%,重构loss: %f]" % (
         epoch, c_loss[0], 100 * c_loss[1],d_loss[0],100 * d_loss[1], sc_fido_loss))
-    if (100 * c_loss>=99.5):
-        break
-
+    if epoch >= 4500:
+        if (100 * c_loss[1]>=99.8):
+            break
+print("%d [危险品分类loss: %f,acc: %.2f%%,域分类loss: %f,acc: %.2f%%,重构loss: %f]" % (
+epoch, c_loss[0], 100 * c_loss[1],d_loss[0],100 * d_loss[1], sc_fido_loss))
 classer.save_weights('models/fido3_lat10-64upclasser2/classer.h5')
 ed.save_weights('models/fido3_lat10-64upclasser2/ed.h5')
 dd.save_weights('models/fido3_lat10-64upclasser2/dd.h5')

@@ -14,7 +14,7 @@ from keras.optimizers import Adam
 import numpy as np
 from keras.utils import np_utils
 import time
-lin=120
+lin=140
 ww=1
 lin2=int((lin*2)/ww)
 def read_data(filenames):
@@ -436,12 +436,18 @@ def build_ed(latent_dim2, img_shape):
     deterministic = 1
     img = Input(shape=img_shape)
     h = Flatten()(img)
-    h = Dense(512)(h)
+    h = Dense(800)(h)
     h = LeakyReLU(alpha=0.2)(h)
-    h = Dense(512)(h)
+    h = Dense(800)(h)
     h = LeakyReLU(alpha=0.2)(h)
-    h = Dense(512)(h)
+    h = Dense(800)(h)
     h = LeakyReLU(alpha=0.2)(h)
+    # h = Dense(512)(h)
+    # h = LeakyReLU(alpha=0.2)(h)
+    # h = Dense(512)(h)
+    # h = LeakyReLU(alpha=0.2)(h)
+    # h = Dense(512)(h)
+    # h = LeakyReLU(alpha=0.2)(h)
     latent_repr = Dense(latent_dim2)(h)
     return Model(img, latent_repr)
 
@@ -473,12 +479,18 @@ def build_dis(latent_dim):
 
 def build_dd(latent_dim2, img_shape):
     model = Sequential()
-    model.add(Dense(512, input_dim=latent_dim2))
+    model.add(Dense(800, input_dim=latent_dim2))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(512))
+    model.add(Dense(800))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(512))
+    model.add(Dense(800))
     model.add(LeakyReLU(alpha=0.2))
+    # model.add(Dense(512, input_dim=latent_dim2))
+    # model.add(LeakyReLU(alpha=0.2))
+    # model.add(Dense(512))
+    # model.add(LeakyReLU(alpha=0.2))
+    # model.add(Dense(512))
+    # model.add(LeakyReLU(alpha=0.2))
     model.add(Dense(np.prod(img_shape), activation='tanh'))
     model.add(Reshape(img_shape))
     z = Input(shape=(latent_dim2,))
