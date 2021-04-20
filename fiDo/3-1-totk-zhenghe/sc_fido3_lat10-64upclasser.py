@@ -508,7 +508,7 @@ for epoch in range(epochs):
     if epoch % 10 == 0:
         print("%d [D loss: %f, acc: %.2f%%] [G loss: %f]" % (
         epoch, c_loss[0], 100 * c_loss[1], g_loss))
-
+print("%d [D loss: %f, acc: %.2f%%] [G loss: %f]" % (epoch, c_loss[0], 100 * c_loss[1], g_loss))
 
 classer.save_weights('models/fido3_lat10-64upclasser/classer.h5')
 ed.save_weights('models/fido3_lat10-64upclasser/ed.h5')
