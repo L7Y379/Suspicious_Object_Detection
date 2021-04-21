@@ -138,7 +138,7 @@ def other_file_array():
     trainfile += filenames[:30]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable = read_data(trainfile)
+    feature, lable= read_data(trainfile)
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
@@ -151,10 +151,23 @@ def other_file_array():
     k = np.arange(30)
     for i in range(0, 30):
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
+        #print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:25]
-    np.random.shuffle(trainfile)
+    #np.random.shuffle(trainfile)
+
+    feature, lable = read_data(trainfile)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(25)
+    for i in range(0, 25):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        print("(不带东西特征)i为", end='')
+        print(i)
+        print(feature[i * lin2:(i + 1) * lin2])
+
 
     for j in ["1M"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
@@ -163,7 +176,7 @@ def other_file_array():
     trainfile2 += filenames[:30]
     filenames = []
     trainfile2 = np.array(trainfile2)
-    feature, lable = read_data(trainfile2)
+    feature, lable= read_data(trainfile2)
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
@@ -179,7 +192,20 @@ def other_file_array():
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
     trainfile2 = trainfile2[:25]
-    np.random.shuffle(trainfile2)
+    #np.random.shuffle(trainfile2)
+
+    feature, lable= read_data(trainfile2)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(25)
+    for i in range(0, 25):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        print("(带东西特征)i为", end='')
+        print(i)
+        print(feature[i * lin2:(i + 1) * lin2])
+
 
     testfile = trainfile[20:]
     trainfile = trainfile[:25]
@@ -661,101 +687,6 @@ print("合成的带东西源标签数据准确率：")
 print(acc_yes_pre)
 print("投票后合成的带东西源标签数据准确率：")
 print(acc_yes_pre_vot)
-
-
-# non_mid2=ed.predict(X_SCdata1[18000:])
-# non_pre2=classer.predict(non_mid2)
-# yes_mid2=ed.predict(X_SCdata2[18000:])
-# yes_pre2=classer.predict(yes_mid2)
-# print(non_mid2)
-# print(non_mid2.shape)
-# print(yes_mid2)
-# print(yes_mid2.shape)
-# print(non_pre2)
-# print(non_pre2.shape)
-# print(yes_pre2)
-# print(yes_pre2.shape)
-#
-# a1=[0,0]
-# a2=[0,0]
-# k1=[0,0]
-# non_pre2_1 = np.arange(len(non_pre2))
-# for i in range(0,int(len(non_pre2))):
-#     if non_pre2[i][0]>=non_pre2[i][1]:
-#         a1[0]=a1[0]+1
-#         non_pre2_1[i] =1
-#     if non_pre2[i][0] < non_pre2[i][1]:
-#         a1[1] = a1[1] + 1
-#         non_pre2_1[i] = 0
-#
-# acc_non_pre2=float(a1[0])/float(len(non_pre2))
-# a1=[0,0]
-# for i in range(0,int(len(non_pre2_1))):
-#     if non_pre2_1[i]==1:
-#         k1[0]=k1[0]+1
-#         a1[0] = a1[0] + 1
-#     if non_pre2_1[i] == 0:
-#         k1[1] = k1[1] + 1
-#         a1[1] = a1[1] + 1
-#     if (k1[0]+k1[1]==lin2):
-#         if k1[0]>=k1[1]:
-#             a2[0]=a2[0]+1
-#         if k1[0]<k1[1]:
-#             a2[1]=a2[1]+1
-#         k1=[0,0]
-# acc_non_pre2_vot=float(a2[0])/float(len(non_pre2_1)/lin2)
-# print(a1)
-# print(a2)
-#
-#
-#
-# print("生成的不带东西源标签数据准确率：")
-# print(acc_non_pre2)
-# print("投票后生成的不带东西源标签数据准确率：")
-# print(acc_non_pre2_vot)
-#
-#
-# a1=[0,0]
-# a2=[0,0]
-# k1=[0,0]
-# for i in range(0,int(len(yes_pre2))):
-#     if yes_pre2[i][0]>yes_pre2[i][1]:a1[0]=a1[0]+1
-#     if yes_pre2[i][0] <= yes_pre2[i][1]: a1[1] = a1[1] + 1
-# # print("a1")
-# print(a1)
-# # acc_yes_pre=float(a1[1])/float(len(yes_pre))
-# a1=[0,0]
-# yes_pre2_1 = np.arange(len(yes_pre2))
-# for i in range(0,int(len(yes_pre2))):
-#     if yes_pre2[i][0]>yes_pre2[i][1]:
-#         a1[0]=a1[0]+1
-#         yes_pre2_1[i] =1
-#     if yes_pre2[i][0] <= yes_pre2[i][1]:
-#         a1[1] = a1[1] + 1
-#         yes_pre2_1[i] = 0
-#
-# acc_yes_pre2=float(a1[1])/float(len(yes_pre2))
-# a1=[0,0]
-# for i in range(0,int(len(yes_pre2_1))):
-#     if yes_pre2_1[i]==1:
-#         k1[0]=k1[0]+1
-#         a1[0] = a1[0] + 1
-#     if yes_pre2_1[i] == 0:
-#         k1[1] = k1[1] + 1
-#         a1[1] = a1[1] + 1
-#     if (k1[0]+k1[1]==lin2):
-#         if k1[0]>k1[1]:
-#             a2[0]=a2[0]+1
-#         if k1[0]<=k1[1]:
-#             a2[1]=a2[1]+1
-#         k1=[0,0]
-# acc_yes_pre2_vot=float(a2[1])/float(len(yes_pre2_1)/lin2)
-# print(a1)
-# print(a2)
-# print("生成的带东西源标签数据准确率：")
-# print(acc_yes_pre2)
-# print("投票后生成的带东西源标签数据准确率：")
-# print(acc_yes_pre2_vot)
 
 
 

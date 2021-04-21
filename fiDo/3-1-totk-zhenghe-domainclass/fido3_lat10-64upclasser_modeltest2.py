@@ -167,10 +167,23 @@ def other_file_array():
     k = np.arange(30)
     for i in range(0, 30):
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
+        #print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:25]
-    np.random.shuffle(trainfile)
+    #np.random.shuffle(trainfile)
+
+    feature, lable, domain_label = read_data(trainfile)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(25)
+    for i in range(0, 25):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        print("(不带东西特征)i为", end='')
+        print(i)
+        print(feature[i * lin2:(i + 1) * lin2])
+
 
     for j in ["1M"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
@@ -195,7 +208,20 @@ def other_file_array():
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
     trainfile2 = trainfile2[:25]
-    np.random.shuffle(trainfile2)
+    #np.random.shuffle(trainfile2)
+
+    feature, lable, domain_label = read_data(trainfile2)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(25)
+    for i in range(0, 25):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        print("(不带东西特征)i为", end='')
+        print(i)
+        print(feature[i * lin2:(i + 1) * lin2])
+
 
     testfile = trainfile[20:]
     trainfile = trainfile[:25]
