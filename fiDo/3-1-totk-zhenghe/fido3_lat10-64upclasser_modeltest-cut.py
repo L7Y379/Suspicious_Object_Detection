@@ -2,6 +2,7 @@
 #不带东西截取最大值的后9个和包括自己前11个
 #不带东西截取最大值后一个的后一个开始的后8个和不包括自己前10个（最大值和后一个留下）
 #带东西截取最大值的第前20个值的前四个和包括自己后六个
+#lin取150保证抽取中间有效数据，减少边缘不确定数据
 import pandas as pd
 import os
 from sklearn.cluster import KMeans
@@ -17,9 +18,9 @@ from keras.optimizers import Adam
 import numpy as np
 from keras.utils import np_utils
 import time
-cut1=20
-cut2=8
-lin=196
+cut1=14
+cut2=5
+lin=150
 ww=1
 lin2=int((lin*2)/ww)
 def read_data_cut1(filenames,kmeans1):

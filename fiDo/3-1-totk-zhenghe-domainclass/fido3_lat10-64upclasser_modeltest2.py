@@ -1,4 +1,5 @@
 #带危险品的用一个aae重构，不带危险品的用另一个aae重构，重构数据比源数据多十倍
+
 import pandas as pd
 import os
 from sklearn.cluster import KMeans
@@ -14,7 +15,7 @@ from keras.optimizers import Adam
 import numpy as np
 from keras.utils import np_utils
 import time
-lin=196
+lin=190
 ww=1
 lin2=int((lin*2)/ww)
 def read_data(filenames):
@@ -381,10 +382,11 @@ print(trainfile_other.shape)
 train_feature_ot, train_label_ot,train_domain_label_ot = read_data(trainfile_other)
 test_feature_ot, test_label_ot,test_domain_label_ot = read_data(testfile_other)
 #全局归化为-1~1
-a=np.concatenate((train_feature, train_feature_ot), axis=0)
+a=train_feature
+b=train_feature_ot
 train_feature = ((train_feature.astype('float32')-np.min(a))-(np.max(a)-np.min(a))/2.0)/((np.max(a)-np.min(a))/2)
 test_feature = ((test_feature.astype('float32')-np.min(test_feature))-(np.max(test_feature)-np.min(test_feature))/2.0)/((np.max(test_feature)-np.min(test_feature))/2)
-train_feature_ot = ((train_feature_ot.astype('float32')-np.min(a))-(np.max(a)-np.min(a))/2.0)/((np.max(a)-np.min(a))/2)
+train_feature_ot = ((train_feature_ot.astype('float32')-np.min(b))-(np.max(b)-np.min(b))/2.0)/((np.max(b)-np.min(b))/2)
 test_feature_ot = ((test_feature_ot.astype('float32')-np.min(test_feature_ot))-(np.max(test_feature_ot)-np.min(test_feature_ot))/2.0)/((np.max(test_feature_ot)-np.min(test_feature_ot))/2)
 
 print(train_feature)
