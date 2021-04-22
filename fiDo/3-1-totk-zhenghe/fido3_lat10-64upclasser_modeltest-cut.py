@@ -1,6 +1,6 @@
 #带危险品的用一个aae重构，不带危险品的用另一个aae重构，重构数据比源数据多十倍
-
 #不带东西截取最大值的后9个和包括自己前11个
+#不带东西截取最大值后一个的后一个开始的后8个和不包括自己前10个（最大值和后一个留下）
 #带东西截取最大值的第前20个值的前四个和包括自己后六个
 import pandas as pd
 import os
@@ -17,8 +17,8 @@ from keras.optimizers import Adam
 import numpy as np
 from keras.utils import np_utils
 import time
-cut1=9
-cut2=5
+cut1=20
+cut2=8
 lin=196
 ww=1
 lin2=int((lin*2)/ww)
@@ -43,9 +43,10 @@ def read_data_cut1(filenames,kmeans1):
         feat = np.sqrt(feat)
         a = np.argmax(feat)  # 返回feature最大值位置
         idx1 = np.array([j for j in range(int(temp_feature.shape[0] / 2) - lin,a-cut1, ww)])  # 取中心点处左右分布数据
-        idx2 = np.array([j for j in range(a+cut1,int(temp_feature.shape[0] / 2) + lin, ww)])  # 取中心点处左右分布数据
+        idx2 = np.array([j for j in range(a+cut1+2,int(temp_feature.shape[0] / 2) + lin, ww)])  # 取中心点处左右分布数据
         idx = np.hstack((idx1, idx2))
-        temp_feature = csvdata[idx]
+        temp_feature = temp_feature[idx]
+        #print(temp_feature)
         # 贴标签
         temp_label = -1  # 初始化
         if ('-0-' in filename):
@@ -66,8 +67,6 @@ def read_data_cut1(filenames,kmeans1):
             label = np.concatenate((label, temp_label), axis=0)
     #label = np_utils.to_categorical(label)
     return np.array(feature[:, :270]), np.array(label)
-
-
 def read_data_cut2(filenames, kmeans2):
     i = 0
     feature = []
@@ -91,8 +90,7 @@ def read_data_cut2(filenames, kmeans2):
         idx1 = np.array([j for j in range(int(temp_feature.shape[0] / 2) - lin, a-20-cut2+1, ww)])  # 取中心点处左右分布数据
         idx2 = np.array([j for j in range(a-20+cut2+1, int(temp_feature.shape[0] / 2) + lin, ww)])  # 取中心点处左右分布数据
         idx = np.hstack((idx1, idx2))
-        temp_feature = csvdata[idx]
-
+        temp_feature = temp_feature[idx]
         # 贴标签
         temp_label = -1  # 初始化
         if ('-0-' in filename):
@@ -169,7 +167,7 @@ def file_array():
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     print(kmeans.cluster_centers_.shape)
-    print(kmeans.cluster_centers_)
+    #print(kmeans.cluster_centers_)
     feature = feature - kmeans.cluster_centers_
     feature = np.square(feature)
     feature = np.sum(feature, axis=1)
@@ -196,7 +194,7 @@ def file_array():
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     print(kmeans.cluster_centers_.shape)
-    print(kmeans.cluster_centers_)
+    #print(kmeans.cluster_centers_)
     feature = feature - kmeans.cluster_centers_
     feature = np.square(feature)
     feature = np.sum(feature, axis=1)
@@ -217,8 +215,6 @@ def file_array():
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
     return trainfile, testfile
-
-#获取不带标签的数据
 def other_file_array():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
     filetype = '.csv'
@@ -460,6 +456,7 @@ print(train_feature_ot2.shape)
 print(train_label_ot1.shape)
 print(train_label_ot2.shape)
 train_feature_ot=np.concatenate((train_feature_ot1,train_feature_ot2), axis=0)
+print(train_feature_ot)
 train_label_ot=np.concatenate((train_label_ot1,train_label_ot2), axis=0)
 train_label_ot = np_utils.to_categorical(train_label_ot)
 print(train_label_ot.shape)
@@ -472,7 +469,8 @@ train_feature_ot = ((train_feature_ot.astype('float32')-np.min(a))-(np.max(a)-np
 test_feature_ot = ((test_feature_ot.astype('float32')-np.min(test_feature_ot))-(np.max(test_feature_ot)-np.min(test_feature_ot))/2.0)/((np.max(test_feature_ot)-np.min(test_feature_ot))/2)
 
 print(train_feature)
-print(test_feature)
+#print(test_feature)
+#print(train_feature_ot)
 X_train1 =train_feature[:75*lin2]
 print(X_train1.shape)
 X_test1 =test_feature[:5*lin2]
@@ -788,9 +786,9 @@ print(acc_yes_pre_vot)
 
 
 
-non_mid3=ed.predict(train_feature_ot[:(lin2-cut1*2)*25])
+non_mid3=ed.predict(train_feature_ot[:(lin2-cut1*2-2)*25])
 non_pre3=classer.predict(non_mid3)
-yes_mid3=ed.predict(train_feature_ot[(lin2-cut1*2)*25:])
+yes_mid3=ed.predict(train_feature_ot[(lin2-cut1*2-2)*25:])
 yes_pre3=classer.predict(yes_mid3)
 print(non_mid3)
 print(non_mid3.shape)
@@ -813,10 +811,10 @@ for i in range(0,int(len(non_pre3))):
         a1[1] = a1[1] + 1
         non_pre3_1[i] = 0
 
-# for i in range(0,int(len(non_pre3_1)/lin2)):
+# for i in range(0,int(len(non_pre3_1)/(lin2-cut1*2-2))):
 #     print("(不带东西)i为", end='')
 #     print(i)
-#     print(non_pre3_1[i * lin2:(i + 1) * lin2])
+#     print(non_pre3_1[i * (lin2-cut1*2-2):(i + 1) * (lin2-cut1*2-2)])
 
 acc_non_pre3=float(a1[0])/float(len(non_pre3))
 a1=[0,0]
@@ -827,13 +825,13 @@ for i in range(0,int(len(non_pre3_1))):
     if non_pre3_1[i] == 0:
         k1[1] = k1[1] + 1
         a1[1] = a1[1] + 1
-    if (k1[0]+k1[1]==(lin2-cut1*2)):
+    if (k1[0]+k1[1]==(lin2-cut1*2-2)):
         if k1[0]>=k1[1]:
             a2[0]=a2[0]+1
         if k1[0]<k1[1]:
             a2[1]=a2[1]+1
         k1=[0,0]
-acc_non_pre3_vot=float(a2[0])/float(len(non_pre3_1)/(lin2-cut1*2))
+acc_non_pre3_vot=float(a2[0])/float(len(non_pre3_1)/(lin2-cut1*2-2))
 print(a1)
 print(a2)
 
@@ -862,10 +860,10 @@ for i in range(0,int(len(yes_pre3))):
         a1[1] = a1[1] + 1
         yes_pre3_1[i] = 0
 
-# for i in range(0,int(len(yes_pre3_1)/lin2)):
+# for i in range(0,int(len(yes_pre3_1)/(lin2-cut2*2))):
 #     print("(带东西)i为", end='')
 #     print(i)
-#     print(yes_pre3_1[i * lin2:(i + 1) * lin2])
+#     print(yes_pre3_1[i * (lin2-cut2*2):(i + 1) * (lin2-cut2*2)])
 
 acc_yes_pre3=float(a1[1])/float(len(yes_pre3))
 a1=[0,0]

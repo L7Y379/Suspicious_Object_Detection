@@ -122,7 +122,6 @@ def file_array():
     testfile = np.concatenate((testfile, testfile2), axis=0)
     return trainfile, testfile
 
-#获取不带标签的数据
 def other_file_array():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
     filetype = '.csv'
@@ -156,17 +155,17 @@ def other_file_array():
     trainfile = trainfile[:25]
     #np.random.shuffle(trainfile)
 
-    feature, lable = read_data(trainfile)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(25)
-    for i in range(0, 25):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        print("(不带东西特征)i为", end='')
-        print(i)
-        print(feature[i * lin2:(i + 1) * lin2])
+    # feature, lable = read_data(trainfile)
+    # feature = feature - kmeans.cluster_centers_
+    # feature = np.square(feature)
+    # feature = np.sum(feature, axis=1)
+    # feature = np.sqrt(feature)
+    # k = np.arange(25)
+    # for i in range(0, 25):
+    #     k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+    #     print("(不带东西特征)i为", end='')
+    #     print(i)
+    #     print(feature[i * lin2:(i + 1) * lin2])
 
 
     for j in ["1M"]:  # "1S", "2S"
@@ -194,17 +193,17 @@ def other_file_array():
     trainfile2 = trainfile2[:25]
     #np.random.shuffle(trainfile2)
 
-    feature, lable= read_data(trainfile2)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(25)
-    for i in range(0, 25):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        print("(带东西特征)i为", end='')
-        print(i)
-        print(feature[i * lin2:(i + 1) * lin2])
+    # feature, lable= read_data(trainfile2)
+    # feature = feature - kmeans.cluster_centers_
+    # feature = np.square(feature)
+    # feature = np.sum(feature, axis=1)
+    # feature = np.sqrt(feature)
+    # k = np.arange(25)
+    # for i in range(0, 25):
+    #     k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+    #     print("(带东西特征)i为", end='')
+    #     print(i)
+    #     print(feature[i * lin2:(i + 1) * lin2])
 
 
     testfile = trainfile[20:]
@@ -366,6 +365,7 @@ print(trainfile_other)
 print(trainfile_other.shape)
 train_feature_ot, train_label_ot = read_data(trainfile_other)
 test_feature_ot, test_label_ot = read_data(testfile_other)
+print(train_feature_ot)
 #全局归化为-1~1
 a=np.concatenate((train_feature, train_feature_ot), axis=0)
 train_feature = ((train_feature.astype('float32')-np.min(a))-(np.max(a)-np.min(a))/2.0)/((np.max(a)-np.min(a))/2)
@@ -374,7 +374,7 @@ train_feature_ot = ((train_feature_ot.astype('float32')-np.min(a))-(np.max(a)-np
 test_feature_ot = ((test_feature_ot.astype('float32')-np.min(test_feature_ot))-(np.max(test_feature_ot)-np.min(test_feature_ot))/2.0)/((np.max(test_feature_ot)-np.min(test_feature_ot))/2)
 
 print(train_feature)
-print(test_feature)
+print(train_feature_ot)
 X_train1 =train_feature[:75*lin2]
 print(X_train1.shape)
 X_test1 =test_feature[:5*lin2]

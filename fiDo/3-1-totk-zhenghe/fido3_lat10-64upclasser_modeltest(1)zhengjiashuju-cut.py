@@ -14,9 +14,100 @@ from keras.optimizers import Adam
 import numpy as np
 from keras.utils import np_utils
 import time
+cut1=12
+cut2=7
 lin=196
 ww=1
 lin2=int((lin*2)/ww)
+def read_data_cut1(filenames,kmeans1):
+    i = 0
+    feature = []
+    label = []
+    for filename in filenames:
+        if os.path.exists(filename) == False:
+            print(filename + " doesn't exit.")
+            exit(1)
+        csvdata = pd.read_csv(filename, header=None)
+        csvdata = np.array(csvdata, dtype=np.float64)
+        csvdata = csvdata[:, 0:270]
+        idx = np.array([j for j in range(int(csvdata.shape[0] / 2)-lin ,
+                                         int(csvdata.shape[0] / 2) +lin, ww)])#取中心点处左右分布数据
+        temp_feature = csvdata[idx,]
+
+        feat = temp_feature - kmeans1
+        feat = np.square(feat)
+        feat = np.sum(feat, axis=1)
+        feat = np.sqrt(feat)
+        a = np.argmax(feat)  # 返回feature最大值位置
+        idx1 = np.array([j for j in range(int(temp_feature.shape[0] / 2) - lin,a-cut1, ww)])  # 取中心点处左右分布数据
+        idx2 = np.array([j for j in range(a+cut1+2,int(temp_feature.shape[0] / 2) + lin, ww)])  # 取中心点处左右分布数据
+        idx = np.hstack((idx1, idx2))
+        temp_feature = temp_feature[idx]
+        #print(temp_feature)
+        # 贴标签
+        temp_label = -1  # 初始化
+        if ('-0-' in filename):
+            temp_label = 0
+        elif ('-1M-' in filename):
+            temp_label = 1
+        elif ('2M' in filename):
+            temp_label = 2
+        elif ('-3M-' in filename):
+            temp_label = 3
+        temp_label = np.tile(temp_label, (temp_feature.shape[0],))
+        if i == 0:
+            feature = temp_feature
+            label = temp_label
+            i = i + 1
+        else:
+            feature = np.concatenate((feature, temp_feature), axis=0)  # 拼接
+            label = np.concatenate((label, temp_label), axis=0)
+    #label = np_utils.to_categorical(label)
+    return np.array(feature[:, :270]), np.array(label)
+def read_data_cut2(filenames, kmeans2):
+    i = 0
+    feature = []
+    label = []
+    for filename in filenames:
+        if os.path.exists(filename) == False:
+            print(filename + " doesn't exit.")
+            exit(1)
+        csvdata = pd.read_csv(filename, header=None)
+        csvdata = np.array(csvdata, dtype=np.float64)
+        csvdata = csvdata[:, 0:270]
+        idx = np.array([j for j in range(int(csvdata.shape[0] / 2) - lin,
+                                         int(csvdata.shape[0] / 2) + lin, ww)])  # 取中心点处左右分布数据
+        temp_feature = csvdata[idx,]
+
+        feat = temp_feature - kmeans2
+        feat = np.square(feat)
+        feat = np.sum(feat, axis=1)
+        feat = np.sqrt(feat)
+        a = np.argmax(feat)  # 返回feature最大值位置
+        idx1 = np.array([j for j in range(int(temp_feature.shape[0] / 2) - lin, a-20-cut2+1, ww)])  # 取中心点处左右分布数据
+        idx2 = np.array([j for j in range(a-20+cut2+1, int(temp_feature.shape[0] / 2) + lin, ww)])  # 取中心点处左右分布数据
+        idx = np.hstack((idx1, idx2))
+        temp_feature = temp_feature[idx]
+        # 贴标签
+        temp_label = -1  # 初始化
+        if ('-0-' in filename):
+            temp_label = 0
+        elif ('-1M-' in filename):
+            temp_label = 1
+        elif ('2M' in filename):
+            temp_label = 2
+        elif ('-3M-' in filename):
+            temp_label = 3
+        temp_label = np.tile(temp_label, (temp_feature.shape[0],))
+        if i == 0:
+            feature = temp_feature
+            label = temp_label
+            i = i + 1
+        else:
+            feature = np.concatenate((feature, temp_feature), axis=0)  # 拼接
+            label = np.concatenate((label, temp_label), axis=0)
+    #label = np_utils.to_categorical(label)
+    return np.array(feature[:, :270]), np.array(label)
 def read_data(filenames):
     i = 0
     feature = []
@@ -73,7 +164,7 @@ def file_array():
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     print(kmeans.cluster_centers_.shape)
-    print(kmeans.cluster_centers_)
+    #print(kmeans.cluster_centers_)
     feature = feature - kmeans.cluster_centers_
     feature = np.square(feature)
     feature = np.sum(feature, axis=1)
@@ -121,8 +212,6 @@ def file_array():
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
     return trainfile, testfile
-
-#获取不带标签的数据
 def other_file_array():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
     filetype = '.csv'
@@ -140,11 +229,11 @@ def other_file_array():
     trainfile = np.array(trainfile)
     feature, lable = read_data(trainfile)
 
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    print(kmeans.cluster_centers_.shape)
-    print(kmeans.cluster_centers_)
-    feature = feature - kmeans.cluster_centers_
+    kmeans1 = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans1.fit_predict(feature)
+    print(kmeans1.cluster_centers_.shape)
+    print(kmeans1.cluster_centers_)
+    feature = feature - kmeans1.cluster_centers_
     feature = np.square(feature)
     feature = np.sum(feature, axis=1)
     feature = np.sqrt(feature)
@@ -156,17 +245,17 @@ def other_file_array():
     trainfile = trainfile[:25]
     #np.random.shuffle(trainfile)
 
-    feature, lable = read_data(trainfile)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(25)
-    for i in range(0, 25):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        print("(不带东西特征)i为", end='')
-        print(i)
-        print(feature[i * lin2:(i + 1) * lin2])
+    # feature, lable = read_data(trainfile)
+    # feature = feature - kmeans1.cluster_centers_
+    # feature = np.square(feature)
+    # feature = np.sum(feature, axis=1)
+    # feature = np.sqrt(feature)
+    # k = np.arange(25)
+    # for i in range(0, 25):
+    #     k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+    #     print("(不带东西特征)i为", end='')
+    #     print(i)
+    #     print(feature[i * lin2:(i + 1) * lin2])
 
     for j in ["1M"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
@@ -177,11 +266,11 @@ def other_file_array():
     trainfile2 = np.array(trainfile2)
     feature, lable = read_data(trainfile2)
 
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    print(kmeans.cluster_centers_.shape)
-    print(kmeans.cluster_centers_)
-    feature = feature - kmeans.cluster_centers_
+    kmeans2 = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans2.fit_predict(feature)
+    print(kmeans2.cluster_centers_.shape)
+    print(kmeans2.cluster_centers_)
+    feature = feature - kmeans2.cluster_centers_
     feature = np.square(feature)
     feature = np.sum(feature, axis=1)
     feature = np.sqrt(feature)
@@ -193,17 +282,17 @@ def other_file_array():
     trainfile2 = trainfile2[:25]
     #np.random.shuffle(trainfile2)
 
-    feature, lable = read_data(trainfile2)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(25)
-    for i in range(0, 25):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        print("(带东西特征)i为", end='')
-        print(i)
-        print(feature[i * lin2:(i + 1) * lin2])
+    # feature, lable = read_data(trainfile2)
+    # feature = feature - kmeans2.cluster_centers_
+    # feature = np.square(feature)
+    # feature = np.sum(feature, axis=1)
+    # feature = np.sqrt(feature)
+    # k = np.arange(25)
+    # for i in range(0, 25):
+    #     k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+    #     print("(带东西特征)i为", end='')
+    #     print(i)
+    #     print(feature[i * lin2:(i + 1) * lin2])
 
     testfile = trainfile[20:]
     trainfile = trainfile[:25]
@@ -212,7 +301,7 @@ def other_file_array():
 
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
-    return trainfile, testfile
+    return trainfile, testfile,kmeans1.cluster_centers_,kmeans2.cluster_centers_
 
 def build_encoder(latent_dim, img_shape):
     deterministic = 1
@@ -225,7 +314,6 @@ def build_encoder(latent_dim, img_shape):
     latent_repr = Dense(latent_dim)(h)
     return Model(img, latent_repr)
 
-
 def build_discriminator(latent_dim):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
@@ -236,7 +324,6 @@ def build_discriminator(latent_dim):
     encoded_repr = Input(shape=(latent_dim,))
     validity = model(encoded_repr)
     return Model(encoded_repr, validity)
-
 
 def build_decoder(latent_dim, img_shape):
     model = Sequential()
@@ -261,7 +348,6 @@ def build_encoder2(latent_dim, img_shape):
     latent_repr = Dense(latent_dim)(h)
     return Model(img, latent_repr)
 
-
 def build_discriminator2(latent_dim):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
@@ -272,7 +358,6 @@ def build_discriminator2(latent_dim):
     encoded_repr = Input(shape=(latent_dim,))
     validity = model(encoded_repr)
     return Model(encoded_repr, validity)
-
 
 def build_decoder2(latent_dim, img_shape):
     model = Sequential()
@@ -285,9 +370,6 @@ def build_decoder2(latent_dim, img_shape):
     z = Input(shape=(latent_dim,))
     img = model(z)
     return Model(z, img)
-# The input are 28x28 images. The optimization used is Adam. The loss is binary cross-entropy.
-
-# In[26]:
 
 
 img_rows = 15
@@ -359,10 +441,16 @@ print(testfile_array)
 train_feature, train_label = read_data(trainfile_array)
 test_feature, test_label = read_data(testfile_array)
 
-trainfile_other, testfile_other = other_file_array()#
+trainfile_other, testfile_other,kmeans1,kmeans2= other_file_array()#
 print(trainfile_other)
 print(trainfile_other.shape)
-train_feature_ot, train_label_ot = read_data(trainfile_other)
+train_feature_ot1, train_label_ot1 = read_data_cut1(trainfile_other[:25],kmeans1)
+train_feature_ot2, train_label_ot2 = read_data_cut2(trainfile_other[25:],kmeans2)
+train_feature_ot=np.concatenate((train_feature_ot1,train_feature_ot2), axis=0)
+print(train_feature_ot)
+train_label_ot=np.concatenate((train_label_ot1,train_label_ot2), axis=0)
+train_label_ot = np_utils.to_categorical(train_label_ot)
+print(train_label_ot.shape)
 test_feature_ot, test_label_ot = read_data(testfile_other)
 #全局归化为-1~1
 a=np.concatenate((train_feature, train_feature_ot), axis=0)
@@ -371,8 +459,6 @@ test_feature = ((test_feature.astype('float32')-np.min(test_feature))-(np.max(te
 train_feature_ot = ((train_feature_ot.astype('float32')-np.min(a))-(np.max(a)-np.min(a))/2.0)/((np.max(a)-np.min(a))/2)
 test_feature_ot = ((test_feature_ot.astype('float32')-np.min(test_feature_ot))-(np.max(test_feature_ot)-np.min(test_feature_ot))/2.0)/((np.max(test_feature_ot)-np.min(test_feature_ot))/2)
 
-print(train_feature)
-print(test_feature)
 X_train1 =train_feature[:75*lin2]
 print(X_train1.shape)
 X_test1 =test_feature[:5*lin2]
@@ -494,10 +580,10 @@ sc_fido = Model(img3,reconstructed_img3)
 sc_fido.compile(loss='mse', optimizer=opt)
 classer.summary()
 
-classer.load_weights('models/fido3_lat10-64upclasser(1)zhengjiashuju/classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser(1)zhengjiashuju/ed.h5')
-dd.load_weights('models/fido3_lat10-64upclasser(1)zhengjiashuju/dd.h5')
-sc_fido.load_weights('models/fido3_lat10-64upclasser(1)zhengjiashuju/sc_fido.h5')
+classer.load_weights('models/fido3_lat10-64upclasser(1)zhengjiashuju-best/classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser(1)zhengjiashuju-best/ed.h5')
+dd.load_weights('models/fido3_lat10-64upclasser(1)zhengjiashuju-best/dd.h5')
+sc_fido.load_weights('models/fido3_lat10-64upclasser(1)zhengjiashuju-best/sc_fido.h5')
 
 non_mid=ed.predict(X_train1)
 non_pre=classer.predict(non_mid)
@@ -692,10 +778,9 @@ print(acc_yes_pre_vot)
 
 
 
-
-non_mid3=ed.predict(train_feature_ot[:25*lin2])
+non_mid3=ed.predict(train_feature_ot[:(lin2-cut1*2-2)*25])
 non_pre3=classer.predict(non_mid3)
-yes_mid3=ed.predict(train_feature_ot[25*lin2:])
+yes_mid3=ed.predict(train_feature_ot[(lin2-cut1*2-2)*25:])
 yes_pre3=classer.predict(yes_mid3)
 print(non_mid3)
 print(non_mid3.shape)
@@ -717,10 +802,11 @@ for i in range(0,int(len(non_pre3))):
     if non_pre3[i][0] < non_pre3[i][1]:
         a1[1] = a1[1] + 1
         non_pre3_1[i] = 0
-for i in range(0,int(len(non_pre3_1)/lin2)):
-    print("(不带东西)i为", end='')
-    print(i)
-    print(non_pre3_1[i * lin2:(i + 1) * lin2])
+
+# for i in range(0,int(len(non_pre3_1)/(lin2-cut1*2-2))):
+#     print("(不带东西)i为", end='')
+#     print(i)
+#     print(non_pre3_1[i * (lin2-cut1*2-2):(i + 1) * (lin2-cut1*2-2)])
 
 acc_non_pre3=float(a1[0])/float(len(non_pre3))
 a1=[0,0]
@@ -731,13 +817,13 @@ for i in range(0,int(len(non_pre3_1))):
     if non_pre3_1[i] == 0:
         k1[1] = k1[1] + 1
         a1[1] = a1[1] + 1
-    if (k1[0]+k1[1]==lin2):
+    if (k1[0]+k1[1]==(lin2-cut1*2-2)):
         if k1[0]>=k1[1]:
             a2[0]=a2[0]+1
         if k1[0]<k1[1]:
             a2[1]=a2[1]+1
         k1=[0,0]
-acc_non_pre3_vot=float(a2[0])/float(len(non_pre3_1)/lin2)
+acc_non_pre3_vot=float(a2[0])/float(len(non_pre3_1)/(lin2-cut1*2-2))
 print(a1)
 print(a2)
 
@@ -766,10 +852,10 @@ for i in range(0,int(len(yes_pre3))):
         a1[1] = a1[1] + 1
         yes_pre3_1[i] = 0
 
-for i in range(0,int(len(yes_pre3_1)/lin2)):
-    print("(带东西)i为", end='')
-    print(i)
-    print(yes_pre3_1[i * lin2:(i + 1) * lin2])
+# for i in range(0,int(len(yes_pre3_1)/(lin2-cut2*2))):
+#     print("(带东西)i为", end='')
+#     print(i)
+#     print(yes_pre3_1[i * (lin2-cut2*2):(i + 1) * (lin2-cut2*2)])
 
 acc_yes_pre3=float(a1[1])/float(len(yes_pre3))
 a1=[0,0]
@@ -780,13 +866,13 @@ for i in range(0,int(len(yes_pre3_1))):
     if yes_pre3_1[i] == 0:
         k1[1] = k1[1] + 1
         a1[1] = a1[1] + 1
-    if (k1[0]+k1[1]==lin2):
+    if (k1[0]+k1[1]==(lin2-cut2*2)):
         if k1[0]>k1[1]:
             a2[0]=a2[0]+1
         if k1[0]<=k1[1]:
             a2[1]=a2[1]+1
         k1=[0,0]
-acc_yes_pre3_vot=float(a2[1])/float(len(yes_pre3_1)/lin2)
+acc_yes_pre3_vot=float(a2[1])/float(len(yes_pre3_1)/(lin2-cut2*2))
 print(a1)
 print(a2)
 print("无标签带东西数据准确率：")
