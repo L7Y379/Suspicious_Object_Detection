@@ -67,7 +67,6 @@ def read_data(filenames):
     label = np_utils.to_categorical(label)
     label2 = np_utils.to_categorical(label2)
     return np.array(feature[:, :270]), np.array(label),np.array(label2)
-
 def file_array():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
     filetype = '.csv'
@@ -138,8 +137,6 @@ def file_array():
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
     return trainfile, testfile
-
-#获取不带标签的数据
 def other_file_array():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
     filetype = '.csv'
@@ -232,7 +229,6 @@ def other_file_array():
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
     return trainfile, testfile
-
 def build_encoder(latent_dim, img_shape):
     deterministic = 1
     img = Input(shape=img_shape)
@@ -243,8 +239,6 @@ def build_encoder(latent_dim, img_shape):
     h = LeakyReLU(alpha=0.2)(h)
     latent_repr = Dense(latent_dim)(h)
     return Model(img, latent_repr)
-
-
 def build_discriminator(latent_dim):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
@@ -255,8 +249,6 @@ def build_discriminator(latent_dim):
     encoded_repr = Input(shape=(latent_dim,))
     validity = model(encoded_repr)
     return Model(encoded_repr, validity)
-
-
 def build_decoder(latent_dim, img_shape):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
@@ -268,7 +260,6 @@ def build_decoder(latent_dim, img_shape):
     z = Input(shape=(latent_dim,))
     img = model(z)
     return Model(z, img)
-
 def build_encoder2(latent_dim, img_shape):
     deterministic = 1
     img = Input(shape=img_shape)
@@ -279,8 +270,6 @@ def build_encoder2(latent_dim, img_shape):
     h = LeakyReLU(alpha=0.2)(h)
     latent_repr = Dense(latent_dim)(h)
     return Model(img, latent_repr)
-
-
 def build_discriminator2(latent_dim):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
@@ -291,8 +280,6 @@ def build_discriminator2(latent_dim):
     encoded_repr = Input(shape=(latent_dim,))
     validity = model(encoded_repr)
     return Model(encoded_repr, validity)
-
-
 def build_decoder2(latent_dim, img_shape):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
@@ -304,8 +291,6 @@ def build_decoder2(latent_dim, img_shape):
     z = Input(shape=(latent_dim,))
     img = model(z)
     return Model(z, img)
-
-
 
 img_rows = 15
 img_cols = 18
@@ -464,11 +449,11 @@ def build_ed(latent_dim2, img_shape):
     deterministic = 1
     img = Input(shape=img_shape)
     h = Flatten()(img)
-    h = Dense(800)(h)
+    h = Dense(1000)(h)
     h = LeakyReLU(alpha=0.2)(h)
-    h = Dense(800)(h)
+    h = Dense(1000)(h)
     h = LeakyReLU(alpha=0.2)(h)
-    h = Dense(800)(h)
+    h = Dense(1000)(h)
     h = LeakyReLU(alpha=0.2)(h)
     # h = Dense(512)(h)
     # h = LeakyReLU(alpha=0.2)(h)
@@ -491,7 +476,6 @@ def build_class(latent_dim):
     encoded_repr = Input(shape=(latent_dim,))
     validity = model(encoded_repr)
     return Model(encoded_repr, validity)
-
 def build_dis(latent_dim):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
@@ -504,14 +488,13 @@ def build_dis(latent_dim):
     encoded_repr = Input(shape=(latent_dim,))
     validity = model(encoded_repr)
     return Model(encoded_repr, validity)
-
 def build_dd(latent_dim2, img_shape):
     model = Sequential()
-    model.add(Dense(800, input_dim=latent_dim2))
+    model.add(Dense(1000, input_dim=latent_dim2))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(800))
+    model.add(Dense(1000))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(800))
+    model.add(Dense(1000))
     model.add(LeakyReLU(alpha=0.2))
     # model.add(Dense(512, input_dim=latent_dim2))
     # model.add(LeakyReLU(alpha=0.2))
