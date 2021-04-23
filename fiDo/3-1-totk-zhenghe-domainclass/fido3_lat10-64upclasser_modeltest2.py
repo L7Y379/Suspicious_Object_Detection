@@ -15,7 +15,7 @@ from keras.optimizers import Adam
 import numpy as np
 from keras.utils import np_utils
 import time
-lin=190
+lin=120
 ww=1
 lin2=int((lin*2)/ww)
 def read_data(filenames):
@@ -780,10 +780,10 @@ for i in range(0,int(len(non_pre3))):
     if non_pre3[i][0] < non_pre3[i][1]:
         a1[1] = a1[1] + 1
         non_pre3_1[i] = 0
-for i in range(0,int(len(non_pre3_1)/lin2)):
-    print("(不带东西)i为", end='')
-    print(i)
-    print(non_pre3_1[i * lin2:(i + 1) * lin2])
+# for i in range(0,int(len(non_pre3_1)/lin2)):
+#     print("(不带东西)i为", end='')
+#     print(i)
+#     print(non_pre3_1[i * lin2:(i + 1) * lin2])
 
 acc_non_pre3=float(a1[0])/float(len(non_pre3))
 a1=[0,0]
@@ -828,10 +828,10 @@ for i in range(0,int(len(yes_pre3))):
     if yes_pre3[i][0] <= yes_pre3[i][1]:
         a1[1] = a1[1] + 1
         yes_pre3_1[i] = 0
-for i in range(0,int(len(yes_pre3_1)/lin2)):
-    print("(带东西)i为", end='')
-    print(i)
-    print(yes_pre3_1[i * lin2:(i + 1) * lin2])
+# for i in range(0,int(len(yes_pre3_1)/lin2)):
+#     print("(带东西)i为", end='')
+#     print(i)
+#     print(yes_pre3_1[i * lin2:(i + 1) * lin2])
 
 acc_yes_pre3=float(a1[1])/float(len(yes_pre3))
 a1=[0,0]

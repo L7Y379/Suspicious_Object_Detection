@@ -20,7 +20,7 @@ from keras.utils import np_utils
 import time
 cut1=14
 cut2=5
-lin=155
+lin=150
 ww=1
 lin2=int((lin*2)/ww)
 def read_data_cut1(filenames,kmeans1):

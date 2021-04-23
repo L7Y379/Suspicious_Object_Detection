@@ -146,7 +146,6 @@ def file_array():
     testfile = np.concatenate((testfile, testfile2), axis=0)
     return trainfile, testfile
 
-#获取不带标签的数据
 def other_file_array():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
     filetype = '.csv'
@@ -224,7 +223,6 @@ def build_encoder(latent_dim, img_shape):
     h = LeakyReLU(alpha=0.2)(h)
     latent_repr = Dense(latent_dim)(h)
     return Model(img, latent_repr)
-
 
 def build_discriminator(latent_dim):
     model = Sequential()
@@ -356,10 +354,12 @@ trainfile_other, testfile_other = other_file_array()#
 train_feature_ot, train_label_ot,train_domain_label_ot = read_data(trainfile_other)
 test_feature_ot, test_label_ot,test_domain_label_ot = read_data(testfile_other)
 #全局归化为-1~1
-a=np.concatenate((train_feature, train_feature_ot), axis=0)
+
+a=train_feature
+b=train_feature_ot
 train_feature = ((train_feature.astype('float32')-np.min(a))-(np.max(a)-np.min(a))/2.0)/((np.max(a)-np.min(a))/2)
 test_feature = ((test_feature.astype('float32')-np.min(test_feature))-(np.max(test_feature)-np.min(test_feature))/2.0)/((np.max(test_feature)-np.min(test_feature))/2)
-train_feature_ot = ((train_feature_ot.astype('float32')-np.min(a))-(np.max(a)-np.min(a))/2.0)/((np.max(a)-np.min(a))/2)
+train_feature_ot = ((train_feature_ot.astype('float32')-np.min(b))-(np.max(a)-np.min(b))/2.0)/((np.max(b)-np.min(b))/2)
 test_feature_ot = ((test_feature_ot.astype('float32')-np.min(test_feature_ot))-(np.max(test_feature_ot)-np.min(test_feature_ot))/2.0)/((np.max(test_feature_ot)-np.min(test_feature_ot))/2)
 
 print(train_feature)
