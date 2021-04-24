@@ -16,7 +16,7 @@ from keras.utils import np_utils
 import time
 cut1=12
 cut2=7
-lin=120
+lin=162
 ww=1
 lin2=int((lin*2)/ww)
 def read_data_cut1(filenames,kmeans1):
@@ -143,73 +143,98 @@ def read_data(filenames):
     label = np_utils.to_categorical(label)
     return np.array(feature[:, :270]), np.array(label)
 def file_array():
-    filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
+    filepath = 'D:/my bad/Suspicious object detection/data/caiji/CSV/'
     filetype = '.csv'
     filenames = []
     trainfile = []
     trainfile2 = []
     testfile = []
     testfile2 = []
-    for name in ['zb', 'ljy', 'czn']:
+    for name in ['cyh','gzy','hsj','ljc','lyx','tk','zb','zhw']:
         for j in ["0"]:  # "1S", "2S"
-            for i in [i for i in range(0, 30)]:
+            for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
                 filenames += [fn]
 
-    trainfile += filenames[:90]
+    trainfile += filenames[:160]
     filenames = []
     trainfile = np.array(trainfile)
     feature, lable = read_data(trainfile)
 
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
+    # k = np.arange(160)
+    # feature, lable = read_data(trainfile)
+    # feature = np.sum(feature, axis=1)
+    # feature =np.rint(feature)
+    # for i in range(0, 160):
+    #     k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+    #     print("(不带东西特征)i为", end='')
+    #     print(i)
+    #     print(feature[i * lin2:(i + 1) * lin2])
 
-    #print(kmeans.cluster_centers_)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    #print(feature)
-    k = np.arange(90)
-    for i in range(0, 90):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:75]
+
+
+
+
+    # kmeans = KMeans(n_clusters=1, n_init=50)
+    # pred_train = kmeans.fit_predict(feature)
+    #
+    # #print(kmeans.cluster_centers_)
+    # feature = feature - kmeans.cluster_centers_
+    # feature = np.square(feature)
+    # feature = np.sum(feature, axis=1)
+    # feature = np.sqrt(feature)
+    # #print(feature)
+    # k = np.arange(90)
+    # for i in range(0, 90):
+    #     k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+    #     # print(k[i])
+    # trainfile = trainfile[np.argsort(k)]
+    # trainfile = trainfile[:75]
     # np.random.shuffle(trainfile)
 
-    for name in ['zb', 'ljy', 'czn']:
+    for name in ['cyh', 'gzy', 'hsj', 'ljc', 'lyx', 'tk', 'zb', 'zhw']:
         for j in ["1M"]:  # "1S", "2S"
-            for i in [i for i in range(0, 30)]:
+            for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
                 filenames += [fn]
-    trainfile2 += filenames[:90]
+
+    trainfile2 += filenames[:160]
     filenames = []
     trainfile2 = np.array(trainfile2)
     feature, lable = read_data(trainfile2)
 
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
+    k = np.arange(160)
+    feature, lable = read_data(trainfile2)
     feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(90)
-    for i in range(0, 90):
+    feature = np.rint(feature)
+    for i in range(0, 160):
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile2 = trainfile2[np.argsort(k)]
-    trainfile2 = trainfile2[:75]
-    # np.random.shuffle(trainfile2)
+        print("(带东西特征)i为", end='')
+        print(i)
+        print(feature[i * lin2:(i + 1) * lin2])
 
-    testfile = trainfile[60:]
-    trainfile = trainfile[:75]
-    testfile2 = trainfile2[60:]
-    trainfile2 = trainfile2[:75]
-
-    trainfile = np.concatenate((trainfile, trainfile2), axis=0)
-    testfile = np.concatenate((testfile, testfile2), axis=0)
+    # kmeans = KMeans(n_clusters=1, n_init=50)
+    # pred_train = kmeans.fit_predict(feature)
+    #
+    # feature = feature - kmeans.cluster_centers_
+    # feature = np.square(feature)
+    # feature = np.sum(feature, axis=1)
+    # feature = np.sqrt(feature)
+    # k = np.arange(90)
+    # for i in range(0, 90):
+    #     k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+    #     # print(k[i])
+    # trainfile2 = trainfile2[np.argsort(k)]
+    # trainfile2 = trainfile2[:75]
+    # # np.random.shuffle(trainfile2)
+    #
+    # testfile = trainfile[60:]
+    # trainfile = trainfile[:75]
+    # testfile2 = trainfile2[60:]
+    # trainfile2 = trainfile2[:75]
+    #
+    # trainfile = np.concatenate((trainfile, trainfile2), axis=0)
+    # testfile = np.concatenate((testfile, testfile2), axis=0)
     return trainfile, testfile
 def other_file_array():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
@@ -325,44 +350,44 @@ def other_file_array():
 
 trainfile_array, testfile_array = file_array()#
 
-train_feature, train_label = read_data(trainfile_array)
-test_feature, test_label = read_data(testfile_array)
-
-trainfile_other, testfile_other,kmeans1,kmeans2= other_file_array()#
-
-train_feature_ot1, train_label_ot1 = read_data_cut1(trainfile_other[:25],kmeans1)
-train_feature_ot2, train_label_ot2 = read_data_cut2(trainfile_other[25:],kmeans2)
-train_feature_ot=np.concatenate((train_feature_ot1,train_feature_ot2), axis=0)
-
-train_label_ot=np.concatenate((train_label_ot1,train_label_ot2), axis=0)
-train_label_ot = np_utils.to_categorical(train_label_ot)
-
-test_feature_ot, test_label_ot = read_data(testfile_other)
-#全局归化为-1~1
-a=np.concatenate((train_feature, train_feature_ot), axis=0)
-print(train_feature.shape)
-print(train_feature_ot.shape)
-print(np.min(train_feature))
-print(np.max(train_feature))
-print(np.min(train_feature_ot))
-print(np.max(train_feature_ot))
-
-print(np.min(train_feature[:75*lin2]))
-print(np.max(train_feature[75*lin2:]))
-print(np.min(train_feature_ot1))
-print(np.max(train_feature_ot2))
-train_feature = ((train_feature.astype('float32')-np.min(a))-(np.max(a)-np.min(a))/2.0)/((np.max(a)-np.min(a))/2)
-test_feature = ((test_feature.astype('float32')-np.min(test_feature))-(np.max(test_feature)-np.min(test_feature))/2.0)/((np.max(test_feature)-np.min(test_feature))/2)
-train_feature_ot = ((train_feature_ot.astype('float32')-np.min(a))-(np.max(a)-np.min(a))/2.0)/((np.max(a)-np.min(a))/2)
-test_feature_ot = ((test_feature_ot.astype('float32')-np.min(test_feature_ot))-(np.max(test_feature_ot)-np.min(test_feature_ot))/2.0)/((np.max(test_feature_ot)-np.min(test_feature_ot))/2)
-
-X_train1 =train_feature[:75*lin2]
-
-X_test1 =test_feature[:5*lin2]
-
-
-X_train2 =train_feature[75*lin2:]
-
-X_test2 =test_feature[5*lin2:]
+# train_feature, train_label = read_data(trainfile_array)
+# test_feature, test_label = read_data(testfile_array)
+#
+# #trainfile_other, testfile_other,kmeans1,kmeans2= other_file_array()#
+#
+# train_feature_ot1, train_label_ot1 = read_data_cut1(trainfile_other[:25],kmeans1)
+# train_feature_ot2, train_label_ot2 = read_data_cut2(trainfile_other[25:],kmeans2)
+# train_feature_ot=np.concatenate((train_feature_ot1,train_feature_ot2), axis=0)
+#
+# train_label_ot=np.concatenate((train_label_ot1,train_label_ot2), axis=0)
+# train_label_ot = np_utils.to_categorical(train_label_ot)
+#
+# test_feature_ot, test_label_ot = read_data(testfile_other)
+# #全局归化为-1~1
+# a=np.concatenate((train_feature, train_feature_ot), axis=0)
+# print(train_feature.shape)
+# print(train_feature_ot.shape)
+# print(np.min(train_feature))
+# print(np.max(train_feature))
+# print(np.min(train_feature_ot))
+# print(np.max(train_feature_ot))
+#
+# print(np.min(train_feature[:75*lin2]))
+# print(np.max(train_feature[75*lin2:]))
+# print(np.min(train_feature_ot1))
+# print(np.max(train_feature_ot2))
+# train_feature = ((train_feature.astype('float32')-np.min(a))-(np.max(a)-np.min(a))/2.0)/((np.max(a)-np.min(a))/2)
+# test_feature = ((test_feature.astype('float32')-np.min(test_feature))-(np.max(test_feature)-np.min(test_feature))/2.0)/((np.max(test_feature)-np.min(test_feature))/2)
+# train_feature_ot = ((train_feature_ot.astype('float32')-np.min(a))-(np.max(a)-np.min(a))/2.0)/((np.max(a)-np.min(a))/2)
+# test_feature_ot = ((test_feature_ot.astype('float32')-np.min(test_feature_ot))-(np.max(test_feature_ot)-np.min(test_feature_ot))/2.0)/((np.max(test_feature_ot)-np.min(test_feature_ot))/2)
+#
+# X_train1 =train_feature[:75*lin2]
+#
+# X_test1 =test_feature[:5*lin2]
+#
+#
+# X_train2 =train_feature[75*lin2:]
+#
+# X_test2 =test_feature[5*lin2:]
 
 
