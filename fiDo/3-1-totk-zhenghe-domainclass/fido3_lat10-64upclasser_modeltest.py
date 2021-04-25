@@ -488,12 +488,12 @@ validity = dis(encoded_repr3)
 dis_model=Model(img3,validity)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-classer.load_weights('models/fido3_lat10-64upclasser/classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser/ed.h5')
-dd.load_weights('models/fido3_lat10-64upclasser/dd.h5')
-dis.load_weights('models/fido3_lat10-64upclasser/dis.h5')
-dis_model.load_weights('models/fido3_lat10-64upclasser/dis_model.h5')
-sc_fido.load_weights('models/fido3_lat10-64upclasser/sc_fido.h5')
+classer.load_weights('models/fido3_lat10-64upclasser/2180classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser/2180ed.h5')
+dd.load_weights('models/fido3_lat10-64upclasser/2180dd.h5')
+dis.load_weights('models/fido3_lat10-64upclasser/2180dis.h5')
+dis_model.load_weights('models/fido3_lat10-64upclasser/2180dis_model.h5')
+sc_fido.load_weights('models/fido3_lat10-64upclasser/2180sc_fido.h5')
 
 
 non_mid=ed.predict(X_train1)

@@ -495,7 +495,13 @@ dis_model=Model(img3,validity)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
 # # Training
-
+classer.load_weights('models/fido3_lat10-64upclasser/3000classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser/3000ed.h5')
+dd.load_weights('models/fido3_lat10-64upclasser/3000dd.h5')
+dis.load_weights('models/fido3_lat10-64upclasser/3000dis.h5')
+dis_model.load_weights('models/fido3_lat10-64upclasser/3000dis_model.h5')
+sc_fido.load_weights('models/fido3_lat10-64upclasser/3000sc_fido.h5')
+i=0
 for epoch in range(epochs):
 
     # ---------------------
@@ -524,10 +530,37 @@ for epoch in range(epochs):
     if epoch % 10 == 0:
         print("%d [危险品分类loss: %f,acc: %.2f%%,域分类loss: %f,acc: %.2f%%,重构loss: %f]" % (
         epoch, c_loss[0], 100 * c_loss[1],d_loss[0],100 * d_loss[1], sc_fido_loss))
-    if epoch >= 3000:
-        if ((100 * c_loss[1] >= 97.4) and (100 * d_loss[1] >= 90)):
-            break
-
+        if ((100 * c_loss[1] >= 96) and (100 * d_loss[1] >= 90)):
+            i=i+1
+            classer.save_weights('models/fido3_lat10-64upclasser/'+str(epoch)+'classer.h5')
+            ed.save_weights('models/fido3_lat10-64upclasser/'+str(epoch)+'ed.h5')
+            dd.save_weights('models/fido3_lat10-64upclasser/'+str(epoch)+'dd.h5')
+            dis.save_weights('models/fido3_lat10-64upclasser/'+str(epoch)+'dis.h5')
+            dis_model.save_weights('models/fido3_lat10-64upclasser/'+str(epoch)+'dis_model.h5')
+            sc_fido.save_weights('models/fido3_lat10-64upclasser/'+str(epoch)+'sc_fido.h5')
+            if i==8:
+                break
+    if epoch==1000:
+        classer.save_weights('models/fido3_lat10-64upclasser/1000classer.h5')
+        ed.save_weights('models/fido3_lat10-64upclasser/1000ed.h5')
+        dd.save_weights('models/fido3_lat10-64upclasser/1000dd.h5')
+        dis.save_weights('models/fido3_lat10-64upclasser/1000dis.h5')
+        dis_model.save_weights('models/fido3_lat10-64upclasser/1000dis_model.h5')
+        sc_fido.save_weights('models/fido3_lat10-64upclasser/1000sc_fido.h5')
+    if epoch==2000:
+        classer.save_weights('models/fido3_lat10-64upclasser/2000classer.h5')
+        ed.save_weights('models/fido3_lat10-64upclasser/2000ed.h5')
+        dd.save_weights('models/fido3_lat10-64upclasser/2000dd.h5')
+        dis.save_weights('models/fido3_lat10-64upclasser/2000dis.h5')
+        dis_model.save_weights('models/fido3_lat10-64upclasser/2000dis_model.h5')
+        sc_fido.save_weights('models/fido3_lat10-64upclasser/2000sc_fido.h5')
+    if epoch==3000:
+        classer.save_weights('models/fido3_lat10-64upclasser/3000classer.h5')
+        ed.save_weights('models/fido3_lat10-64upclasser/3000ed.h5')
+        dd.save_weights('models/fido3_lat10-64upclasser/3000dd.h5')
+        dis.save_weights('models/fido3_lat10-64upclasser/3000dis.h5')
+        dis_model.save_weights('models/fido3_lat10-64upclasser/3000dis_model.h5')
+        sc_fido.save_weights('models/fido3_lat10-64upclasser/3000sc_fido.h5')
 classer.save_weights('models/fido3_lat10-64upclasser/classer.h5')
 ed.save_weights('models/fido3_lat10-64upclasser/ed.h5')
 dd.save_weights('models/fido3_lat10-64upclasser/dd.h5')

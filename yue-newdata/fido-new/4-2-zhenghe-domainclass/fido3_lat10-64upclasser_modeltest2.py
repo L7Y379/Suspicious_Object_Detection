@@ -15,7 +15,7 @@ from keras.optimizers import Adam
 import numpy as np
 from keras.utils import np_utils
 import time
-lin=120
+lin=162
 ww=1
 lin2=int((lin*2)/ww)
 def read_data(filenames):
@@ -53,9 +53,9 @@ def read_data(filenames):
             temp_label2 = 2
         elif ('gzy' in filename):
             temp_label2 = 3
-        elif ('cyh' in filename):
+        elif ('hsj' in filename):
             temp_label2 = 4
-        elif ('lyx' in filename):
+        elif ('ljc' in filename):
             temp_label2 = 5
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
         temp_label2 = np.tile(temp_label2, (temp_feature.shape[0],))
@@ -149,7 +149,7 @@ def other_file_array():
     trainfile2 = []
     testfile = []
     testfile2 = []
-    for name in ['cyh', 'lyx']:
+    for name in ['hsj', 'ljc']:
         for j in ["0"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -177,7 +177,7 @@ def other_file_array():
     trainfile = trainfile[:30]
     # np.random.shuffle(trainfile)
 
-    for name in ['cyh', 'lyx']:
+    for name in ['hsj', 'ljc']:
         for j in ["1M"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -207,6 +207,146 @@ def other_file_array():
     trainfile = trainfile[:30]
     testfile2 = trainfile2[10:]
     trainfile2 = trainfile2[:30]
+
+    trainfile = np.concatenate((trainfile, trainfile2), axis=0)
+    testfile = np.concatenate((testfile, testfile2), axis=0)
+    return trainfile, testfile
+def hsj_file_array():
+    filepath = 'D:/my bad/Suspicious object detection/data/caiji/CSV/'
+    filetype = '.csv'
+    filenames = []
+    trainfile = []
+    trainfile2 = []
+    testfile = []
+    testfile2 = []
+    for name in ['hsj']:
+        for j in ["0"]:  # "1S", "2S"
+            for i in [i for i in range(0, 20)]:
+                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+
+    trainfile += filenames[:20]
+    filenames = []
+    trainfile = np.array(trainfile)
+    feature, lable, domain_label = read_data(trainfile)
+
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    print(kmeans.cluster_centers_.shape)
+    print(kmeans.cluster_centers_)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    print(feature)
+    k = np.arange(20)
+    for i in range(0, 20):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        # print(k[i])
+    trainfile = trainfile[np.argsort(k)]
+    trainfile = trainfile[:15]
+    # np.random.shuffle(trainfile)
+
+    for name in ['hsj']:
+        for j in ["1M"]:  # "1S", "2S"
+            for i in [i for i in range(0, 20)]:
+                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+    trainfile2 += filenames[:20]
+    filenames = []
+    trainfile2 = np.array(trainfile2)
+    feature, lable, domain_label = read_data(trainfile2)
+
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    print(kmeans.cluster_centers_.shape)
+    print(kmeans.cluster_centers_)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(20)
+    for i in range(0, 20):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        # print(k[i])
+    trainfile2 = trainfile2[np.argsort(k)]
+    trainfile2 = trainfile2[:15]
+    np.random.shuffle(trainfile2)
+
+    testfile = trainfile[10:]
+    trainfile = trainfile[:15]
+    testfile2 = trainfile2[10:]
+    trainfile2 = trainfile2[:15]
+
+    trainfile = np.concatenate((trainfile, trainfile2), axis=0)
+    testfile = np.concatenate((testfile, testfile2), axis=0)
+    return trainfile, testfile
+def ljc_file_array():
+    filepath = 'D:/my bad/Suspicious object detection/data/caiji/CSV/'
+    filetype = '.csv'
+    filenames = []
+    trainfile = []
+    trainfile2 = []
+    testfile = []
+    testfile2 = []
+    for name in ['ljc']:
+        for j in ["0"]:  # "1S", "2S"
+            for i in [i for i in range(0, 20)]:
+                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+
+    trainfile += filenames[:20]
+    filenames = []
+    trainfile = np.array(trainfile)
+    feature, lable, domain_label = read_data(trainfile)
+
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    print(kmeans.cluster_centers_.shape)
+    print(kmeans.cluster_centers_)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    print(feature)
+    k = np.arange(20)
+    for i in range(0, 20):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        # print(k[i])
+    trainfile = trainfile[np.argsort(k)]
+    trainfile = trainfile[:15]
+    # np.random.shuffle(trainfile)
+
+    for name in ['ljc']:
+        for j in ["1M"]:  # "1S", "2S"
+            for i in [i for i in range(0, 20)]:
+                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+    trainfile2 += filenames[:20]
+    filenames = []
+    trainfile2 = np.array(trainfile2)
+    feature, lable, domain_label = read_data(trainfile2)
+
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    print(kmeans.cluster_centers_.shape)
+    print(kmeans.cluster_centers_)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(20)
+    for i in range(0, 20):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        # print(k[i])
+    trainfile2 = trainfile2[np.argsort(k)]
+    trainfile2 = trainfile2[:15]
+    np.random.shuffle(trainfile2)
+
+    testfile = trainfile[10:]
+    trainfile = trainfile[:15]
+    testfile2 = trainfile2[10:]
+    trainfile2 = trainfile2[:15]
 
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
@@ -343,6 +483,11 @@ print(testfile_array)
 train_feature, train_label ,train_domain_label= read_data(trainfile_array)
 test_feature, test_label,test_domain_label = read_data(testfile_array)
 
+hsj_file,test=hsj_file_array()#
+ljc_file,test=ljc_file_array()#
+hsj_feature, hsj_label ,hsj_domain_label= read_data(hsj_file)
+ljc_feature, ljc_label,ljc_domain_label = read_data(ljc_file)
+
 trainfile_other, testfile_other = other_file_array()#
 print(trainfile_other)
 print(trainfile_other.shape)
@@ -355,6 +500,10 @@ train_feature = ((train_feature.astype('float32')-np.min(a))-(np.max(a)-np.min(a
 test_feature = ((test_feature.astype('float32')-np.min(test_feature))-(np.max(test_feature)-np.min(test_feature))/2.0)/((np.max(test_feature)-np.min(test_feature))/2)
 train_feature_ot = ((train_feature_ot.astype('float32')-np.min(b))-(np.max(b)-np.min(b))/2.0)/((np.max(b)-np.min(b))/2)
 test_feature_ot = ((test_feature_ot.astype('float32')-np.min(test_feature_ot))-(np.max(test_feature_ot)-np.min(test_feature_ot))/2.0)/((np.max(test_feature_ot)-np.min(test_feature_ot))/2)
+
+hsj_feature= ((hsj_feature.astype('float32')-np.min(b))-(np.max(b)-np.min(b))/2.0)/((np.max(b)-np.min(b))/2)
+ljc_feature= ((ljc_feature.astype('float32')-np.min(b))-(np.max(b)-np.min(b))/2.0)/((np.max(b)-np.min(b))/2)
+
 
 print(train_feature)
 print(test_feature)
@@ -380,6 +529,12 @@ train_feature_ot = train_feature_ot.reshape([train_feature_ot.shape[0], img_rows
 test_feature_ot = test_feature_ot.reshape([test_feature_ot.shape[0], img_rows, img_cols])
 train_feature_ot = np.expand_dims(train_feature_ot, axis=3)
 test_feature_ot = np.expand_dims(test_feature_ot, axis=3)
+
+hsj_feature = hsj_feature.reshape([hsj_feature.shape[0], img_rows, img_cols])
+ljc_feature = ljc_feature.reshape([ljc_feature.shape[0], img_rows, img_cols])
+hsj_feature = np.expand_dims(hsj_feature, axis=3)
+ljc_feature = np.expand_dims(ljc_feature, axis=3)
+
 print("train_feature_ot")
 print(train_feature_ot.shape)
 # Adversarial ground truths
@@ -515,10 +670,10 @@ class_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['ac
 dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-classer.load_weights('models/fido3_lat10-64upclasser2/2260classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser2/2260ed.h5')
-dd.load_weights('models/fido3_lat10-64upclasser2/2260dd.h5')
-dis.load_weights('models/fido3_lat10-64upclasser2/2260dis.h5')
+classer.load_weights('models/fido3_lat10-64upclasser2/2230classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser2/2230ed.h5')
+dd.load_weights('models/fido3_lat10-64upclasser2/2230dd.h5')
+dis.load_weights('models/fido3_lat10-64upclasser2/2230dis.h5')
 #dis_model.load_weights('models/fido3_lat10-64upclasser2/2260dis_model.h5')
 #class_model.load_weights('models/fido3_lat10-64upclasser2/class_model.h5')
 #sc_fido.load_weights('models/fido3_lat10-64upclasser2/2000sc_fido.h5')
@@ -818,4 +973,209 @@ print(a2)
 print("无标签带东西数据准确率：")
 print(acc_yes_pre3)
 print("投票后无标签带东西数据准确率：")
+print(acc_yes_pre3_vot)
+
+
+non_mid3=ed.predict(hsj_feature[:lin2*15])
+non_mid3=non_mid3[:,:latent_dim]
+non_pre3=classer.predict(non_mid3)
+yes_mid3=ed.predict(hsj_feature[lin2*15:])
+yes_mid3=yes_mid3[:,:latent_dim]
+yes_pre3=classer.predict(yes_mid3)
+print(non_mid3)
+print(non_mid3.shape)
+print(yes_mid3)
+print(yes_mid3.shape)
+print(non_pre3)
+print(non_pre3.shape)
+print(yes_pre3)
+print(yes_pre3.shape)
+
+a1=[0,0]
+a2=[0,0]
+k1=[0,0]
+non_pre3_1 = np.arange(len(non_pre3))
+for i in range(0,int(len(non_pre3))):
+    if non_pre3[i][0]>=non_pre3[i][1]:
+        a1[0]=a1[0]+1
+        non_pre3_1[i] =1
+    if non_pre3[i][0] < non_pre3[i][1]:
+        a1[1] = a1[1] + 1
+        non_pre3_1[i] = 0
+# for i in range(0,int(len(non_pre3_1)/lin2)):
+#     print("(不带东西)i为", end='')
+#     print(i)
+#     print(non_pre3_1[i * lin2:(i + 1) * lin2])
+
+acc_non_pre3=float(a1[0])/float(len(non_pre3))
+a1=[0,0]
+for i in range(0,int(len(non_pre3_1))):
+    if non_pre3_1[i]==1:
+        k1[0]=k1[0]+1
+        a1[0] = a1[0] + 1
+    if non_pre3_1[i] == 0:
+        k1[1] = k1[1] + 1
+        a1[1] = a1[1] + 1
+    if (k1[0]+k1[1]==lin2):
+        if k1[0]>=k1[1]:
+            a2[0]=a2[0]+1
+        if k1[0]<k1[1]:
+            a2[1]=a2[1]+1
+        k1=[0,0]
+acc_non_pre3_vot=float(a2[0])/float(len(non_pre3_1)/lin2)
+print(a1)
+print(a2)
+
+print("hsj无标签不带东西数据准确率：")
+print(acc_non_pre3)
+print("hsj投票后无标签不带东西数据准确率：")
+print(acc_non_pre3_vot)
+
+
+a1=[0,0]
+a2=[0,0]
+k1=[0,0]
+for i in range(0,int(len(yes_pre3))):
+    if yes_pre3[i][0]>yes_pre3[i][1]:a1[0]=a1[0]+1
+    if yes_pre3[i][0] <= yes_pre3[i][1]: a1[1] = a1[1] + 1
+# print("a1")
+print(a1)
+# acc_yes_pre=float(a1[1])/float(len(yes_pre))
+a1=[0,0]
+yes_pre3_1 = np.arange(len(yes_pre3))
+for i in range(0,int(len(yes_pre3))):
+    if yes_pre3[i][0]>yes_pre3[i][1]:
+        a1[0]=a1[0]+1
+        yes_pre3_1[i] =1
+    if yes_pre3[i][0] <= yes_pre3[i][1]:
+        a1[1] = a1[1] + 1
+        yes_pre3_1[i] = 0
+# for i in range(0,int(len(yes_pre3_1)/lin2)):
+#     print("(带东西)i为", end='')
+#     print(i)
+#     print(yes_pre3_1[i * lin2:(i + 1) * lin2])
+
+acc_yes_pre3=float(a1[1])/float(len(yes_pre3))
+a1=[0,0]
+for i in range(0,int(len(yes_pre3_1))):
+    if yes_pre3_1[i]==1:
+        k1[0]=k1[0]+1
+        a1[0] = a1[0] + 1
+    if yes_pre3_1[i] == 0:
+        k1[1] = k1[1] + 1
+        a1[1] = a1[1] + 1
+    if (k1[0]+k1[1]==lin2):
+        if k1[0]>k1[1]:
+            a2[0]=a2[0]+1
+        if k1[0]<=k1[1]:
+            a2[1]=a2[1]+1
+        k1=[0,0]
+acc_yes_pre3_vot=float(a2[1])/float(len(yes_pre3_1)/lin2)
+print(a1)
+print(a2)
+print("hsj无标签带东西数据准确率：")
+print(acc_yes_pre3)
+print("hsj投票后无标签带东西数据准确率：")
+print(acc_yes_pre3_vot)
+
+non_mid3=ed.predict(ljc_feature[:lin2*15])
+non_mid3=non_mid3[:,:latent_dim]
+non_pre3=classer.predict(non_mid3)
+yes_mid3=ed.predict(ljc_feature[lin2*15:])
+yes_mid3=yes_mid3[:,:latent_dim]
+yes_pre3=classer.predict(yes_mid3)
+print(non_mid3)
+print(non_mid3.shape)
+print(yes_mid3)
+print(yes_mid3.shape)
+print(non_pre3)
+print(non_pre3.shape)
+print(yes_pre3)
+print(yes_pre3.shape)
+
+a1=[0,0]
+a2=[0,0]
+k1=[0,0]
+non_pre3_1 = np.arange(len(non_pre3))
+for i in range(0,int(len(non_pre3))):
+    if non_pre3[i][0]>=non_pre3[i][1]:
+        a1[0]=a1[0]+1
+        non_pre3_1[i] =1
+    if non_pre3[i][0] < non_pre3[i][1]:
+        a1[1] = a1[1] + 1
+        non_pre3_1[i] = 0
+# for i in range(0,int(len(non_pre3_1)/lin2)):
+#     print("(不带东西)i为", end='')
+#     print(i)
+#     print(non_pre3_1[i * lin2:(i + 1) * lin2])
+
+acc_non_pre3=float(a1[0])/float(len(non_pre3))
+a1=[0,0]
+for i in range(0,int(len(non_pre3_1))):
+    if non_pre3_1[i]==1:
+        k1[0]=k1[0]+1
+        a1[0] = a1[0] + 1
+    if non_pre3_1[i] == 0:
+        k1[1] = k1[1] + 1
+        a1[1] = a1[1] + 1
+    if (k1[0]+k1[1]==lin2):
+        if k1[0]>=k1[1]:
+            a2[0]=a2[0]+1
+        if k1[0]<k1[1]:
+            a2[1]=a2[1]+1
+        k1=[0,0]
+acc_non_pre3_vot=float(a2[0])/float(len(non_pre3_1)/lin2)
+print(a1)
+print(a2)
+
+print("ljc无标签不带东西数据准确率：")
+print(acc_non_pre3)
+print("ljc投票后无标签不带东西数据准确率：")
+print(acc_non_pre3_vot)
+
+
+a1=[0,0]
+a2=[0,0]
+k1=[0,0]
+for i in range(0,int(len(yes_pre3))):
+    if yes_pre3[i][0]>yes_pre3[i][1]:a1[0]=a1[0]+1
+    if yes_pre3[i][0] <= yes_pre3[i][1]: a1[1] = a1[1] + 1
+# print("a1")
+print(a1)
+# acc_yes_pre=float(a1[1])/float(len(yes_pre))
+a1=[0,0]
+yes_pre3_1 = np.arange(len(yes_pre3))
+for i in range(0,int(len(yes_pre3))):
+    if yes_pre3[i][0]>yes_pre3[i][1]:
+        a1[0]=a1[0]+1
+        yes_pre3_1[i] =1
+    if yes_pre3[i][0] <= yes_pre3[i][1]:
+        a1[1] = a1[1] + 1
+        yes_pre3_1[i] = 0
+# for i in range(0,int(len(yes_pre3_1)/lin2)):
+#     print("(带东西)i为", end='')
+#     print(i)
+#     print(yes_pre3_1[i * lin2:(i + 1) * lin2])
+
+acc_yes_pre3=float(a1[1])/float(len(yes_pre3))
+a1=[0,0]
+for i in range(0,int(len(yes_pre3_1))):
+    if yes_pre3_1[i]==1:
+        k1[0]=k1[0]+1
+        a1[0] = a1[0] + 1
+    if yes_pre3_1[i] == 0:
+        k1[1] = k1[1] + 1
+        a1[1] = a1[1] + 1
+    if (k1[0]+k1[1]==lin2):
+        if k1[0]>k1[1]:
+            a2[0]=a2[0]+1
+        if k1[0]<=k1[1]:
+            a2[1]=a2[1]+1
+        k1=[0,0]
+acc_yes_pre3_vot=float(a2[1])/float(len(yes_pre3_1)/lin2)
+print(a1)
+print(a2)
+print("ljc无标签带东西数据准确率：")
+print(acc_yes_pre3)
+print("ljc投票后无标签带东西数据准确率：")
 print(acc_yes_pre3_vot)
