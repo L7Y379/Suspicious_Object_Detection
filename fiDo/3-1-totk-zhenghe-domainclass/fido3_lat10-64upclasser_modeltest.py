@@ -126,7 +126,7 @@ def file_array():
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
     trainfile2 = trainfile2[:75]
-    np.random.shuffle(trainfile2)
+    #np.random.shuffle(trainfile2)
 
     testfile = trainfile[60:]
     trainfile = trainfile[:75]
@@ -167,7 +167,7 @@ def other_file_array():
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:25]
-    np.random.shuffle(trainfile)
+    #np.random.shuffle(trainfile)
 
     for j in ["1M"]:  # "1S", "2S"
         for i in [i for i in range(0, 30)]:
@@ -192,7 +192,7 @@ def other_file_array():
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
     trainfile2 = trainfile2[:25]
-    np.random.shuffle(trainfile2)
+    #np.random.shuffle(trainfile2)
 
     testfile = trainfile[20:]
     trainfile = trainfile[:25]
@@ -430,11 +430,11 @@ def build_ed(latent_dim2, img_shape):
     return Model(img, latent_repr)
 def build_class(latent_dim):
     model = Sequential()
-    model.add(Dense(512, input_dim=latent_dim))
+    model.add(Dense(800, input_dim=latent_dim))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(512))
+    model.add(Dense(800))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(256))
+    model.add(Dense(800))
     model.add(LeakyReLU(alpha=0.2))
     model.add(Dense(2, activation="softmax"))
     encoded_repr = Input(shape=(latent_dim,))
@@ -488,12 +488,12 @@ validity = dis(encoded_repr3)
 dis_model=Model(img3,validity)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-classer.load_weights('models/fido3_lat10-64upclasser/2180classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser/2180ed.h5')
-dd.load_weights('models/fido3_lat10-64upclasser/2180dd.h5')
-dis.load_weights('models/fido3_lat10-64upclasser/2180dis.h5')
-dis_model.load_weights('models/fido3_lat10-64upclasser/2180dis_model.h5')
-sc_fido.load_weights('models/fido3_lat10-64upclasser/2180sc_fido.h5')
+classer.load_weights('models/fido3_lat10-64upclasser-classer800/3510classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser-classer800/3510ed.h5')
+dd.load_weights('models/fido3_lat10-64upclasser-classer800/3510dd.h5')
+dis.load_weights('models/fido3_lat10-64upclasser-classer800/3510dis.h5')
+dis_model.load_weights('models/fido3_lat10-64upclasser-classer800/3510dis_model.h5')
+sc_fido.load_weights('models/fido3_lat10-64upclasser-classer800/3510sc_fido.h5')
 
 
 non_mid=ed.predict(X_train1)
@@ -716,7 +716,10 @@ for i in range(0,int(len(non_pre3))):
     if non_pre3[i][0] < non_pre3[i][1]:
         a1[1] = a1[1] + 1
         non_pre3_1[i] = 0
-
+# for i in range(0,int(len(non_pre3_1)/lin2)):
+#     print("(不带东西)i为", end='')
+#     print(i)
+#     print(non_pre3_1[i * lin2:(i + 1) * lin2])
 acc_non_pre3=float(a1[0])/float(len(non_pre3))
 a1=[0,0]
 for i in range(0,int(len(non_pre3_1))):
@@ -760,7 +763,10 @@ for i in range(0,int(len(yes_pre3))):
     if yes_pre3[i][0] <= yes_pre3[i][1]:
         a1[1] = a1[1] + 1
         yes_pre3_1[i] = 0
-
+# for i in range(0,int(len(yes_pre3_1)/lin2)):
+#     print("(带东西)i为", end='')
+#     print(i)
+#     print(yes_pre3_1[i * lin2:(i + 1) * lin2])
 acc_yes_pre3=float(a1[1])/float(len(yes_pre3))
 a1=[0,0]
 for i in range(0,int(len(yes_pre3_1))):
