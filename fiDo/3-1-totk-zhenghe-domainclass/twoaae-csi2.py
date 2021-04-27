@@ -274,7 +274,7 @@ discriminator2.summary()
 # In[30]:
 
 
-epochs = 2000
+epochs = 2500
 batch_size = 6000
 sample_interval = 100
 
@@ -374,7 +374,34 @@ for epoch in range(epochs):
     if epoch % 10 == 0:
         print("%d [D loss: %f, acc: %.2f%%] [G loss: %f, mse: %f]" % (
         epoch, d_loss[0], 100 * d_loss[1], g_loss[0], g_loss[1]))
-
+    if epoch==1000:
+        discriminator.save_weights('models/aae-csi2-new/1000discriminator.h5')
+        #discriminator2.save_weights('models/aae-csi2-new/discriminator2.h5')
+        encoder.save_weights('models/aae-csi2-new/1000encoder.h5')
+        #encoder2.save_weights('models/aae-csi2-new/encoder2.h5')
+        adversarial_autoencoder.save_weights('models/aae-csi2-new/1000adversarial_autoencoder.h5')
+        #adversarial_autoencoder2.save_weights('models/aae-csi2-new/adversarial_autoencoder2.h5')
+    if epoch==2000:
+        discriminator.save_weights('models/aae-csi2-new/2000discriminator.h5')
+        #discriminator2.save_weights('models/aae-csi2-new/discriminator2.h5')
+        encoder.save_weights('models/aae-csi2-new/2000encoder.h5')
+        #encoder2.save_weights('models/aae-csi2-new/encoder2.h5')
+        adversarial_autoencoder.save_weights('models/aae-csi2-new/2000adversarial_autoencoder.h5')
+        #adversarial_autoencoder2.save_weights('models/aae-csi2-new/adversarial_autoencoder2.h5')
+    if epoch==2300:
+        discriminator.save_weights('models/aae-csi2-new/2300discriminator.h5')
+        #discriminator2.save_weights('models/aae-csi2-new/discriminator2.h5')
+        encoder.save_weights('models/aae-csi2-new/2300encoder.h5')
+        #encoder2.save_weights('models/aae-csi2-new/encoder2.h5')
+        adversarial_autoencoder.save_weights('models/aae-csi2-new/2300adversarial_autoencoder.h5')
+       #adversarial_autoencoder2.save_weights('models/aae-csi2-new/adversarial_autoencoder2.h5')
+    if epoch==2400:
+        discriminator.save_weights('models/aae-csi2-new/2400discriminator.h5')
+        #discriminator2.save_weights('models/aae-csi2-new/discriminator2.h5')
+        encoder.save_weights('models/aae-csi2-new/2400encoder.h5')
+        #encoder2.save_weights('models/aae-csi2-new/encoder2.h5')
+        adversarial_autoencoder.save_weights('models/aae-csi2-new/2400adversarial_autoencoder.h5')
+        #adversarial_autoencoder2.save_weights('models/aae-csi2-new/adversarial_autoencoder2.h5')
     # Save generated images (every sample interval, e.g. every 100th epoch)
     # if epoch % sample_interval == 0:
     #     sample_images(latent_dim, decoder, epoch)
@@ -410,16 +437,43 @@ for epoch in range(epochs):
     if epoch % 10 == 0:
         print("%d [D loss: %f, acc: %.2f%%] [G loss: %f, mse: %f]" % (
         epoch, d_loss[0], 100 * d_loss[1], g_loss[0], g_loss[1]))
-
+    if epoch==1000:
+        #discriminator.save_weights('models/aae-csi2-new/discriminator.h5')
+        discriminator2.save_weights('models/aae-csi2-new/1000discriminator2.h5')
+        #encoder.save_weights('models/aae-csi2-new/encoder.h5')
+        encoder2.save_weights('models/aae-csi2-new/1000encoder2.h5')
+        #adversarial_autoencoder.save_weights('models/aae-csi2-new/adversarial_autoencoder.h5')
+        adversarial_autoencoder2.save_weights('models/aae-csi2-new/1000adversarial_autoencoder2.h5')
+    if epoch==2000:
+        #discriminator.save_weights('models/aae-csi2-new/discriminator.h5')
+        discriminator2.save_weights('models/aae-csi2-new/2000discriminator2.h5')
+        #encoder.save_weights('models/aae-csi2-new/encoder.h5')
+        encoder2.save_weights('models/aae-csi2-new/2000encoder2.h5')
+        #adversarial_autoencoder.save_weights('models/aae-csi2-new/adversarial_autoencoder.h5')
+        adversarial_autoencoder2.save_weights('models/aae-csi2-new/2000adversarial_autoencoder2.h5')
+    if epoch==2300:
+        #discriminator.save_weights('models/aae-csi2-new/discriminator.h5')
+        discriminator2.save_weights('models/aae-csi2-new/2300discriminator2.h5')
+        #encoder.save_weights('models/aae-csi2-new/encoder.h5')
+        encoder2.save_weights('models/aae-csi2-new/2300encoder2.h5')
+        #adversarial_autoencoder.save_weights('models/aae-csi2-new/adversarial_autoencoder.h5')
+        adversarial_autoencoder2.save_weights('models/aae-csi2-new/2300adversarial_autoencoder2.h5')
+    if epoch==2400:
+        #discriminator.save_weights('models/aae-csi2-new/discriminator.h5')
+        discriminator2.save_weights('models/aae-csi2-new/2400discriminator2.h5')
+        #encoder.save_weights('models/aae-csi2-new/encoder.h5')
+        encoder2.save_weights('models/aae-csi2-new/2400encoder2.h5')
+        #adversarial_autoencoder.save_weights('models/aae-csi2-new/adversarial_autoencoder.h5')
+        adversarial_autoencoder2.save_weights('models/aae-csi2-new/2400adversarial_autoencoder2.h5')
     # Save generated images (every sample interval, e.g. every 100th epoch)
     # if epoch % sample_interval == 0:
     #     sample_images(latent_dim, decoder2, epoch)
-discriminator.save_weights('models/aae-csi2/discriminator.h5')
-discriminator2.save_weights('models/aae-csi2/discriminator2.h5')
-encoder.save_weights('models/aae-csi2/encoder.h5')
-encoder2.save_weights('models/aae-csi2/encoder2.h5')
-adversarial_autoencoder.save_weights('models/aae-csi2/adversarial_autoencoder.h5')
-adversarial_autoencoder2.save_weights('models/aae-csi2/adversarial_autoencoder2.h5')
+discriminator.save_weights('models/aae-csi2-new/discriminator.h5')
+discriminator2.save_weights('models/aae-csi2-new/discriminator2.h5')
+encoder.save_weights('models/aae-csi2-new/encoder.h5')
+encoder2.save_weights('models/aae-csi2-new/encoder2.h5')
+adversarial_autoencoder.save_weights('models/aae-csi2-new/adversarial_autoencoder.h5')
+adversarial_autoencoder2.save_weights('models/aae-csi2-new/adversarial_autoencoder2.h5')
 train_mid1 = encoder.predict(X_train1)
 test_mid1 =encoder.predict(X_test1)
 train_mid2 = encoder2.predict(X_train2)
