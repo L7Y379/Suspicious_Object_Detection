@@ -441,11 +441,11 @@ def build_ed(latent_dim2, img_shape):
     deterministic = 1
     img = Input(shape=img_shape)
     h = Flatten()(img)
-    h = Dense(512)(h)
+    h = Dense(800)(h)
     h = LeakyReLU(alpha=0.2)(h)
-    h = Dense(512)(h)
+    h = Dense(800)(h)
     h = LeakyReLU(alpha=0.2)(h)
-    h = Dense(512)(h)
+    h = Dense(800)(h)
     h = LeakyReLU(alpha=0.2)(h)
     latent_repr = Dense(latent_dim2)(h)
     return Model(img, latent_repr)
@@ -478,11 +478,11 @@ def build_dis(latent_dim):
 
 def build_dd(latent_dim2, img_shape):
     model = Sequential()
-    model.add(Dense(512, input_dim=latent_dim2))
+    model.add(Dense(800, input_dim=latent_dim2))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(512))
+    model.add(Dense(800))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(512))
+    model.add(Dense(800))
     model.add(LeakyReLU(alpha=0.2))
     model.add(Dense(np.prod(img_shape), activation='tanh'))
     model.add(Reshape(img_shape))
@@ -517,7 +517,14 @@ dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
 # # Training
-
+classer.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000ed.h5')
+dd.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000dd.h5')
+dis.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000dis.h5')
+dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000dis_model.h5')
+class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000class_model.h5')
+sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000sc_fido.h5')
+k=0
 for epoch in range(epochs):
 
     # ---------------------
@@ -525,6 +532,7 @@ for epoch in range(epochs):
     # ---------------------
 
     # Select a random batch of images
+
     idx = np.random.randint(0, X_SCdata.shape[0], batch_size)
     imgs = X_SCdata[idx]
     c_loss = class_model.train_on_batch(imgs, X_SCdata_label[idx])
@@ -541,12 +549,126 @@ for epoch in range(epochs):
     imgs2 = all_data[idx2]
     sc_fido_loss = sc_fido.train_on_batch(imgs2,imgs2)
     # Plot the progress (every 10th epoch)
-    if epoch % 10 == 0:
+    if epoch % 1 == 0:
         print("%d [危险品分类loss: %f,acc: %.2f%%,域分类loss: %f,acc: %.2f%%,重构loss: %f]" % (
         epoch, c_loss[0], 100 * c_loss[1],d_loss[0],100 * d_loss[1], sc_fido_loss))
-    if (100 * c_loss[1]>=99):
-        break
+        non_mid3 = ed.predict(train_feature_ot[:lin2 * 25])
+        non_mid3 = non_mid3[:, :latent_dim]
+        non_pre3 = classer.predict(non_mid3)
+        yes_mid3 = ed.predict(train_feature_ot[lin2 * 25:])
+        yes_mid3 = yes_mid3[:, :latent_dim]
+        yes_pre3 = classer.predict(yes_mid3)
 
+        a1 = [0, 0]
+        a2 = [0, 0]
+        k1 = [0, 0]
+        non_pre3_1 = np.arange(len(non_pre3))
+        for i in range(0, int(len(non_pre3))):
+            if non_pre3[i][0] >= non_pre3[i][1]:
+                a1[0] = a1[0] + 1
+                non_pre3_1[i] = 1
+            if non_pre3[i][0] < non_pre3[i][1]:
+                a1[1] = a1[1] + 1
+                non_pre3_1[i] = 0
+
+        acc_non_pre3 = float(a1[0]) / float(len(non_pre3))
+        a1 = [0, 0]
+        for i in range(0, int(len(non_pre3_1))):
+            if non_pre3_1[i] == 1:
+                k1[0] = k1[0] + 1
+
+            if non_pre3_1[i] == 0:
+                k1[1] = k1[1] + 1
+
+            if (k1[0] + k1[1] == lin2):
+                if k1[0] >= k1[1]:
+                    a2[0] = a2[0] + 1
+                if k1[0] < k1[1]:
+                    a2[1] = a2[1] + 1
+                k1 = [0, 0]
+        acc_non_pre3_vot = float(a2[0]) / float(len(non_pre3_1) / lin2)
+        a1 = [0, 0]
+        a2 = [0, 0]
+        k1 = [0, 0]
+        for i in range(0, int(len(yes_pre3))):
+            if yes_pre3[i][0] > yes_pre3[i][1]: a1[0] = a1[0] + 1
+            if yes_pre3[i][0] <= yes_pre3[i][1]: a1[1] = a1[1] + 1
+
+        a1 = [0, 0]
+        yes_pre3_1 = np.arange(len(yes_pre3))
+        for i in range(0, int(len(yes_pre3))):
+            if yes_pre3[i][0] > yes_pre3[i][1]:
+                a1[0] = a1[0] + 1
+                yes_pre3_1[i] = 1
+            if yes_pre3[i][0] <= yes_pre3[i][1]:
+                a1[1] = a1[1] + 1
+                yes_pre3_1[i] = 0
+
+        acc_yes_pre3 = float(a1[1]) / float(len(yes_pre3))
+        a1 = [0, 0]
+        for i in range(0, int(len(yes_pre3_1))):
+            if yes_pre3_1[i] == 1:
+                k1[0] = k1[0] + 1
+
+            if yes_pre3_1[i] == 0:
+                k1[1] = k1[1] + 1
+
+            if (k1[0] + k1[1] == lin2):
+                if k1[0] > k1[1]:
+                    a2[0] = a2[0] + 1
+                if k1[0] <= k1[1]:
+                    a2[1] = a2[1] + 1
+                k1 = [0, 0]
+        acc_yes_pre3_vot = float(a2[1]) / float(len(yes_pre3_1) / lin2)
+        print(acc_non_pre3, end='   ')
+        print(acc_yes_pre3, end='   ')
+        print(acc_non_pre3_vot, end='   ')
+        print(acc_yes_pre3_vot)
+        print()
+        if ((acc_non_pre3>=0.7)and(acc_yes_pre3>=0.7)):
+            k = k + 1
+            print(k)
+            classer.save_weights('models/fido3_lat10-64upclasser2+yuandata/' + str(epoch) + 'newclasser.h5')
+            ed.save_weights('models/fido3_lat10-64upclasser2+yuandata/' + str(epoch) + 'newed.h5')
+            dd.save_weights('models/fido3_lat10-64upclasser2+yuandata/' + str(epoch) + 'newdd.h5')
+            dis.save_weights('models/fido3_lat10-64upclasser2+yuandata/' + str(epoch) + 'newdis.h5')
+            dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata/' + str(epoch) + 'newdis_model.h5')
+            class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata/' + str(epoch) + 'newclass_model.h5')
+            sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata/' + str(epoch) + 'newsc_fido.h5')
+    if epoch == 1000:
+        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata/1000classer.h5')
+        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata/1000ed.h5')
+        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata/1000dd.h5')
+        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata/1000dis.h5')
+        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata/1000dis_model.h5')
+        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata/1000class_model.h5')
+        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata/1000sc_fido.h5')
+    if epoch == 2000:
+        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata/2000classer.h5')
+        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata/2000ed.h5')
+        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata/2000dd.h5')
+        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata/2000dis.h5')
+        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata/2000dis_model.h5')
+        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata/2000class_model.h5')
+        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata/2000sc_fido.h5')
+    if epoch == 3000:
+        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata/3000classer.h5')
+        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata/3000ed.h5')
+        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata/3000dd.h5')
+        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata/3000dis.h5')
+        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata/3000dis_model.h5')
+        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata/3000class_model.h5')
+        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata/3000sc_fido.h5')
+    if epoch == 4000:
+        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata/4000classer.h5')
+        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata/4000ed.h5')
+        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata/4000dd.h5')
+        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata/4000dis.h5')
+        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata/4000dis_model.h5')
+        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata/4000class_model.h5')
+        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata/4000sc_fido.h5')
+print("%d [危险品分类loss: %f,acc: %.2f%%,域分类loss: %f,acc: %.2f%%,重构loss: %f]" % (
+epoch, c_loss[0], 100 * c_loss[1],d_loss[0],100 * d_loss[1], sc_fido_loss))
 classer.save_weights('models/fido3_lat10-64upclasser2+yuandata/classer.h5')
 ed.save_weights('models/fido3_lat10-64upclasser2+yuandata/ed.h5')
 dd.save_weights('models/fido3_lat10-64upclasser2+yuandata/dd.h5')

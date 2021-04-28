@@ -86,11 +86,11 @@ def file_array():
     trainfile = np.array(trainfile)
     feature, lable,domain_label = read_data(trainfile)
 
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    print(kmeans.cluster_centers_.shape)
-    print(kmeans.cluster_centers_)
-    feature = feature - kmeans.cluster_centers_
+    kmeans1 = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans1.fit_predict(feature)
+    print(kmeans1.cluster_centers_.shape)
+    print(kmeans1.cluster_centers_)
+    feature = feature - kmeans1.cluster_centers_
     feature = np.square(feature)
     feature = np.sum(feature, axis=1)
     feature = np.sqrt(feature)
@@ -103,6 +103,19 @@ def file_array():
     trainfile = trainfile[:75]
     # np.random.shuffle(trainfile)
 
+    feature, lable, domain_label = read_data(trainfile)
+    feature = feature - kmeans1.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(75)
+    for i in range(0, 75):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        print("(不带东西特征)i为", end='')
+        print(i)
+        print(feature[i * lin2:(i + 1) * lin2])
+
+
     for name in ['zb', 'ljy', 'czn']:
         for j in ["1M"]:  # "1S", "2S"
             for i in [i for i in range(0, 30)]:
@@ -113,11 +126,11 @@ def file_array():
     trainfile2 = np.array(trainfile2)
     feature, lable,domain_label = read_data(trainfile2)
 
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    print(kmeans.cluster_centers_.shape)
-    print(kmeans.cluster_centers_)
-    feature = feature - kmeans.cluster_centers_
+    kmeans2 = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans2.fit_predict(feature)
+    print(kmeans2.cluster_centers_.shape)
+    print(kmeans2.cluster_centers_)
+    feature = feature - kmeans2.cluster_centers_
     feature = np.square(feature)
     feature = np.sum(feature, axis=1)
     feature = np.sqrt(feature)
@@ -127,7 +140,20 @@ def file_array():
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
     trainfile2 = trainfile2[:75]
-    np.random.shuffle(trainfile2)
+    #np.random.shuffle(trainfile2)
+
+    feature, lable, domain_label = read_data(trainfile2)
+    feature = feature - kmeans2.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(75)
+    for i in range(0, 75):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        print("(带东西特征)i为", end='')
+        print(i)
+        print(feature[i * lin2:(i + 1) * lin2])
+
 
     testfile = trainfile[60:]
     trainfile = trainfile[:75]
@@ -170,17 +196,17 @@ def other_file_array():
     trainfile = trainfile[:25]
     #np.random.shuffle(trainfile)
 
-    feature, lable, domain_label = read_data(trainfile)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(25)
-    for i in range(0, 25):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        print("(不带东西特征)i为", end='')
-        print(i)
-        print(feature[i * lin2:(i + 1) * lin2])
+    # feature, lable, domain_label = read_data(trainfile)
+    # feature = feature - kmeans.cluster_centers_
+    # feature = np.square(feature)
+    # feature = np.sum(feature, axis=1)
+    # feature = np.sqrt(feature)
+    # k = np.arange(25)
+    # for i in range(0, 25):
+    #     k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+    #     print("(不带东西特征)i为", end='')
+    #     print(i)
+    #     print(feature[i * lin2:(i + 1) * lin2])
 
 
     for j in ["1M"]:  # "1S", "2S"
@@ -208,17 +234,17 @@ def other_file_array():
     trainfile2 = trainfile2[:25]
     #np.random.shuffle(trainfile2)
 
-    feature, lable, domain_label = read_data(trainfile2)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(25)
-    for i in range(0, 25):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        print("(不带东西特征)i为", end='')
-        print(i)
-        print(feature[i * lin2:(i + 1) * lin2])
+    # feature, lable, domain_label = read_data(trainfile2)
+    # feature = feature - kmeans.cluster_centers_
+    # feature = np.square(feature)
+    # feature = np.sum(feature, axis=1)
+    # feature = np.sqrt(feature)
+    # k = np.arange(25)
+    # for i in range(0, 25):
+    #     k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+    #     print("(带东西特征)i为", end='')
+    #     print(i)
+    #     print(feature[i * lin2:(i + 1) * lin2])
 
 
     testfile = trainfile[20:]
@@ -534,13 +560,13 @@ class_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['ac
 dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-classer.load_weights('models/fido3_lat10-64upclasser2-onlyyuandata/2010classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser2-onlyyuandata/2010ed.h5')
-dd.load_weights('models/fido3_lat10-64upclasser2-onlyyuandata/2010dd.h5')
-dis.load_weights('models/fido3_lat10-64upclasser2-onlyyuandata/2010dis.h5')
-dis_model.load_weights('models/fido3_lat10-64upclasser2-onlyyuandata/2010dis_model.h5')
-class_model.load_weights('models/fido3_lat10-64upclasser2-onlyyuandata/2010class_model.h5')
-sc_fido.load_weights('models/fido3_lat10-64upclasser2-onlyyuandata/2010sc_fido.h5')
+classer.load_weights('models/fido3_lat10-64upclasser2-cut2/classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser2-cut2/ed.h5')
+dd.load_weights('models/fido3_lat10-64upclasser2-cut2/dd.h5')
+dis.load_weights('models/fido3_lat10-64upclasser2-cut2/dis.h5')
+dis_model.load_weights('models/fido3_lat10-64upclasser2-cut2/dis_model.h5')
+class_model.load_weights('models/fido3_lat10-64upclasser2-cut2/class_model.h5')
+sc_fido.load_weights('models/fido3_lat10-64upclasser2-cut2/sc_fido.h5')
 
 
 non_mid=ed.predict(X_train1)
@@ -569,6 +595,11 @@ for i in range(0,int(len(non_pre))):
     if non_pre[i][0] < non_pre[i][1]:
         a1[1] = a1[1] + 1
         non_pre_1[i] = 0
+
+for i in range(0,int(len(non_pre_1)/lin2)):
+    print("(不带东西)i为", end='')
+    print(i)
+    print(non_pre_1[i * lin2:(i + 1) * lin2])
 
 acc_non_pre=float(a1[0])/float(len(non_pre))
 a1=[0,0]
@@ -615,6 +646,11 @@ for i in range(0,int(len(yes_pre))):
     if yes_pre[i][0] <= yes_pre[i][1]:
         a1[1] = a1[1] + 1
         yes_pre_1[i] = 0
+
+for i in range(0,int(len(yes_pre_1)/lin2)):
+    print("(带东西)i为", end='')
+    print(i)
+    print(yes_pre_1[i * lin2:(i + 1) * lin2])
 
 acc_yes_pre=float(a1[1])/float(len(yes_pre))
 a1=[0,0]
@@ -666,6 +702,8 @@ for i in range(0,int(len(non_pre))):
     if non_pre[i][0] < non_pre[i][1]:
         a1[1] = a1[1] + 1
         non_pre_1[i] = 0
+
+
 
 acc_non_pre=float(a1[0])/float(len(non_pre))
 a1=[0,0]

@@ -14,7 +14,7 @@ from keras.optimizers import Adam
 import numpy as np
 from keras.utils import np_utils
 import time
-lin=120
+lin=140
 ww=1
 lin2=int((lin*2)/ww)
 def read_data(filenames):
@@ -66,7 +66,6 @@ def read_data(filenames):
     label = np_utils.to_categorical(label)
     label2 = np_utils.to_categorical(label2)
     return np.array(feature[:, :270]), np.array(label),np.array(label2)
-
 def file_array():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
     filetype = '.csv'
@@ -137,8 +136,6 @@ def file_array():
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
     return trainfile, testfile
-
-#获取不带标签的数据
 def other_file_array():
     filepath = 'D:/my bad/Suspicious object detection/data/CSV/'
     filetype = '.csv'
@@ -205,7 +202,6 @@ def other_file_array():
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
     return trainfile, testfile
-
 def build_encoder(latent_dim, img_shape):
     deterministic = 1
     img = Input(shape=img_shape)
@@ -216,8 +212,6 @@ def build_encoder(latent_dim, img_shape):
     h = LeakyReLU(alpha=0.2)(h)
     latent_repr = Dense(latent_dim)(h)
     return Model(img, latent_repr)
-
-
 def build_discriminator(latent_dim):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
@@ -228,8 +222,6 @@ def build_discriminator(latent_dim):
     encoded_repr = Input(shape=(latent_dim,))
     validity = model(encoded_repr)
     return Model(encoded_repr, validity)
-
-
 def build_decoder(latent_dim, img_shape):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
@@ -241,7 +233,6 @@ def build_decoder(latent_dim, img_shape):
     z = Input(shape=(latent_dim,))
     img = model(z)
     return Model(z, img)
-
 def build_encoder2(latent_dim, img_shape):
     deterministic = 1
     img = Input(shape=img_shape)
@@ -252,8 +243,6 @@ def build_encoder2(latent_dim, img_shape):
     h = LeakyReLU(alpha=0.2)(h)
     latent_repr = Dense(latent_dim)(h)
     return Model(img, latent_repr)
-
-
 def build_discriminator2(latent_dim):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
@@ -264,8 +253,6 @@ def build_discriminator2(latent_dim):
     encoded_repr = Input(shape=(latent_dim,))
     validity = model(encoded_repr)
     return Model(encoded_repr, validity)
-
-
 def build_decoder2(latent_dim, img_shape):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
@@ -277,7 +264,6 @@ def build_decoder2(latent_dim, img_shape):
     z = Input(shape=(latent_dim,))
     img = model(z)
     return Model(z, img)
-
 
 
 img_rows = 15
@@ -441,11 +427,11 @@ def build_ed(latent_dim2, img_shape):
     deterministic = 1
     img = Input(shape=img_shape)
     h = Flatten()(img)
-    h = Dense(512)(h)
+    h = Dense(800)(h)
     h = LeakyReLU(alpha=0.2)(h)
-    h = Dense(512)(h)
+    h = Dense(800)(h)
     h = LeakyReLU(alpha=0.2)(h)
-    h = Dense(512)(h)
+    h = Dense(800)(h)
     h = LeakyReLU(alpha=0.2)(h)
     latent_repr = Dense(latent_dim2)(h)
     return Model(img, latent_repr)
@@ -478,11 +464,11 @@ def build_dis(latent_dim):
 
 def build_dd(latent_dim2, img_shape):
     model = Sequential()
-    model.add(Dense(512, input_dim=latent_dim2))
+    model.add(Dense(800, input_dim=latent_dim2))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(512))
+    model.add(Dense(800))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(512))
+    model.add(Dense(800))
     model.add(LeakyReLU(alpha=0.2))
     model.add(Dense(np.prod(img_shape), activation='tanh'))
     model.add(Reshape(img_shape))
@@ -516,13 +502,13 @@ class_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['ac
 dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-classer.load_weights('models/fido3_lat10-64upclasser2+yuandata/classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser2+yuandata/ed.h5')
-dd.load_weights('models/fido3_lat10-64upclasser2+yuandata/dd.h5')
-dis.load_weights('models/fido3_lat10-64upclasser2+yuandata/dis.h5')
-dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata/dis_model.h5')
-class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata/class_model.h5')
-sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata/sc_fido.h5')
+classer.load_weights('models/fido3_lat10-64upclasser2+yuandata/100classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser2+yuandata/100ed.h5')
+dd.load_weights('models/fido3_lat10-64upclasser2+yuandata/100dd.h5')
+dis.load_weights('models/fido3_lat10-64upclasser2+yuandata/100dis.h5')
+dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata/100dis_model.h5')
+class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata/100class_model.h5')
+sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata/100sc_fido.h5')
 
 
 non_mid=ed.predict(X_train1)
