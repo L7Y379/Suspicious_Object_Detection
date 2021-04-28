@@ -415,6 +415,8 @@ scdata2=decoder2.predict(data)
 
 X_SCdata1=0.5*X_train1+0.5*scdata1
 X_SCdata2=0.5*X_train2+0.5*scdata2
+# X_SCdata1=X_train1
+# X_SCdata2=X_train2
 X_SCdata1_label=train_label[:3*25*lin2]
 X_SCdata2_label=train_label[3*25*lin2:]
 X_SCdata1_domain_label=train_domain_label[:3*25*lin2]
@@ -517,13 +519,13 @@ dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
 # # Training
-classer.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000ed.h5')
-dd.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000dd.h5')
-dis.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000dis.h5')
-dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000dis_model.h5')
-class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000class_model.h5')
-sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000sc_fido.h5')
+# classer.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000classer.h5')
+# ed.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000ed.h5')
+# dd.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000dd.h5')
+# dis.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000dis.h5')
+# dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000dis_model.h5')
+# class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000class_model.h5')
+# sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000sc_fido.h5')
 k=0
 for epoch in range(epochs):
 
@@ -549,7 +551,7 @@ for epoch in range(epochs):
     imgs2 = all_data[idx2]
     sc_fido_loss = sc_fido.train_on_batch(imgs2,imgs2)
     # Plot the progress (every 10th epoch)
-    if epoch % 1 == 0:
+    if epoch % 10 == 0:
         print("%d [危险品分类loss: %f,acc: %.2f%%,域分类loss: %f,acc: %.2f%%,重构loss: %f]" % (
         epoch, c_loss[0], 100 * c_loss[1],d_loss[0],100 * d_loss[1], sc_fido_loss))
         non_mid3 = ed.predict(train_feature_ot[:lin2 * 25])
@@ -625,7 +627,7 @@ for epoch in range(epochs):
         print(acc_non_pre3_vot, end='   ')
         print(acc_yes_pre3_vot)
         print()
-        if ((acc_non_pre3>=0.7)and(acc_yes_pre3>=0.7)):
+        if ((acc_non_pre3>=0.9)and(acc_yes_pre3>=0.9)):
             k = k + 1
             print(k)
             classer.save_weights('models/fido3_lat10-64upclasser2+yuandata/' + str(epoch) + 'newclasser.h5')

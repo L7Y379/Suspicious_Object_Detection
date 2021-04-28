@@ -133,9 +133,9 @@ def build_encoder(latent_dim, img_shape):
     deterministic = 1
     img = Input(shape=img_shape)
     h = Flatten()(img)
-    h = Dense(512)(h)
+    h = Dense(800)(h)
     h = LeakyReLU(alpha=0.2)(h)
-    h = Dense(512)(h)
+    h = Dense(800)(h)
     h = LeakyReLU(alpha=0.2)(h)
     latent_repr = Dense(latent_dim)(h)
     return Model(img, latent_repr)
@@ -161,9 +161,9 @@ def build_discriminator(latent_dim):
 
 def build_decoder(latent_dim, img_shape):
     model = Sequential()
-    model.add(Dense(512, input_dim=latent_dim))
+    model.add(Dense(800, input_dim=latent_dim))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(512))
+    model.add(Dense(800))
     model.add(LeakyReLU(alpha=0.2))
     model.add(Dense(np.prod(img_shape), activation='tanh'))
     model.add(Reshape(img_shape))
@@ -175,9 +175,9 @@ def build_encoder2(latent_dim, img_shape):
     deterministic = 1
     img = Input(shape=img_shape)
     h = Flatten()(img)
-    h = Dense(512)(h)
+    h = Dense(800)(h)
     h = LeakyReLU(alpha=0.2)(h)
-    h = Dense(512)(h)
+    h = Dense(800)(h)
     h = LeakyReLU(alpha=0.2)(h)
     latent_repr = Dense(latent_dim)(h)
     return Model(img, latent_repr)
@@ -203,9 +203,9 @@ def build_discriminator2(latent_dim):
 
 def build_decoder2(latent_dim, img_shape):
     model = Sequential()
-    model.add(Dense(512, input_dim=latent_dim))
+    model.add(Dense(800, input_dim=latent_dim))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(512))
+    model.add(Dense(800))
     model.add(LeakyReLU(alpha=0.2))
     model.add(Dense(np.prod(img_shape), activation='tanh'))
     model.add(Reshape(img_shape))
@@ -274,7 +274,7 @@ discriminator2.summary()
 # In[30]:
 
 
-epochs = 2000
+epochs = 2500
 batch_size = 6000
 sample_interval = 100
 
@@ -379,7 +379,20 @@ for epoch in range(epochs):
     if epoch % 10 == 0:
         print("%d [D loss: %f, acc: %.2f%%] [G loss: %f, mse: %f]" % (
         epoch, d_loss[0], 100 * d_loss[1], g_loss[0], g_loss[1]))
-
+    if epoch==1800:
+        discriminator.save_weights('models/aae-csi2-800/1800discriminator.h5')
+        #discriminator2.save_weights('models/aae-csi2-new/discriminator2.h5')
+        encoder.save_weights('models/aae-csi2-800/1800encoder.h5')
+        #encoder2.save_weights('models/aae-csi2-new/encoder2.h5')
+        adversarial_autoencoder.save_weights('models/aae-csi2-800/1800adversarial_autoencoder.h5')
+        #adversarial_autoencoder2.save_weights('models/aae-csi2-new/adversarial_autoencoder2.h5')
+    if epoch==2000:
+        discriminator.save_weights('models/aae-csi2-800/2000discriminator.h5')
+        #discriminator2.save_weights('models/aae-csi2-new/discriminator2.h5')
+        encoder.save_weights('models/aae-csi2-800/2000encoder.h5')
+        #encoder2.save_weights('models/aae-csi2-new/encoder2.h5')
+        adversarial_autoencoder.save_weights('models/aae-csi2-800/2000adversarial_autoencoder.h5')
+        #adversarial_autoencoder2.save_weights('models/aae-csi2-new/adversarial_autoencoder2.h5')
     # Save generated images (every sample interval, e.g. every 100th epoch)
     # if epoch % sample_interval == 0:
     #     sample_images(latent_dim, decoder, epoch)
@@ -415,16 +428,29 @@ for epoch in range(epochs):
     if epoch % 10 == 0:
         print("%d [D loss: %f, acc: %.2f%%] [G loss: %f, mse: %f]" % (
         epoch, d_loss[0], 100 * d_loss[1], g_loss[0], g_loss[1]))
-
+    if epoch==1800:
+        #discriminator.save_weights('models/aae-csi2-new/discriminator.h5')
+        discriminator2.save_weights('models/aae-csi2-800/1800discriminator2.h5')
+        #encoder.save_weights('models/aae-csi2-new/encoder.h5')
+        encoder2.save_weights('models/aae-csi2-800/1800encoder2.h5')
+        #adversarial_autoencoder.save_weights('models/aae-csi2-new/adversarial_autoencoder.h5')
+        adversarial_autoencoder2.save_weights('models/aae-csi2-800/1800adversarial_autoencoder2.h5')
+    if epoch==2000:
+        #discriminator.save_weights('models/aae-csi2-new/discriminator.h5')
+        discriminator2.save_weights('models/aae-csi2-800/2000discriminator2.h5')
+        #encoder.save_weights('models/aae-csi2-new/encoder.h5')
+        encoder2.save_weights('models/aae-csi2-800/2000encoder2.h5')
+        #adversarial_autoencoder.save_weights('models/aae-csi2-new/adversarial_autoencoder.h5')
+        adversarial_autoencoder2.save_weights('models/aae-csi2-800/2000adversarial_autoencoder2.h5')
     # Save generated images (every sample interval, e.g. every 100th epoch)
     # if epoch % sample_interval == 0:
     #     sample_images(latent_dim, decoder2, epoch)
-discriminator.save_weights('models/aae-csi2/discriminator.h5')
-discriminator2.save_weights('models/aae-csi2/discriminator2.h5')
-encoder.save_weights('models/aae-csi2/encoder.h5')
-encoder2.save_weights('models/aae-csi2/encoder2.h5')
-adversarial_autoencoder.save_weights('models/aae-csi2/adversarial_autoencoder.h5')
-adversarial_autoencoder2.save_weights('models/aae-csi2/adversarial_autoencoder2.h5')
+discriminator.save_weights('models/aae-csi2-800/2500discriminator.h5')
+discriminator2.save_weights('models/aae-csi2-800/2500discriminator2.h5')
+encoder.save_weights('models/aae-csi2-800/2500encoder.h5')
+encoder2.save_weights('models/aae-csi2-800/2500encoder2.h5')
+adversarial_autoencoder.save_weights('models/aae-csi2-800/2500adversarial_autoencoder.h5')
+adversarial_autoencoder2.save_weights('models/aae-csi2-800/2500adversarial_autoencoder2.h5')
 train_mid1 = encoder.predict(X_train1)
 test_mid1 =encoder.predict(X_test1)
 train_mid2 = encoder2.predict(X_train2)
