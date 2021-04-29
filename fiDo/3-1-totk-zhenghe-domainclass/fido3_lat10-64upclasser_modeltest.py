@@ -392,7 +392,16 @@ adversarial_autoencoder2.load_weights('models/aae-csi2/adversarial_autoencoder2.
 
 train_mid1 = encoder.predict(X_train1)
 train_mid2 = encoder2.predict(X_train2)
-
+train_pre1=decoder.predict(train_mid1)
+train_pre2=decoder.predict(train_mid2)
+# print("X_train1[:1]")
+# print(X_train1[:1])
+# print("train_pre1[:1]")
+# print(train_pre1[:1])
+# print("X_train2[:1]")
+# print(X_train2[:1])
+# print("train_pre2[:1]")
+# print(train_pre2[:1])
 data=sample_prior(latent_dim, 3*25*lin2)
 scdata1=decoder.predict(data)
 scdata2=decoder2.predict(data)

@@ -263,9 +263,9 @@ validity = discriminator(encoded_repr)
 validity2 = discriminator2(encoded_repr2)
 # The adversarial_autoencoder model  (stacked generator and discriminator)
 adversarial_autoencoder = Model(img, [reconstructed_img, validity])
-adversarial_autoencoder.compile(loss=['mse', 'binary_crossentropy'], loss_weights=[0.999, 0.001], optimizer=optimizer)
+adversarial_autoencoder.compile(loss=['mse', 'binary_crossentropy'], loss_weights=[0.5, 0.5], optimizer=optimizer)
 adversarial_autoencoder2 = Model(img, [reconstructed_img2, validity2])
-adversarial_autoencoder2.compile(loss=['mse', 'binary_crossentropy'], loss_weights=[0.999, 0.001], optimizer=optimizer2)
+adversarial_autoencoder2.compile(loss=['mse', 'binary_crossentropy'], loss_weights=[0.5, 0.5], optimizer=optimizer2)
 # In[29]:
 
 
