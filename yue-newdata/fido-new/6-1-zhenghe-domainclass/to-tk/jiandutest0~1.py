@@ -1,10 +1,6 @@
-#带危险品的用一个aae重构，不带危险品的用另一个aae重构，重构数据比源数据多十倍
-#latent_dim1 = 10  latent_dim2 = 64
-#train_feature = ((train_feature.astype('float32')-np.min(a))-(np.max(a)-np.min(a))/2.0)/((np.max(a)-np.min(a))/2)
-#classer  512 512 256 2
-#dis 512  512  256 3
-#加入域分类训练，将域无关信息往分类特征中转移
-#进行分类训练时把encoder参数同样加入分类训练
+
+
+#容易过拟合
 import pandas as pd
 import os
 from sklearn.cluster import KMeans
@@ -13,7 +9,7 @@ from keras.layers import Input, Dense, Reshape, Flatten, Dropout, multiply, Gaus
 from keras.layers import BatchNormalization, Activation, Embedding, ZeroPadding2D
 from keras.layers import MaxPooling2D
 from keras.layers import Lambda
-from keras.layers.advanced_activations import LeakyReLU
+from keras.layers.advanced_activations import LeakyReLU,ReLU
 from keras.layers.convolutional import UpSampling2D, Conv2D
 from keras.models import Sequential, Model
 from keras.optimizers import Adam
@@ -351,14 +347,14 @@ test_feature, test_label,test_domain_label = read_data(testfile_array)
 trainfile_other, testfile_other = other_file_array()#
 train_feature_ot, train_label_ot,train_domain_label_ot = read_data(trainfile_other)
 test_feature_ot, test_label_ot,test_domain_label_ot = read_data(testfile_other)
-#全局归化为-1~1
+#全局归化为0~1
 #a=np.concatenate((train_feature, train_feature_ot), axis=0)
 a=train_feature
-train_feature = ((train_feature.astype('float32')-np.min(a))-(np.max(a)-np.min(a))/2.0)/((np.max(a)-np.min(a))/2)
-test_feature = ((test_feature.astype('float32')-np.min(test_feature))-(np.max(test_feature)-np.min(test_feature))/2.0)/((np.max(test_feature)-np.min(test_feature))/2)
-train_feature_ot = ((train_feature_ot.astype('float32')-np.min(a))-(np.max(a)-np.min(a))/2.0)/((np.max(a)-np.min(a))/2)
-test_feature_ot = ((test_feature_ot.astype('float32')-np.min(test_feature_ot))-(np.max(test_feature_ot)-np.min(test_feature_ot))/2.0)/((np.max(test_feature_ot)-np.min(test_feature_ot))/2)
-
+train_feature = (train_feature.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
+test_feature = (test_feature.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
+#tk_feature=(tk_feature.astype('float32')-np.min(np.concatenate((train_feature, test_feature), axis=0)))/(np.max(np.concatenate((train_feature, test_feature), axis=0))-np.min(np.concatenate((train_feature, test_feature), axis=0)))
+train_feature_ot=(train_feature_ot.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
+test_feature_ot=(test_feature_ot.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
 print(train_feature)
 print(test_feature)
 X_train1 =train_feature[:100*lin2]
@@ -440,19 +436,14 @@ def build_ed(latent_dim2, img_shape):
     deterministic = 1
     img = Input(shape=img_shape)
     h = Flatten()(img)
-    h = Dense(800)(h)
-    h = LeakyReLU(alpha=0.2)(h)
-    h = Dense(800)(h)
-    h = LeakyReLU(alpha=0.2)(h)
-    latent_repr = Dense(latent_dim2)(h)
-    latent_repr = LeakyReLU(alpha=0.2)(latent_repr)
+    h = Dense(800,activation="relu")(h)
+    h = Dense(800,activation="relu")(h)
+    latent_repr = Dense(latent_dim2,activation="relu")(h)
     return Model(img, latent_repr)
 def build_class(latent_dim2):
     model = Sequential()
-    model.add(Dense(800, input_dim=latent_dim))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(800))
-    model.add(LeakyReLU(alpha=0.2))
+    model.add(Dense(800, input_dim=latent_dim2,activation="relu"))
+    model.add(Dense(800,activation="relu"))
     model.add(Dense(2, activation="softmax"))
     encoded_repr = Input(shape=(latent_dim2,))
     validity = model(encoded_repr)
@@ -484,7 +475,7 @@ def build_class(latent_dim2):
 #     return Model(z, img)
 
 opt = Adam(0.0002, 0.5)
-classer = build_class(latent_dim)
+classer = build_class(latent_dim2)
 classer.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 #dis = build_dis(latent_dim)
 #dis.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
@@ -694,52 +685,52 @@ for epoch in range(epochs):
         if ((acc_non_pre3>=0.95)and(acc_yes_pre3>=0.95)):
             k = k + 1
             print(k)
-            classer.save_weights('models/jiandu/' + str(epoch) + 'classer.h5')
-            ed.save_weights('models/jiandu/' + str(epoch) + 'ed.h5')
+            classer.save_weights('models/jiandu0-1/' + str(epoch) + 'classer.h5')
+            ed.save_weights('models/jiandu0-1/' + str(epoch) + 'ed.h5')
             # dd.save_weights('models/jiandu/' + str(epoch) + 'dd.h5')
             # dis.save_weights('models/jiandu/' + str(epoch) + 'dis.h5')
             # dis_model.save_weights('models/jiandu/' + str(epoch) + 'dis_model.h5')
-            class_model.save_weights('models/jiandu/' + str(epoch) + 'class_model.h5')
+            class_model.save_weights('models/jiandu0-1/' + str(epoch) + 'class_model.h5')
             # sc_fido.save_weights('models/jiandu/' + str(epoch) + 'sc_fido.h5')
     if epoch == 1000:
-        classer.save_weights('models/jiandu/classer.h5')
-        ed.save_weights('models/jiandu/ed.h5')
+        classer.save_weights('models/jiandu0-1/1000classer.h5')
+        ed.save_weights('models/jiandu0-1/1000ed.h5')
         # dd.save_weights('models/jiandu/dd.h5')
         # dis.save_weights('models/jiandu/dis.h5')
         # dis_model.save_weights('models/jiandu/dis_model.h5')
-        class_model.save_weights('models/jiandu/class_model.h5')
+        class_model.save_weights('models/jiandu0-1/1000class_model.h5')
         # sc_fido.save_weights('models/jiandu/sc_fido.h5')
     if epoch == 2000:
-        classer.save_weights('models/jiandu/classer.h5')
-        ed.save_weights('models/jiandu/ed.h5')
+        classer.save_weights('models/jiandu0-1/2000classer.h5')
+        ed.save_weights('models/jiandu0-1/2000ed.h5')
         # dd.save_weights('models/jiandu/dd.h5')
         # dis.save_weights('models/jiandu/dis.h5')
         # dis_model.save_weights('models/jiandu/dis_model.h5')
-        class_model.save_weights('models/jiandu/class_model.h5')
+        class_model.save_weights('models/jiandu0-1/2000class_model.h5')
         # sc_fido.save_weights('models/jiandu/sc_fido.h5')
     if epoch == 3000:
-        classer.save_weights('models/jiandu/classer.h5')
-        ed.save_weights('models/jiandu/ed.h5')
+        classer.save_weights('models/jiandu0-1/3000classer.h5')
+        ed.save_weights('models/jiandu0-1/3000ed.h5')
         # dd.save_weights('models/jiandu/dd.h5')
         # dis.save_weights('models/jiandu/dis.h5')
         # dis_model.save_weights('models/jiandu/dis_model.h5')
-        class_model.save_weights('models/jiandu/class_model.h5')
+        class_model.save_weights('models/jiandu0-1/3000class_model.h5')
         # sc_fido.save_weights('models/jiandu/sc_fido.h5')
     if epoch == 4000:
-        classer.save_weights('models/jiandu/classer.h5')
-        ed.save_weights('models/jiandu/ed.h5')
+        classer.save_weights('models/jiandu0-1/4000classer.h5')
+        ed.save_weights('models/jiandu0-1/4000ed.h5')
         # dd.save_weights('models/jiandu/dd.h5')
         # dis.save_weights('models/jiandu/dis.h5')
         # dis_model.save_weights('models/jiandu/dis_model.h5')
-        class_model.save_weights('models/jiandu/class_model.h5')
+        class_model.save_weights('models/jiandu0-1/4000class_model.h5')
         # sc_fido.save_weights('models/jiandu/sc_fido.h5')
 print("%d [危险品分类loss: %f,acc: %.2f%%]" % (epoch, c_loss[0], 100 * c_loss[1]))
-classer.save_weights('models/jiandu/classer.h5')
-ed.save_weights('models/jiandu/ed.h5')
+classer.save_weights('models/jiandu0-1/classer.h5')
+ed.save_weights('models/jiandu0-1/ed.h5')
 # dd.save_weights('models/jiandu/dd.h5')
 # dis.save_weights('models/jiandu/dis.h5')
 # dis_model.save_weights('models/jiandu/dis_model.h5')
-class_model.save_weights('models/jiandu/class_model.h5')
+class_model.save_weights('models/jiandu0-1/class_model.h5')
 # sc_fido.save_weights('models/jiandu/sc_fido.h5')
 
 localtime2 = time.asctime( time.localtime(time.time()) )
