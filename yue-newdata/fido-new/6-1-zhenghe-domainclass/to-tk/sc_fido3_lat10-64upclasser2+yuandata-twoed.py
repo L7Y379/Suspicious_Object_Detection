@@ -114,7 +114,7 @@ def file_array():
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:110]
-    np.random.shuffle(trainfile)
+    #np.random.shuffle(trainfile)
 
     for name in ['zb','zhw', 'gzy', 'lyx', 'cyh', 'ljc']:
         for j in ["1M"]:  # "1S", "2S"
@@ -140,12 +140,14 @@ def file_array():
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
     trainfile2 = trainfile2[:110]
-    np.random.shuffle(trainfile2)
+    #np.random.shuffle(trainfile2)
 
-    testfile = trainfile[100:]
-    trainfile = trainfile[:100]
-    testfile2 = trainfile2[100:]
-    trainfile2 = trainfile2[:100]
+    testfile = trainfile[55:65]
+    trainfile = np.concatenate((trainfile[:55], trainfile[65:]), axis=0)
+    np.random.shuffle(trainfile)
+    testfile2 = trainfile2[55:65]
+    trainfile2 = np.concatenate((trainfile2[:55], trainfile2[65:]), axis=0)
+    np.random.shuffle(trainfile2)
 
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)

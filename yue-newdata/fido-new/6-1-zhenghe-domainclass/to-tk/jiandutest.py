@@ -114,7 +114,7 @@ def file_array():
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:110]
-    np.random.shuffle(trainfile)
+    #np.random.shuffle(trainfile)
 
     for name in ['zb','zhw', 'gzy', 'lyx', 'cyh', 'ljc']:
         for j in ["1M"]:  # "1S", "2S"
@@ -140,12 +140,14 @@ def file_array():
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
     trainfile2 = trainfile2[:110]
-    np.random.shuffle(trainfile2)
+    #np.random.shuffle(trainfile2)
 
-    testfile = trainfile[100:]
-    trainfile = trainfile[:100]
-    testfile2 = trainfile2[100:]
-    trainfile2 = trainfile2[:100]
+    testfile = trainfile[55:65]
+    trainfile = np.concatenate((trainfile[:55], trainfile[65:]), axis=0)
+    np.random.shuffle(trainfile)
+    testfile2 = trainfile2[55:65]
+    trainfile2 = np.concatenate((trainfile2[:55], trainfile2[65:]), axis=0)
+    np.random.shuffle(trainfile2)
 
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
@@ -441,18 +443,18 @@ def build_ed(latent_dim2, img_shape):
     img = Input(shape=img_shape)
     h = Flatten()(img)
     h = Dense(800)(h)
-    h = LeakyReLU(alpha=0.6)(h)
+    h = LeakyReLU(alpha=0.2)(h)
     h = Dense(800)(h)
-    h = LeakyReLU(alpha=0.6)(h)
+    h = LeakyReLU(alpha=0.2)(h)
     latent_repr = Dense(latent_dim2)(h)
-    latent_repr = LeakyReLU(alpha=0.6)(latent_repr)
+    latent_repr = LeakyReLU(alpha=0.2)(latent_repr)
     return Model(img, latent_repr)
 def build_class(latent_dim2):
     model = Sequential()
     model.add(Dense(800, input_dim=latent_dim2))
-    model.add(LeakyReLU(alpha=0.6))
+    model.add(LeakyReLU(alpha=0.2))
     model.add(Dense(800))
-    model.add(LeakyReLU(alpha=0.6))
+    model.add(LeakyReLU(alpha=0.2))
     model.add(Dense(2, activation="softmax"))
     encoded_repr = Input(shape=(latent_dim2,))
     validity = model(encoded_repr)
