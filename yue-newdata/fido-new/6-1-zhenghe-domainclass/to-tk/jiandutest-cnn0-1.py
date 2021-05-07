@@ -356,6 +356,18 @@ test_feature_ot, test_label_ot,test_domain_label_ot = read_data(testfile_other)
 #全局归化为-1~1
 #a=np.concatenate((train_feature, train_feature_ot), axis=0)
 a=train_feature
+b=test_feature
+c=train_feature_ot
+d=test_feature_ot
+print("abcd")
+print(np.min(a),end=' ')
+print(np.max(a))
+print(np.min(b),end=' ')
+print(np.max(b))
+print(np.min(c),end=' ')
+print(np.max(c))
+print(np.min(d),end=' ')
+print(np.max(d))
 train_feature = (train_feature.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
 test_feature = (test_feature.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
 train_feature_ot=(train_feature_ot.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
@@ -446,6 +458,7 @@ def build_ed(latent_dim2, img_shape):
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Flatten())
     model.add(Dense(latent_dim2,activation='relu'))
+    model.add(Dense(latent_dim2, activation='relu'))
     model.add(Dense(2, activation='softmax'))
     img = Input(shape=img_shape)
     validity = model(img)
@@ -515,12 +528,12 @@ class_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['ac
 #dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
 # # Training
-# classer.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000classer.h5')
-# ed.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000ed.h5')
+classer.load_weights('models/jiandu-cnn0-1/classer.h5')
+ed.load_weights('models/jiandu-cnn0-1/ed.h5')
 # dd.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000dd.h5')
 # dis.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000dis.h5')
 # dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000dis_model.h5')
-# class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000class_model.h5')
+class_model.load_weights('models/jiandu-cnn0-1/class_model.h5')
 # sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000sc_fido.h5')
 k=0
 for epoch in range(epochs):

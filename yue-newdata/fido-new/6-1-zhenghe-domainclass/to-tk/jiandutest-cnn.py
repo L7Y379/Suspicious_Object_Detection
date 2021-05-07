@@ -338,7 +338,7 @@ discriminator2.summary()
 # In[30]:
 
 
-epochs = 5000
+epochs = 6000
 batch_size = 12000
 sample_interval = 100
 
@@ -450,6 +450,8 @@ def build_ed(latent_dim2, img_shape):
     model.add(Flatten())
     model.add(Dense(latent_dim2))
     model.add(LeakyReLU(alpha=0.2))
+    model.add(Dense(latent_dim2))
+    model.add(LeakyReLU(alpha=0.2))
     model.add(Dense(2, activation='softmax'))
     img = Input(shape=img_shape)
     validity = model(img)
@@ -519,13 +521,13 @@ class_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['ac
 #dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
 # # Training
-# classer.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000classer.h5')
-# ed.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000ed.h5')
-# dd.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000dd.h5')
-# dis.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000dis.h5')
-# dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000dis_model.h5')
-# class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000class_model.h5')
-# sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000sc_fido.h5')
+classer.load_weights('models/jiandu-cnn/classer.h5')
+ed.load_weights('models/jiandu-cnn/ed.h5')
+# dd.load_weights('models/jiandu-cnn/4000dd.h5')
+# dis.load_weights('models/jiandu-cnn/4000dis.h5')
+# dis_model.load_weights('models/jiandu-cnn/4000dis_model.h5')
+class_model.load_weights('models/jiandu-cnn/class_model.h5')
+#sc_fido.load_weights('models/jiandu-cnn/4000sc_fido.h5')
 k=0
 for epoch in range(epochs):
 

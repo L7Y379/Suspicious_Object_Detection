@@ -339,7 +339,7 @@ discriminator2.summary()
 
 
 epochs = 5000
-batch_size = 15000
+batch_size = 30000
 sample_interval = 100
 
 
