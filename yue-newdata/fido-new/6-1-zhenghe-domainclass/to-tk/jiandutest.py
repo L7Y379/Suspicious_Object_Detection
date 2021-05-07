@@ -339,7 +339,7 @@ discriminator2.summary()
 
 
 epochs = 5000
-batch_size = 30000
+batch_size = 15000
 sample_interval = 100
 
 
@@ -412,10 +412,10 @@ data=sample_prior(latent_dim, 100*lin2)
 scdata1=decoder.predict(data)
 scdata2=decoder2.predict(data)
 
-X_SCdata1=0.5*X_train1+0.5*scdata1
-X_SCdata2=0.5*X_train2+0.5*scdata2
-# X_SCdata1=X_train1
-# X_SCdata2=X_train2
+# X_SCdata1=0.5*X_train1+0.5*scdata1
+# X_SCdata2=0.5*X_train2+0.5*scdata2
+X_SCdata1=X_train1
+X_SCdata2=X_train2
 X_SCdata1_label=train_label[:100*lin2]
 X_SCdata2_label=train_label[100*lin2:]
 X_SCdata1_domain_label=train_domain_label[:100*lin2]
