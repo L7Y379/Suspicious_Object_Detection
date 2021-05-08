@@ -110,7 +110,7 @@ def file_array():
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:110]
-    np.random.shuffle(trainfile)
+    #np.random.shuffle(trainfile)
 
     for name in ['zb','zhw', 'gzy', 'lyx', 'cyh', 'ljc']:
         for j in ["1M"]:  # "1S", "2S"
@@ -136,12 +136,14 @@ def file_array():
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
     trainfile2 = trainfile2[:110]
-    np.random.shuffle(trainfile2)
+    #np.random.shuffle(trainfile2)
 
-    testfile = trainfile[100:]
-    trainfile = trainfile[:100]
-    testfile2 = trainfile2[100:]
-    trainfile2 = trainfile2[:100]
+    testfile = trainfile[55:65]
+    trainfile = np.concatenate((trainfile[:55], trainfile[65:]), axis=0)
+    np.random.shuffle(trainfile)
+    testfile2 = trainfile2[55:65]
+    trainfile2 = np.concatenate((trainfile2[:55], trainfile2[65:]), axis=0)
+    np.random.shuffle(trainfile2)
 
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
@@ -391,12 +393,12 @@ fake2 = np.zeros((batch_size, 1))
 def sample_prior(latent_dim, batch_size):
     return np.random.normal(size=(batch_size, latent_dim))
 
-# discriminator.load_weights('models/aae-csi2/discriminator.h5')
-# discriminator2.load_weights('models/aae-csi2/discriminator2.h5')
-# encoder.load_weights('models/aae-csi2/encoder.h5')
-# encoder2.load_weights('models/aae-csi2/encoder2.h5')
-# adversarial_autoencoder.load_weights('models/aae-csi2/adversarial_autoencoder.h5')
-# adversarial_autoencoder2.load_weights('models/aae-csi2/adversarial_autoencoder2.h5')
+discriminator.load_weights('models/aae-csi2/discriminator.h5')
+discriminator2.load_weights('models/aae-csi2/discriminator2.h5')
+encoder.load_weights('models/aae-csi2/encoder.h5')
+encoder2.load_weights('models/aae-csi2/encoder2.h5')
+adversarial_autoencoder.load_weights('models/aae-csi2/adversarial_autoencoder.h5')
+adversarial_autoencoder2.load_weights('models/aae-csi2/adversarial_autoencoder2.h5')
 
 
 train_mid1 = encoder.predict(X_train1)
@@ -501,13 +503,13 @@ class_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['ac
 #dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
 # # Training
-# classer.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000classer.h5')
-# ed.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000ed.h5')
-# dd.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000dd.h5')
-# dis.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000dis.h5')
-# dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000dis_model.h5')
-# class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000class_model.h5')
-# sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000sc_fido.h5')
+classer.load_weights('models/jiandu0-1/classer.h5')
+ed.load_weights('models/jiandu0-1/ed.h5')
+# dd.load_weights('models/jiandu0-1/4000dd.h5')
+# dis.load_weights('models/jiandu0-1/4000dis.h5')
+# dis_model.load_weights('models/jiandu0-1/4000dis_model.h5')
+class_model.load_weights('models/jiandu0-1/class_model.h5')
+# sc_fido.load_weights('models/jiandu0-1/4000sc_fido.h5')
 k=0
 for epoch in range(epochs):
 
