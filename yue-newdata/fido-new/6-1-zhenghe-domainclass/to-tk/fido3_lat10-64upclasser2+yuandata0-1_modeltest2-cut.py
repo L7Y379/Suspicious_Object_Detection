@@ -17,7 +17,7 @@ import time
 cut1=7
 cut2=5
 lin=120
-lincut=170
+lincut=150
 ww=1
 lin2=int((lin*2)/ww)
 lincut2=int((lincut*2)/ww)
@@ -513,22 +513,22 @@ def build_ed(latent_dim2, img_shape):
     h = Dense(800, activation="relu")(h)
     latent_repr = Dense(latent_dim2)(h)
     return Model(img, latent_repr)
-def build_class(latent_dim2):
+def build_class(latent_dim):
     model = Sequential()
-    model.add(Dense(800, input_dim=latent_dim2, activation="relu"))
+    model.add(Dense(800, input_dim=latent_dim, activation="relu"))
     model.add(Dense(800, activation="relu"))
     model.add(Dense(800, activation="relu"))
     model.add(Dense(2, activation="softmax"))
-    encoded_repr = Input(shape=(latent_dim2,))
+    encoded_repr = Input(shape=(latent_dim,))
     validity = model(encoded_repr)
     return Model(encoded_repr, validity)
-def build_dis(latent_dim2):
+def build_dis(latent_dim):
     model = Sequential()
-    model.add(Dense(800, input_dim=latent_dim2, activation="relu"))
+    model.add(Dense(800, input_dim=latent_dim, activation="relu"))
     model.add(Dense(800, activation="relu"))
     model.add(Dense(800, activation="relu"))
     model.add(Dense(6, activation="softmax"))
-    encoded_repr = Input(shape=(latent_dim2,))
+    encoded_repr = Input(shape=(latent_dim,))
     validity = model(encoded_repr)
     return Model(encoded_repr, validity)
 def build_dd(latent_dim2, img_shape):
@@ -543,38 +543,45 @@ def build_dd(latent_dim2, img_shape):
     return Model(z, img)
 
 opt = Adam(0.0002, 0.5)
-classer = build_class(latent_dim2)
+classer = build_class(latent_dim)
 classer.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
-dis = build_dis(latent_dim2)
+dis = build_dis(latent_dim)
 dis.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 ed = build_ed(latent_dim2, img_shape)
-#dd = build_dd(latent_dim2, img_shape)
+dd = build_dd(latent_dim2, img_shape)
 
 img3 = Input(shape=img_shape)
 encoded_repr3 = ed(img3)
-# reconstructed_img3 = dd(encoded_repr3)
-# sc_fido = Model(img3,reconstructed_img3)
-# sc_fido.compile(loss='mse', optimizer=opt)
-
-validity1 = classer(encoded_repr3)
-validity2 = dis(encoded_repr3)
+reconstructed_img3 = dd(encoded_repr3)
+sc_fido = Model(img3,reconstructed_img3)
+sc_fido.compile(loss='mse', optimizer=opt)
+def get_class(x):
+    return x[:,:latent_dim]
+def get_dis(x):
+    return x[:,latent_dim:]
+encoded_repr3_class = Lambda(get_class)(encoded_repr3)
+encoded_repr3_dis = Lambda(get_dis)(encoded_repr3)
+validity1 = classer(encoded_repr3_class)
+validity2 = dis(encoded_repr3_dis)
 class_model=Model(img3,validity1)
 class_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-nodd/1064_90y84_74_100_80m60_54_93_80m62_54_93_80classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-nodd/1064_90y84_74_100_80m60_54_93_80m62_54_93_80ed.h5')
-#dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-nodd/4000dd.h5')
-dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-nodd/1064_90y84_74_100_80m60_54_93_80m62_54_93_80dis.h5')
-dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-nodd/1064_90y84_74_100_80m60_54_93_80m62_54_93_80dis_model.h5')
-class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-nodd/1064_90y84_74_100_80m60_54_93_80m62_54_93_80class_model.h5')
-#sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-nodd/4000sc_fido.h5')
+classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1/2199_88y81_76_100_80m58_64_73_80m60_64_80_80classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1/2199_88y81_76_100_80m58_64_73_80m60_64_80_80ed.h5')
+#dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1/4000dd.h5')
+dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1/2199_88y81_76_100_80m58_64_73_80m60_64_80_80dis.h5')
+dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1/2199_88y81_76_100_80m58_64_73_80m60_64_80_80dis_model.h5')
+class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1/2199_88y81_76_100_80m58_64_73_80m60_64_80_80class_model.h5')
+#sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1/4000sc_fido.h5')
 
 
 non_mid = ed.predict(X_test1)
+non_mid = non_mid[:, :latent_dim]
 non_pre = classer.predict(non_mid)
 yes_mid = ed.predict(X_test2)
+yes_mid = yes_mid[:, :latent_dim]
 yes_pre = classer.predict(yes_mid)
 print(non_mid.shape)
 print(yes_mid.shape)
@@ -664,8 +671,10 @@ print(acc_yes_pre_vot)
 
 
 non_mid = ed.predict(train_feature_ot[:lin2 * 15])
+non_mid = non_mid[:, :latent_dim]
 non_pre = classer.predict(non_mid)
 yes_mid = ed.predict(train_feature_ot[lin2 * 15:])
+yes_mid = yes_mid[:, :latent_dim]
 yes_pre = classer.predict(yes_mid)
 print(non_mid.shape)
 print(yes_mid.shape)
@@ -754,9 +763,11 @@ print("投票后带东西目标数据准确率：")
 print(acc_yes_pre_vot)
 
 
-non_mid4 = ed.predict(train_feature_ot_cut[:(lincut2-cut1*2) * 15])
+non_mid4 = ed.predict(train_feature_ot_cut[:(lincut2 - cut1 * 2) * 15])
+non_mid4 = non_mid4[:, :latent_dim]
 non_pre4 = classer.predict(non_mid4)
-yes_mid4 = ed.predict(train_feature_ot_cut[(lincut2-cut1*2) * 15:])
+yes_mid4 = ed.predict(train_feature_ot_cut[(lincut2 - cut1 * 2) * 15:])
+yes_mid4 = yes_mid4[:, :latent_dim]
 yes_pre4 = classer.predict(yes_mid4)
 
 print(non_mid4.shape)

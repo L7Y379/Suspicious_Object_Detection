@@ -14,7 +14,7 @@ from keras.optimizers import Adam
 import numpy as np
 from keras.utils import np_utils
 import time
-lin=140
+lin=120
 ww=1
 lin2=int((lin*2)/ww)
 def read_data(filenames):
@@ -427,15 +427,14 @@ def build_ed(latent_dim2, img_shape):
     deterministic = 1
     img = Input(shape=img_shape)
     h = Flatten()(img)
-    h = Dense(800)(h)
+    h = Dense(512)(h)
     h = LeakyReLU(alpha=0.2)(h)
-    h = Dense(800)(h)
+    h = Dense(512)(h)
     h = LeakyReLU(alpha=0.2)(h)
-    h = Dense(800)(h)
+    h = Dense(512)(h)
     h = LeakyReLU(alpha=0.2)(h)
     latent_repr = Dense(latent_dim2)(h)
     return Model(img, latent_repr)
-
 def build_class(latent_dim):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
@@ -448,7 +447,6 @@ def build_class(latent_dim):
     encoded_repr = Input(shape=(latent_dim,))
     validity = model(encoded_repr)
     return Model(encoded_repr, validity)
-
 def build_dis(latent_dim):
     model = Sequential()
     model.add(Dense(512, input_dim=latent_dim))
@@ -461,14 +459,13 @@ def build_dis(latent_dim):
     encoded_repr = Input(shape=(latent_dim,))
     validity = model(encoded_repr)
     return Model(encoded_repr, validity)
-
 def build_dd(latent_dim2, img_shape):
     model = Sequential()
-    model.add(Dense(800, input_dim=latent_dim2))
+    model.add(Dense(512, input_dim=latent_dim2))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(800))
+    model.add(Dense(512))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(800))
+    model.add(Dense(512))
     model.add(LeakyReLU(alpha=0.2))
     model.add(Dense(np.prod(img_shape), activation='tanh'))
     model.add(Reshape(img_shape))
@@ -502,13 +499,13 @@ class_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['ac
 dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-classer.load_weights('models/fido3_lat10-64upclasser2+yuandata/100classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser2+yuandata/100ed.h5')
-dd.load_weights('models/fido3_lat10-64upclasser2+yuandata/100dd.h5')
-dis.load_weights('models/fido3_lat10-64upclasser2+yuandata/100dis.h5')
-dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata/100dis_model.h5')
-class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata/100class_model.h5')
-sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata/100sc_fido.h5')
+classer.load_weights('models/fido3_lat10-64upclasser2-cut/classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser2-cut/ed.h5')
+dd.load_weights('models/fido3_lat10-64upclasser2-cut/dd.h5')
+dis.load_weights('models/fido3_lat10-64upclasser2-cut/dis.h5')
+dis_model.load_weights('models/fido3_lat10-64upclasser2-cut/dis_model.h5')
+class_model.load_weights('models/fido3_lat10-64upclasser2-cut/class_model.h5')
+sc_fido.load_weights('models/fido3_lat10-64upclasser2-cut/sc_fido.h5')
 
 
 non_mid=ed.predict(X_train1)
