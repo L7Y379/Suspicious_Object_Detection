@@ -590,8 +590,17 @@ for epoch in range(epochs):
 
     idx = np.random.randint(0, X_SCdata.shape[0], batch_size)
     imgs = X_SCdata[idx]
-    d_loss = dis_model.train_on_batch(imgs, X_SCdata_domain_label[idx])
+    # y = np.arange(len(imgs))
+    # y1=X_SCdata_label[idx]
+    # for i in range(0, int(len(imgs))):
+    #     if y1[i][0] == 1:
+    #         y[i]=imgs[i]*0.6
+    #     if y1[i][0] == 0:
+    #         y[i] = imgs[i] * 0.9
     c_loss = class_model.train_on_batch(imgs, X_SCdata_label[idx])
+    mid=classer.predict(imgs)
+    d_loss = dis_model.train_on_batch(imgs, X_SCdata_domain_label[idx])
+
     # ---------------------
     #  Train dis
     # ---------------------
