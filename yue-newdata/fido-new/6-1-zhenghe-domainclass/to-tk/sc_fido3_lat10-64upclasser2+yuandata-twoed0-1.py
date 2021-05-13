@@ -594,13 +594,13 @@ dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
 # # Training
-# classer.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000classer.h5')
-# ed.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000ed.h5')
-# dd.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000dd.h5')
-# dis.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000dis.h5')
-# dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000dis_model.h5')
-# class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000class_model.h5')
-# sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata/4000sc_fido.h5')
+classer.load_weights('models/fido3_lat10-64upclasser2+yuandata-twoed0-1/classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser2+yuandata-twoed0-1/ed.h5')
+dd.load_weights('models/fido3_lat10-64upclasser2+yuandata-twoed0-1/dd.h5')
+dis.load_weights('models/fido3_lat10-64upclasser2+yuandata-twoed0-1/dis.h5')
+dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata-twoed0-1/dis_model.h5')
+class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata-twoed0-1/class_model.h5')
+sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata-twoed0-1/sc_fido.h5')
 k=0
 for epoch in range(epochs):
     # ---------------------
