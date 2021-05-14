@@ -14,8 +14,9 @@ from keras.optimizers import Adam
 import numpy as np
 from keras.utils import np_utils
 import time
-cut1=10
-cut2=5
+cut1=30
+cut2_0=50
+cut2_1M=20
 lin=120
 lincut=120
 ww=1
@@ -45,6 +46,78 @@ def read_data_cut(filenames):
         idx2 = np.array([j for j in range(a+cut1,int(temp_feature.shape[0] / 2) + lincut, ww)])  # 取中心点处左右分布数据
         idx = np.hstack((idx1, idx2))
         temp_feature = temp_feature[idx]
+        #print(temp_feature)
+        # 贴标签
+        temp_label = -1  # 初始化
+        temp_label2 = -1  # 初始化
+        if ('-0-' in filename):
+            temp_label = 0
+        elif ('-1M-' in filename):
+            temp_label = 1
+        elif ('2M' in filename):
+            temp_label = 2
+        elif ('-3M-' in filename):
+            temp_label = 3
+
+        if ('zb' in filename):
+            temp_label2 = 0
+        elif ('zhw' in filename):
+            temp_label2 = 1
+        elif ('gzy' in filename):
+            temp_label2 = 2
+        elif ('lyx' in filename):
+            temp_label2 = 3
+        elif ('cyh' in filename):
+            temp_label2 = 4
+        elif ('ljc' in filename):
+            temp_label2 = 5
+        elif ('tk' in filename):
+            temp_label2 = 6
+
+        temp_label = np.tile(temp_label, (temp_feature.shape[0],))
+        temp_label2 = np.tile(temp_label2, (temp_feature.shape[0],))
+        if i == 0:
+            feature = temp_feature
+            label = temp_label
+            label2 = temp_label2
+            i = i + 1
+        else:
+            feature = np.concatenate((feature, temp_feature), axis=0)  # 拼接
+            label = np.concatenate((label, temp_label), axis=0)
+            label2 = np.concatenate((label2, temp_label2), axis=0)
+    label = np_utils.to_categorical(label)
+    label2 = np_utils.to_categorical(label2)
+    return np.array(feature[:, :270]), np.array(label), np.array(label2)
+def read_data_cut2(filenames):
+    i = 0
+    feature = []
+    label = []
+    label2 = []
+    for filename in filenames:
+        if os.path.exists(filename) == False:
+            print(filename + " doesn't exit.")
+            exit(1)
+        csvdata = pd.read_csv(filename, header=None)
+        csvdata = np.array(csvdata, dtype=np.float64)
+        csvdata = csvdata[:, 0:270]
+        idx = np.array([j for j in range(int(csvdata.shape[0] / 2)-lincut ,
+                                         int(csvdata.shape[0] / 2) +lincut, ww)])#取中心点处左右分布数据
+        temp_feature = csvdata[idx,]
+
+        feat = temp_feature
+        feat = np.sum(feat, axis=1)
+        feat = np.rint(feat)
+        a = np.argmax(feat)# 返回feature最大值位置
+        if ('-0-' in filename):
+            idx1 = np.array([j for j in range(int(temp_feature.shape[0] / 2) - lincut,a-cut2_0, ww)])  # 取中心点处左右分布数据
+            idx2 = np.array([j for j in range(a+cut2_0,int(temp_feature.shape[0] / 2) + lincut, ww)])  # 取中心点处左右分布数据
+            idx = np.hstack((idx1, idx2))
+            temp_feature = temp_feature[idx]
+        if ('-1M-' in filename):
+            idx1 = np.array([j for j in range(int(temp_feature.shape[0] / 2) - lincut,a-cut2_1M, ww)])  # 取中心点处左右分布数据
+            idx2 = np.array([j for j in range(a+cut2_1M,int(temp_feature.shape[0] / 2) + lincut, ww)])  # 取中心点处左右分布数据
+            idx = np.hstack((idx1, idx2))
+            temp_feature = temp_feature[idx]
         #print(temp_feature)
         # 贴标签
         temp_label = -1  # 初始化
@@ -416,7 +489,7 @@ test_feature_cut, test_label_cut,test_domain_label_cut = read_data_cut(testfile_
 
 trainfile_other, testfile_other = other_file_array()#
 train_feature_ot, train_label_ot,train_domain_label_ot = read_data(trainfile_other)
-train_feature_ot_cut, train_label_ot_cut,train_domain_label_ot_cut = read_data_cut(trainfile_other)
+train_feature_ot_cut, train_label_ot_cut,train_domain_label_ot_cut = read_data_cut2(trainfile_other)
 test_feature_ot, test_label_ot,test_domain_label_ot = read_data(testfile_other)
 #全局归化为0~1
 #a=np.concatenate((train_feature, train_feature_ot), axis=0)
@@ -570,12 +643,12 @@ class_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['ac
 dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/500classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/500ed.h5')
+classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/22_71y58_65_70_70m67_62_80_80m70_64_80_80classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/22_71y58_65_70_70m67_62_80_80m70_64_80_80ed.h5')
 #dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1/4000dd.h5')
-dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/500dis.h5')
-dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/500dis_model.h5')
-class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/500class_model.h5')
+dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/22_71y58_65_70_70m67_62_80_80m70_64_80_80dis.h5')
+dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/22_71y58_65_70_70m67_62_80_80m70_64_80_80dis_model.h5')
+class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/22_71y58_65_70_70m67_62_80_80m70_64_80_80class_model.h5')
 #sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1/4000sc_fido.h5')
 
 
@@ -765,10 +838,10 @@ print("投票后带东西目标数据准确率：")
 print(acc_yes_pre_vot)
 
 
-non_mid4 = ed.predict(train_feature_ot_cut[:(lincut2 - cut1 * 2) * 15])
+non_mid4 = ed.predict(train_feature_ot_cut[:(lincut2 - cut2_0 * 2) * 15])
 non_mid4 = non_mid4[:, :latent_dim]
 non_pre4 = classer.predict(non_mid4)
-yes_mid4 = ed.predict(train_feature_ot_cut[(lincut2 - cut1 * 2) * 15:])
+yes_mid4 = ed.predict(train_feature_ot_cut[(lincut2 - cut2_0 * 2) * 15:])
 yes_mid4 = yes_mid4[:, :latent_dim]
 yes_pre4 = classer.predict(yes_mid4)
 
@@ -798,13 +871,13 @@ for i in range(0,int(len(non_pre4_1))):
     if non_pre4_1[i] == 0:
         k1[1] = k1[1] + 1
         a1[1] = a1[1] + 1
-    if (k1[0]+k1[1]==(lincut2-cut1*2)):
+    if (k1[0]+k1[1]==(lincut2 - cut2_0 * 2)):
         if k1[0]>=k1[1]:
             a2[0]=a2[0]+1
         if k1[0]<k1[1]:
             a2[1]=a2[1]+1
         k1=[0,0]
-acc_non_pre4_vot=float(a2[0])/float(len(non_pre4_1)/(lincut2-cut1*2))
+acc_non_pre4_vot=float(a2[0])/float(len(non_pre4_1)/(lincut2 - cut2_0 * 2))
 print(a1)
 print(a2)
 
@@ -842,13 +915,13 @@ for i in range(0,int(len(yes_pre4_1))):
     if yes_pre4_1[i] == 0:
         k1[1] = k1[1] + 1
         a1[1] = a1[1] + 1
-    if (k1[0]+k1[1]==(lincut2-cut1*2)):
+    if (k1[0]+k1[1]==(lincut2 - cut2_1M* 2)):
         if k1[0]>k1[1]:
             a2[0]=a2[0]+1
         if k1[0]<=k1[1]:
             a2[1]=a2[1]+1
         k1=[0,0]
-acc_yes_pre4_vot=float(a2[1])/float(len(yes_pre4_1)/(lincut2-cut1*2))
+acc_yes_pre4_vot=float(a2[1])/float(len(yes_pre4_1)/(lincut2 - cut2_1M* 2))
 print(a1)
 print(a2)
 print("切割带东西目标数据准确率：")

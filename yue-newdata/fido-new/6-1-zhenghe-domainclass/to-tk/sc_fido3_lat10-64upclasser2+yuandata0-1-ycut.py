@@ -23,7 +23,8 @@ import time
 localtime1 = time.asctime( time.localtime(time.time()) )
 print ("本地时间为 :", localtime1)
 cut1=30
-cut2=15
+cut2_0=30
+cut2_1M=15
 lin=120
 lincut=120
 ww=1
@@ -115,10 +116,16 @@ def read_data_cut2(filenames):
         feat = np.sum(feat, axis=1)
         feat = np.rint(feat)
         a = np.argmax(feat)# 返回feature最大值位置
-        idx1 = np.array([j for j in range(int(temp_feature.shape[0] / 2) - lincut,a-cut2, ww)])  # 取中心点处左右分布数据
-        idx2 = np.array([j for j in range(a+cut2,int(temp_feature.shape[0] / 2) + lincut, ww)])  # 取中心点处左右分布数据
-        idx = np.hstack((idx1, idx2))
-        temp_feature = temp_feature[idx]
+        if ('-0-' in filename):
+            idx1 = np.array([j for j in range(int(temp_feature.shape[0] / 2) - lincut,a-cut2_0, ww)])  # 取中心点处左右分布数据
+            idx2 = np.array([j for j in range(a+cut2_0,int(temp_feature.shape[0] / 2) + lincut, ww)])  # 取中心点处左右分布数据
+            idx = np.hstack((idx1, idx2))
+            temp_feature = temp_feature[idx]
+        if ('-1M-' in filename):
+            idx1 = np.array([j for j in range(int(temp_feature.shape[0] / 2) - lincut,a-cut2_1M, ww)])  # 取中心点处左右分布数据
+            idx2 = np.array([j for j in range(a+cut2_1M,int(temp_feature.shape[0] / 2) + lincut, ww)])  # 取中心点处左右分布数据
+            idx = np.hstack((idx1, idx2))
+            temp_feature = temp_feature[idx]
         #print(temp_feature)
         # 贴标签
         temp_label = -1  # 初始化
@@ -911,10 +918,10 @@ for epoch in range(epochs):
         print(acc_yes_pre3_vot)
 
 
-        non_mid4 = ed.predict(train_feature_ot_cut[:(lincut2 - cut2 * 2) * 15])
+        non_mid4 = ed.predict(train_feature_ot_cut[:(lincut2 - cut2_0 * 2) * 15])
         non_mid4 = non_mid4[:, :latent_dim]
         non_pre4 = classer.predict(non_mid4)
-        yes_mid4 = ed.predict(train_feature_ot_cut[(lincut2 - cut2 * 2) * 15:])
+        yes_mid4 = ed.predict(train_feature_ot_cut[(lincut2 - cut2_0 * 2) * 15:])
         yes_mid4 = yes_mid4[:, :latent_dim]
         yes_pre4 = classer.predict(yes_mid4)
 
@@ -939,13 +946,13 @@ for epoch in range(epochs):
             if non_pre4_1[i] == 0:
                 k1[1] = k1[1] + 1
 
-            if (k1[0] + k1[1] == (lincut2 - cut2 * 2)):
+            if (k1[0] + k1[1] == (lincut2 - cut2_0 * 2)):
                 if k1[0] >= k1[1]:
                     a2[0] = a2[0] + 1
                 if k1[0] < k1[1]:
                     a2[1] = a2[1] + 1
                 k1 = [0, 0]
-        acc_non_pre4_vot = float(a2[0]) / float(len(non_pre4_1) / (lincut2 - cut2 * 2))
+        acc_non_pre4_vot = float(a2[0]) / float(len(non_pre4_1) / (lincut2 - cut2_0 * 2))
         a1 = [0, 0]
         a2 = [0, 0]
         k1 = [0, 0]
@@ -972,13 +979,13 @@ for epoch in range(epochs):
             if yes_pre4_1[i] == 0:
                 k1[1] = k1[1] + 1
 
-            if (k1[0] + k1[1] == (lincut2 - cut2 * 2)):
+            if (k1[0] + k1[1] == (lincut2 - cut2_1M * 2)):
                 if k1[0] > k1[1]:
                     a2[0] = a2[0] + 1
                 if k1[0] <= k1[1]:
                     a2[1] = a2[1] + 1
                 k1 = [0, 0]
-        acc_yes_pre4_vot = float(a2[1]) / float(len(yes_pre4_1) / (lincut2 - cut2* 2))
+        acc_yes_pre4_vot = float(a2[1]) / float(len(yes_pre4_1) / (lincut2 - cut2_1M* 2))
         print('切割后数据正确率：', end='   ')
         print(acc_non_pre4, end='   ')
         print(acc_yes_pre4, end='   ')
@@ -986,7 +993,7 @@ for epoch in range(epochs):
         print(acc_yes_pre4_vot)
         print()
         if ((acc_non_pre3_vot >= 0.8) and (acc_yes_pre3_vot >= 0.8) and (c_loss[1] >= 0.7) and (
-                acc_non_pre4_vot >= 0.8) and (acc_yes_pre4_vot >= 0.8)):
+                acc_non_pre4_vot >= 0.6) and (acc_yes_pre4_vot >= 0.6)):
             k = k + 1
             acc_non_pre = acc_non_pre * 100
             acc_non_pre = int(acc_non_pre)
