@@ -7,10 +7,10 @@ from sklearn.cluster import KMeans
 from scipy import signal
 # from filter import hampel, smooth, Kalman1D, savgol
 # from data_deal import peakRemoval
-cut1=5
+cut1=30
 cut2=5
-lin=170
-lincut=170
+lin=120
+lincut=120
 ww=1
 lin2=int((lin*2)/ww)
 lincut2=int((lincut*2)/ww)
@@ -276,17 +276,17 @@ def other_file_array():
 
 
 
-# trainfile_array, testfile_array = file_array()#
-# print(trainfile_array)
-# print(testfile_array)
-# train_feature, train_label,train_domain_label = read_data(trainfile_array)
-# test_feature, test_label,test_domain_label = read_data(testfile_array)
+trainfile_array, testfile_array = file_array()#
+train_feature, train_label,train_domain_label = read_data(trainfile_array)
+train_feature_cut, train_label_cut,train_domain_label_cut = read_data_cut(trainfile_array)
+test_feature, test_label,test_domain_label = read_data(testfile_array)
 
 trainfile_other, testfile_other = other_file_array()#
 train_feature_ot, train_label_ot,train_domain_label_ot = read_data(trainfile_other)
 train_feature_ot_cut, train_label_ot_cut,train_domain_label_ot_cut = read_data_cut(trainfile_other)
 test_feature_ot, test_label_ot,test_domain_label_ot = read_data(testfile_other)
-
+print(train_feature_ot.shape)
+print(train_feature_ot_cut.shape)
 # data1 = pd.read_csv('D:/my bad/Suspicious object detection/data/caiji/CSV/tk-2.5-M/tk-0-13.csv')
 # data2 = pd.read_csv('D:/my bad/Suspicious object detection/data/caiji/CSV/tk-2.5-M/tk-0-14.csv')
 # data3 = pd.read_csv('D:/my bad/Suspicious object detection/data/caiji/CSV/tk-2.5-M/tk-1M-13.csv')
@@ -306,6 +306,7 @@ test_feature_ot, test_label_ot,test_domain_label_ot = read_data(testfile_other)
 # data3 = data3.iloc[:, 120:150]  # 120～150是中间一对收发器的30个子载波数据23000:23100
 
 t = range(lin2)
+t2 = range(lincut2-cut1*2)
 #
 # dataMatrix1 = data1.values
 # dataMatrix2 = data2.values
@@ -339,7 +340,23 @@ t = range(lin2)
 # plt.plot(t[:], dataMatrix2, 'g')
 # plt.plot(t[:], dataMatrix3, 'b')
 # plt.plot(t[:], dataMatrix4, 'y')
-for i in range(0,15):
-    plt.plot(t[:], train_feature_ot[i * lin2:(i + 1) * lin2,100:101], 'r')
-    plt.plot(t[:], train_feature_ot[(i+15) * lin2:(i + 16) * lin2,100:101], 'b')
+
+k=140
+#源域子载波波形图
+for i in range(0,100):
+    plt.plot(t[:], train_feature[i * lin2:(i + 1) * lin2,k:(k+1)], 'r')
+    plt.plot(t[:], train_feature[(i+50) * lin2:(i + 51) * lin2,k:(k+1)], 'b')
 plt.show()
+for i in range(0,100):
+    plt.plot(t2[:], train_feature_cut[i * (lincut2-cut1*2):(i + 1) * (lincut2-cut1*2),k:(k+1)], 'r')
+    plt.plot(t2[:], train_feature_cut[(i+50) * (lincut2-cut1*2):(i + 51) * (lincut2-cut1*2),k:(k+1)], 'b')
+plt.show()
+#目标域子载波波形图
+# for i in range(0,15):
+#     plt.plot(t[:], train_feature_ot[i * lin2:(i + 1) * lin2,k:(k+1)], 'r')
+#     plt.plot(t[:], train_feature_ot[(i+15) * lin2:(i + 16) * lin2,k:(k+1)], 'b')
+# plt.show()
+# for i in range(0,15):
+#     plt.plot(t2[:], train_feature_ot_cut[i * (lincut2-cut1*2):(i + 1) * (lincut2-cut1*2),k:(k+1)], 'r')
+#     plt.plot(t2[:], train_feature_ot_cut[(i+15) * (lincut2-cut1*2):(i + 16) * (lincut2-cut1*2),k:(k+1)], 'b')
+# plt.show()
