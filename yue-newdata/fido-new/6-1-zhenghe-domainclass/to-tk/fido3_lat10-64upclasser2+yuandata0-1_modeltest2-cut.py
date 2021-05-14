@@ -14,10 +14,10 @@ from keras.optimizers import Adam
 import numpy as np
 from keras.utils import np_utils
 import time
-cut1=7
+cut1=10
 cut2=5
 lin=120
-lincut=150
+lincut=120
 ww=1
 lin2=int((lin*2)/ww)
 lincut2=int((lincut*2)/ww)
@@ -410,7 +410,9 @@ trainfile_array, testfile_array = file_array()#
 print(trainfile_array)
 print(testfile_array)
 train_feature, train_label,train_domain_label = read_data(trainfile_array)
+train_feature_cut, train_label_cut,train_domain_label_cut = read_data_cut(trainfile_array)
 test_feature, test_label,test_domain_label = read_data(testfile_array)
+test_feature_cut, test_label_cut,test_domain_label_cut = read_data_cut(testfile_array)
 
 trainfile_other, testfile_other = other_file_array()#
 train_feature_ot, train_label_ot,train_domain_label_ot = read_data(trainfile_other)
@@ -418,7 +420,7 @@ train_feature_ot_cut, train_label_ot_cut,train_domain_label_ot_cut = read_data_c
 test_feature_ot, test_label_ot,test_domain_label_ot = read_data(testfile_other)
 #全局归化为0~1
 #a=np.concatenate((train_feature, train_feature_ot), axis=0)
-a=train_feature
+a=train_feature_cut
 train_feature = (train_feature.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
 test_feature = (test_feature.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
 train_feature_ot=(train_feature_ot.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
@@ -568,12 +570,12 @@ class_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['ac
 dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1/2199_88y81_76_100_80m58_64_73_80m60_64_80_80classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1/2199_88y81_76_100_80m58_64_73_80m60_64_80_80ed.h5')
+classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/500classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/500ed.h5')
 #dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1/4000dd.h5')
-dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1/2199_88y81_76_100_80m58_64_73_80m60_64_80_80dis.h5')
-dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1/2199_88y81_76_100_80m58_64_73_80m60_64_80_80dis_model.h5')
-class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1/2199_88y81_76_100_80m58_64_73_80m60_64_80_80class_model.h5')
+dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/500dis.h5')
+dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/500dis_model.h5')
+class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/500class_model.h5')
 #sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1/4000sc_fido.h5')
 
 
