@@ -15,10 +15,10 @@ import numpy as np
 from keras.utils import np_utils
 import time
 cut1=30
-cut2_0=50
-cut2_1M=20
+cut2_0=30
+cut2_1M=30
 lin=120
-lincut=120
+lincut=140
 ww=1
 lin2=int((lin*2)/ww)
 lincut2=int((lincut*2)/ww)
@@ -494,25 +494,25 @@ test_feature_ot, test_label_ot,test_domain_label_ot = read_data(testfile_other)
 #全局归化为0~1
 #a=np.concatenate((train_feature, train_feature_ot), axis=0)
 a=train_feature_cut
-train_feature = (train_feature.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
-test_feature = (test_feature.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
+train_feature_cut = (train_feature_cut.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
+test_feature_cut = (test_feature_cut.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
 train_feature_ot=(train_feature_ot.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
 train_feature_ot_cut=(train_feature_ot_cut.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
+train_feature=(train_feature.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
 test_feature_ot=(test_feature_ot.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
-print(train_feature)
-print(test_feature)
-X_train1 =train_feature[:100*lin2]
+test_feature=(test_feature.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
+X_train1 =train_feature_cut[:100*(lincut2 - cut1 * 2)]
 print(X_train1.shape)
-X_test1 =test_feature[:10*lin2]
+X_test1 =test_feature_cut[:10*(lincut2 - cut1 * 2)]
 print(X_test1.shape)
 X_train1 = X_train1.reshape([X_train1.shape[0], img_rows, img_cols])
 X_test1 = X_test1.reshape([X_test1.shape[0], img_rows, img_cols])
 X_train1 = np.expand_dims(X_train1, axis=3)
 X_test1 = np.expand_dims(X_test1, axis=3)
 
-X_train2 =train_feature[100*lin2:]
+X_train2 =train_feature_cut[100*(lincut2 - cut1 * 2):]
 print(X_train2.shape)
-X_test2 =test_feature[10*lin2:]
+X_test2 =test_feature_cut[10*(lincut2 - cut1 * 2):]
 print(X_test2.shape)
 X_train2 = X_train2.reshape([X_train2.shape[0], img_rows, img_cols])
 X_test2 = X_test2.reshape([X_test2.shape[0], img_rows, img_cols])
@@ -521,9 +521,13 @@ X_test2 = np.expand_dims(X_test2, axis=3)
 
 train_feature_ot = train_feature_ot.reshape([train_feature_ot.shape[0], img_rows, img_cols])
 train_feature_ot_cut = train_feature_ot_cut.reshape([train_feature_ot_cut.shape[0], img_rows, img_cols])
+train_feature=train_feature.reshape([train_feature.shape[0], img_rows, img_cols])
+test_feature = test_feature.reshape([test_feature.shape[0], img_rows, img_cols])
 test_feature_ot = test_feature_ot.reshape([test_feature_ot.shape[0], img_rows, img_cols])
 train_feature_ot = np.expand_dims(train_feature_ot, axis=3)
 train_feature_ot_cut = np.expand_dims(train_feature_ot_cut, axis=3)
+train_feature= np.expand_dims(train_feature, axis=3)
+test_feature=np.expand_dims(test_feature, axis=3)
 test_feature_ot = np.expand_dims(test_feature_ot, axis=3)
 print("train_feature_ot")
 print(train_feature_ot.shape)
@@ -546,10 +550,7 @@ adversarial_autoencoder.load_weights('models/aae-csi2/adversarial_autoencoder.h5
 adversarial_autoencoder2.load_weights('models/aae-csi2/adversarial_autoencoder2.h5')
 
 
-train_mid1 = encoder.predict(X_train1)
-train_mid2 = encoder2.predict(X_train2)
-
-data=sample_prior(latent_dim, 100*lin2)
+data=sample_prior(latent_dim, 100*(lincut2 - cut1 * 2))
 scdata1=decoder.predict(data)
 scdata2=decoder2.predict(data)
 
@@ -557,10 +558,10 @@ scdata2=decoder2.predict(data)
 # X_SCdata2=0.5*X_train2+0.5*scdata2
 X_SCdata1=X_train1
 X_SCdata2=X_train2
-X_SCdata1_label=train_label[:100*lin2]
-X_SCdata2_label=train_label[100*lin2:]
-X_SCdata1_domain_label=train_domain_label[:100*lin2]
-X_SCdata2_domain_label=train_domain_label[100*lin2:]
+X_SCdata1_label=train_label_cut[:100*(lincut2 - cut1 * 2)]
+X_SCdata2_label=train_label_cut[100*(lincut2 - cut1 * 2):]
+X_SCdata1_domain_label=train_domain_label_cut[:100*(lincut2 - cut1 * 2)]
+X_SCdata2_domain_label=train_domain_label_cut[100*(lincut2 - cut1 * 2):]
 
 X_SCdata=np.concatenate((X_train1,X_train2), axis=0)
 # X_SCdata=np.concatenate((X_SCdata,X_SCdata1), axis=0)
@@ -572,9 +573,9 @@ X_SCdata_domain_label=np.concatenate((X_SCdata1_domain_label,X_SCdata2_domain_la
 
 all_data=X_SCdata
 print(all_data.shape)
-all_data=np.concatenate((all_data,train_feature_ot), axis=0)
-all_data=np.concatenate((all_data,train_feature_ot), axis=0)
-all_data=np.concatenate((all_data,train_feature_ot), axis=0)
+# all_data=np.concatenate((all_data,train_feature_ot), axis=0)
+# all_data=np.concatenate((all_data,train_feature_ot), axis=0)
+# all_data=np.concatenate((all_data,train_feature_ot), axis=0)
 print(all_data.shape)
 latent_dim = 270
 latent_dim2=540
@@ -645,17 +646,17 @@ dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accu
 
 classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/22_71y58_65_70_70m67_62_80_80m70_64_80_80classer.h5')
 ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/22_71y58_65_70_70m67_62_80_80m70_64_80_80ed.h5')
-#dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1/4000dd.h5')
+dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/22_71y58_65_70_70m67_62_80_80m70_64_80_80dd.h5')
 dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/22_71y58_65_70_70m67_62_80_80m70_64_80_80dis.h5')
 dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/22_71y58_65_70_70m67_62_80_80m70_64_80_80dis_model.h5')
 class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/22_71y58_65_70_70m67_62_80_80m70_64_80_80class_model.h5')
-#sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1/4000sc_fido.h5')
+sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/22_71y58_65_70_70m67_62_80_80m70_64_80_80sc_fido.h5')
 
 
-non_mid = ed.predict(X_test1)
+non_mid = ed.predict(test_feature[:lin2 * 10])
 non_mid = non_mid[:, :latent_dim]
 non_pre = classer.predict(non_mid)
-yes_mid = ed.predict(X_test2)
+yes_mid = ed.predict(test_feature[lin2 * 10:])
 yes_mid = yes_mid[:, :latent_dim]
 yes_pre = classer.predict(yes_mid)
 print(non_mid.shape)
@@ -696,9 +697,9 @@ print(a2)
 
 
 
-print("不带东西源数据测试准确率：")
+print("不带东西源数据切割前准确率：")
 print(acc_non_pre)
-print("投票后不带东西源数据测试准确率：")
+print("投票后不带东西源数据切割前准确率：")
 print(acc_non_pre_vot)
 
 
@@ -739,9 +740,102 @@ for i in range(0,int(len(yes_pre_1))):
 acc_yes_pre_vot=float(a2[1])/float(len(yes_pre_1)/lin2)
 print(a1)
 print(a2)
-print("带东西源数据测试准确率：")
+print("带东西源数据切割前准确率：")
 print(acc_yes_pre)
-print("投票后带东西源数据测试准确率：")
+print("投票后带东西源数据切割前准确率：")
+print(acc_yes_pre_vot)
+
+
+non_mid = ed.predict(X_test1)
+non_mid = non_mid[:, :latent_dim]
+non_pre = classer.predict(non_mid)
+yes_mid = ed.predict(X_test2)
+yes_mid = yes_mid[:, :latent_dim]
+yes_pre = classer.predict(yes_mid)
+print(non_mid.shape)
+print(yes_mid.shape)
+print(non_pre.shape)
+print(yes_pre.shape)
+
+a1=[0,0]
+a2=[0,0]
+k1=[0,0]
+non_pre_1 = np.arange(len(non_pre))
+for i in range(0,int(len(non_pre))):
+    if non_pre[i][0]>=non_pre[i][1]:
+        a1[0]=a1[0]+1
+        non_pre_1[i] =1
+    if non_pre[i][0] < non_pre[i][1]:
+        a1[1] = a1[1] + 1
+        non_pre_1[i] = 0
+
+acc_non_pre=float(a1[0])/float(len(non_pre))
+a1=[0,0]
+for i in range(0,int(len(non_pre_1))):
+    if non_pre_1[i]==1:
+        k1[0]=k1[0]+1
+        a1[0] = a1[0] + 1
+    if non_pre_1[i] == 0:
+        k1[1] = k1[1] + 1
+        a1[1] = a1[1] + 1
+    if (k1[0]+k1[1]==(lincut2 - cut1 * 2)):
+        if k1[0]>=k1[1]:
+            a2[0]=a2[0]+1
+        if k1[0]<k1[1]:
+            a2[1]=a2[1]+1
+        k1=[0,0]
+acc_non_pre_vot=float(a2[0])/float(len(non_pre_1)/(lincut2 - cut1 * 2))
+print(a1)
+print(a2)
+
+
+
+print("不带东西源数据切割后准确率：")
+print(acc_non_pre)
+print("投票后不带东西源数据切割后准确率：")
+print(acc_non_pre_vot)
+
+
+a1=[0,0]
+a2=[0,0]
+k1=[0,0]
+for i in range(0,int(len(yes_pre))):
+    if yes_pre[i][0]>yes_pre[i][1]:a1[0]=a1[0]+1
+    if yes_pre[i][0] <= yes_pre[i][1]: a1[1] = a1[1] + 1
+# print("a1")
+print(a1)
+# acc_yes_pre=float(a1[1])/float(len(yes_pre))
+a1=[0,0]
+yes_pre_1 = np.arange(len(yes_pre))
+for i in range(0,int(len(yes_pre))):
+    if yes_pre[i][0]>yes_pre[i][1]:
+        a1[0]=a1[0]+1
+        yes_pre_1[i] =1
+    if yes_pre[i][0] <= yes_pre[i][1]:
+        a1[1] = a1[1] + 1
+        yes_pre_1[i] = 0
+
+acc_yes_pre=float(a1[1])/float(len(yes_pre))
+a1=[0,0]
+for i in range(0,int(len(yes_pre_1))):
+    if yes_pre_1[i]==1:
+        k1[0]=k1[0]+1
+        a1[0] = a1[0] + 1
+    if yes_pre_1[i] == 0:
+        k1[1] = k1[1] + 1
+        a1[1] = a1[1] + 1
+    if (k1[0]+k1[1]==(lincut2 - cut1 * 2)):
+        if k1[0]>k1[1]:
+            a2[0]=a2[0]+1
+        if k1[0]<=k1[1]:
+            a2[1]=a2[1]+1
+        k1=[0,0]
+acc_yes_pre_vot=float(a2[1])/float(len(yes_pre_1)/(lincut2 - cut1 * 2))
+print(a1)
+print(a2)
+print("带东西源数据切割后准确率：")
+print(acc_yes_pre)
+print("投票后带东西源数据切割后准确率：")
 print(acc_yes_pre_vot)
 
 
