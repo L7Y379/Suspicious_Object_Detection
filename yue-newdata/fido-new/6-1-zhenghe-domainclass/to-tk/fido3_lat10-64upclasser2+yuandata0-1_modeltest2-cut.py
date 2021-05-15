@@ -14,11 +14,11 @@ from keras.optimizers import Adam
 import numpy as np
 from keras.utils import np_utils
 import time
-cut1=30
-cut2_0=30
-cut2_1M=30
+cut1=15
+cut2_0=15
+cut2_1M=15
 lin=120
-lincut=140
+lincut=150
 ww=1
 lin2=int((lin*2)/ww)
 lincut2=int((lincut*2)/ww)
@@ -318,7 +318,7 @@ def other_file_array():
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:15]
-    np.random.shuffle(trainfile)
+    #np.random.shuffle(trainfile)
 
     for j in ["1M"]:  # "1S", "2S"
         for i in [i for i in range(0, 20)]:
@@ -343,7 +343,7 @@ def other_file_array():
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
     trainfile2 = trainfile2[:15]
-    np.random.shuffle(trainfile2)
+    #np.random.shuffle(trainfile2)
 
     testfile = trainfile[10:]
     trainfile = trainfile[:15]
@@ -644,13 +644,13 @@ class_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['ac
 dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/22_71y58_65_70_70m67_62_80_80m70_64_80_80classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/22_71y58_65_70_70m67_62_80_80m70_64_80_80ed.h5')
-dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/22_71y58_65_70_70m67_62_80_80m70_64_80_80dd.h5')
-dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/22_71y58_65_70_70m67_62_80_80m70_64_80_80dis.h5')
-dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/22_71y58_65_70_70m67_62_80_80m70_64_80_80dis_model.h5')
-class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/22_71y58_65_70_70m67_62_80_80m70_64_80_80class_model.h5')
-sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut/22_71y58_65_70_70m67_62_80_80m70_64_80_80sc_fido.h5')
+classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80ed.h5')
+#dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80dd.h5')
+#dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80dis.h5')
+#dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80dis_model.h5')
+#class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80class_model.h5')
+#sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80sc_fido.h5')
 
 
 non_mid = ed.predict(test_feature[:lin2 * 10])
@@ -861,7 +861,10 @@ for i in range(0,int(len(non_pre))):
     if non_pre[i][0] < non_pre[i][1]:
         a1[1] = a1[1] + 1
         non_pre_1[i] = 0
-
+# for i in range(0,int(len(non_pre_1)/lin2)):
+#     print("(不带东西)i为", end='')
+#     print(i)
+#     print(non_pre_1[i * lin2:(i + 1) * lin2])
 acc_non_pre=float(a1[0])/float(len(non_pre))
 a1=[0,0]
 for i in range(0,int(len(non_pre_1))):
@@ -907,7 +910,10 @@ for i in range(0,int(len(yes_pre))):
     if yes_pre[i][0] <= yes_pre[i][1]:
         a1[1] = a1[1] + 1
         yes_pre_1[i] = 0
-
+# for i in range(0,int(len(yes_pre_1)/lin2)):
+#     print("(带东西)i为", end='')
+#     print(i)
+#     print(yes_pre_1[i * lin2:(i + 1) * lin2])
 acc_yes_pre=float(a1[1])/float(len(yes_pre))
 a1=[0,0]
 for i in range(0,int(len(yes_pre_1))):
