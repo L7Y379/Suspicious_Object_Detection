@@ -15,10 +15,10 @@ import numpy as np
 from keras.utils import np_utils
 import time
 cut1=15
-cut2_0=15
-cut2_1M=15
+cut2_0=5
+cut2_1M=5
 lin=120
-lincut=150
+lincut=120
 ww=1
 lin2=int((lin*2)/ww)
 lincut2=int((lincut*2)/ww)
@@ -485,7 +485,7 @@ print(testfile_array)
 train_feature, train_label,train_domain_label = read_data(trainfile_array)
 train_feature_cut, train_label_cut,train_domain_label_cut = read_data_cut(trainfile_array)
 test_feature, test_label,test_domain_label = read_data(testfile_array)
-test_feature_cut, test_label_cut,test_domain_label_cut = read_data_cut(testfile_array)
+test_feature_cut, test_label_cut,test_domain_label_cut = read_data_cut2(testfile_array)
 
 trainfile_other, testfile_other = other_file_array()#
 train_feature_ot, train_label_ot,train_domain_label_ot = read_data(trainfile_other)
@@ -503,7 +503,7 @@ test_feature_ot=(test_feature_ot.astype('float32')-np.min(a))/(np.max(a)-np.min(
 test_feature=(test_feature.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
 X_train1 =train_feature_cut[:100*(lincut2 - cut1 * 2)]
 print(X_train1.shape)
-X_test1 =test_feature_cut[:10*(lincut2 - cut1 * 2)]
+X_test1 =test_feature_cut[:10*(lincut2 - cut2_0 * 2)]
 print(X_test1.shape)
 X_train1 = X_train1.reshape([X_train1.shape[0], img_rows, img_cols])
 X_test1 = X_test1.reshape([X_test1.shape[0], img_rows, img_cols])
@@ -512,7 +512,7 @@ X_test1 = np.expand_dims(X_test1, axis=3)
 
 X_train2 =train_feature_cut[100*(lincut2 - cut1 * 2):]
 print(X_train2.shape)
-X_test2 =test_feature_cut[10*(lincut2 - cut1 * 2):]
+X_test2 =test_feature_cut[10*(lincut2 - cut2_0 * 2):]
 print(X_test2.shape)
 X_train2 = X_train2.reshape([X_train2.shape[0], img_rows, img_cols])
 X_test2 = X_test2.reshape([X_test2.shape[0], img_rows, img_cols])
@@ -778,13 +778,13 @@ for i in range(0,int(len(non_pre_1))):
     if non_pre_1[i] == 0:
         k1[1] = k1[1] + 1
         a1[1] = a1[1] + 1
-    if (k1[0]+k1[1]==(lincut2 - cut1 * 2)):
+    if (k1[0]+k1[1]==(lincut2 - cut2_0 * 2)):
         if k1[0]>=k1[1]:
             a2[0]=a2[0]+1
         if k1[0]<k1[1]:
             a2[1]=a2[1]+1
         k1=[0,0]
-acc_non_pre_vot=float(a2[0])/float(len(non_pre_1)/(lincut2 - cut1 * 2))
+acc_non_pre_vot=float(a2[0])/float(len(non_pre_1)/(lincut2 - cut2_0 * 2))
 print(a1)
 print(a2)
 
@@ -824,13 +824,13 @@ for i in range(0,int(len(yes_pre_1))):
     if yes_pre_1[i] == 0:
         k1[1] = k1[1] + 1
         a1[1] = a1[1] + 1
-    if (k1[0]+k1[1]==(lincut2 - cut1 * 2)):
+    if (k1[0]+k1[1]==(lincut2 - cut2_0 * 2)):
         if k1[0]>k1[1]:
             a2[0]=a2[0]+1
         if k1[0]<=k1[1]:
             a2[1]=a2[1]+1
         k1=[0,0]
-acc_yes_pre_vot=float(a2[1])/float(len(yes_pre_1)/(lincut2 - cut1 * 2))
+acc_yes_pre_vot=float(a2[1])/float(len(yes_pre_1)/(lincut2 - cut2_0 * 2))
 print(a1)
 print(a2)
 print("带东西源数据切割后准确率：")
