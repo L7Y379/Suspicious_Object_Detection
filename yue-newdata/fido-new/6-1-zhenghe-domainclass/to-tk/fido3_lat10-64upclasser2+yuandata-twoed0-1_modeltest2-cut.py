@@ -14,11 +14,11 @@ from keras.optimizers import Adam
 import numpy as np
 from keras.utils import np_utils
 import time
-cut1=0
-cut2_0=5
-cut2_1M=5
+cut1=15
+cut2_0=15
+cut2_1M=15
 lin=120
-lincut=120
+lincut=140
 ww=1
 lin2=int((lin*2)/ww)
 lincut2=int((lincut*2)/ww)
@@ -661,13 +661,13 @@ class_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['ac
 dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-classer.load_weights('models/fido3_lat10-64upclasser2+yuandata-twoed0-1/3223_78y71_71_90_80m61_57_80_80m63_58_80_80classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser2+yuandata-twoed0-1/3223_78y71_71_90_80m61_57_80_80m63_58_80_80ed.h5')
-#dd.load_weights('models/fido3_lat10-64upclasser2+yuandata-twoed0-1/3223_78y71_71_90_80m61_57_80_80m63_58_80_80dd.h5')
-#dis.load_weights('models/fido3_lat10-64upclasser2+yuandata-twoed0-1/3223_78y71_71_90_80m61_57_80_80m63_58_80_80dis.h5')
-#dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata-twoed0-1/3223_78y71_71_90_80m61_57_80_80m63_58_80_80dis_model.h5')
-#class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata-twoed0-1/3223_78y71_71_90_80m61_57_80_80m63_58_80_80class_model.h5')
-#sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata-twoed0-1/3223_78y71_71_90_80m61_57_80_80m63_58_80_80sc_fido.h5')
+classer.load_weights('models/fido3_lat10-64upclasser2+yuandata-twoed0-1-ycut15/2857_66y61_60_70_70m72_55_93_80m79_52_100_80classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser2+yuandata-twoed0-1-ycut15/2857_66y61_60_70_70m72_55_93_80m79_52_100_80ed.h5')
+#dd.load_weights('models/fido3_lat10-64upclasser2+yuandata-twoed0-1-ycut15/2857_66y61_60_70_70m72_55_93_80m79_52_100_80dd.h5')
+#dis.load_weights('models/fido3_lat10-64upclasser2+yuandata-twoed0-1-ycut15/2857_66y61_60_70_70m72_55_93_80m79_52_100_80dis.h5')
+#dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata-twoed0-1-ycut15/2857_66y61_60_70_70m72_55_93_80m79_52_100_80dis_model.h5')
+#class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata-twoed0-1-ycut15/2857_66y61_60_70_70m72_55_93_80m79_52_100_80class_model.h5')
+#sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata-twoed0-1-ycut15/2857_66y61_60_70_70m72_55_93_80m79_52_100_80sc_fido.h5')
 
 
 non_mid = ed.predict(test_feature[:lin2 * 10])
