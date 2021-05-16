@@ -341,7 +341,7 @@ t2 = range(lincut2-cut1*2)
 # plt.plot(t[:], dataMatrix3, 'b')
 # plt.plot(t[:], dataMatrix4, 'y')
 
-k=180
+k=120
 #源域子载波波形图
 for i in range(0,100):
     plt.plot(t[:], train_feature[i * lin2:(i + 1) * lin2,k:(k+1)], 'r')
