@@ -15,8 +15,8 @@ import numpy as np
 from keras.utils import np_utils
 import time
 cut1=15
-cut2_0=5
-cut2_1M=5
+cut2_0=15
+cut2_1M=15
 lin=120
 lincut=120
 ww=1
@@ -69,9 +69,9 @@ def read_data_cut(filenames):
             temp_label2 = 3
         elif ('cyh' in filename):
             temp_label2 = 4
-        elif ('ljc' in filename):
-            temp_label2 = 5
         elif ('tk' in filename):
+            temp_label2 = 5
+        elif ('ljc' in filename):
             temp_label2 = 6
 
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
@@ -141,9 +141,9 @@ def read_data_cut2(filenames):
             temp_label2 = 3
         elif ('cyh' in filename):
             temp_label2 = 4
-        elif ('ljc' in filename):
-            temp_label2 = 5
         elif ('tk' in filename):
+            temp_label2 = 5
+        elif ('ljc' in filename):
             temp_label2 = 6
 
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
@@ -197,9 +197,9 @@ def read_data(filenames):
             temp_label2 = 3
         elif ('cyh' in filename):
             temp_label2 = 4
-        elif ('ljc' in filename):
-            temp_label2 = 5
         elif ('tk' in filename):
+            temp_label2 = 5
+        elif ('ljc' in filename):
             temp_label2 = 6
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
         temp_label2 = np.tile(temp_label2, (temp_feature.shape[0],))
@@ -223,7 +223,7 @@ def file_array():
     trainfile2 = []
     testfile = []
     testfile2 = []
-    for name in ['zb','zhw', 'gzy', 'lyx', 'cyh', 'ljc']:
+    for name in ['zb','zhw', 'gzy', 'lyx', 'cyh', 'tk']:
         for j in ["0"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -248,10 +248,10 @@ def file_array():
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:110]
+    trainfile = trainfile[:115]
     #np.random.shuffle(trainfile)
 
-    for name in ['zb','zhw', 'gzy', 'lyx', 'cyh', 'ljc']:
+    for name in ['zb','zhw', 'gzy', 'lyx', 'cyh', 'tk']:
         for j in ["1M"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -274,14 +274,14 @@ def file_array():
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
-    trainfile2 = trainfile2[:110]
+    trainfile2 = trainfile2[:115]
     #np.random.shuffle(trainfile2)
 
-    testfile = trainfile[55:65]
-    trainfile = np.concatenate((trainfile[:55], trainfile[65:]), axis=0)
+    testfile = trainfile[55:70]
+    trainfile = np.concatenate((trainfile[:55], trainfile[70:]), axis=0)
     np.random.shuffle(trainfile)
-    testfile2 = trainfile2[55:65]
-    trainfile2 = np.concatenate((trainfile2[:55], trainfile2[65:]), axis=0)
+    testfile2 = trainfile2[55:70]
+    trainfile2 = np.concatenate((trainfile2[:55], trainfile2[70:]), axis=0)
     np.random.shuffle(trainfile2)
 
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
@@ -297,7 +297,7 @@ def other_file_array():
     testfile2 = []
     for j in ["0"]:  # "1S", "2S"
         for i in [i for i in range(0, 20)]:
-            fn = filepath + "tk-2.5-M/" + "tk-" + str(j) + "-" + str(i) + filetype
+            fn = filepath + "ljc-2.5-M/" + "ljc-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
     trainfile += filenames[:20]
     filenames = []
@@ -318,11 +318,11 @@ def other_file_array():
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:15]
-    #np.random.shuffle(trainfile)
+    np.random.shuffle(trainfile)
 
     for j in ["1M"]:  # "1S", "2S"
         for i in [i for i in range(0, 20)]:
-            fn = filepath + "tk-2.5-M/" + "tk-" + str(j) + "-" + str(i) + filetype
+            fn = filepath + "ljc-2.5-M/" + "ljc-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
     trainfile2 += filenames[:20]
     filenames = []
@@ -343,7 +343,7 @@ def other_file_array():
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
     trainfile2 = trainfile2[:15]
-    #np.random.shuffle(trainfile2)
+    np.random.shuffle(trainfile2)
 
     testfile = trainfile[10:]
     trainfile = trainfile[:15]
@@ -503,7 +503,7 @@ test_feature_ot=(test_feature_ot.astype('float32')-np.min(a))/(np.max(a)-np.min(
 test_feature=(test_feature.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
 X_train1 =train_feature_cut[:100*(lincut2 - cut1 * 2)]
 print(X_train1.shape)
-X_test1 =test_feature_cut[:10*(lincut2 - cut2_0 * 2)]
+X_test1 =test_feature_cut[:15*(lincut2 - cut2_0 * 2)]
 print(X_test1.shape)
 X_train1 = X_train1.reshape([X_train1.shape[0], img_rows, img_cols])
 X_test1 = X_test1.reshape([X_test1.shape[0], img_rows, img_cols])
@@ -512,7 +512,7 @@ X_test1 = np.expand_dims(X_test1, axis=3)
 
 X_train2 =train_feature_cut[100*(lincut2 - cut1 * 2):]
 print(X_train2.shape)
-X_test2 =test_feature_cut[10*(lincut2 - cut2_0 * 2):]
+X_test2 =test_feature_cut[15*(lincut2 - cut2_0 * 2):]
 print(X_test2.shape)
 X_train2 = X_train2.reshape([X_train2.shape[0], img_rows, img_cols])
 X_test2 = X_test2.reshape([X_test2.shape[0], img_rows, img_cols])
@@ -644,8 +644,8 @@ class_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['ac
 dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80ed.h5')
+classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3971_98y78_78_100_100m65_68_100_93m69_68_100_93classer_GUO.h5')
+ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3971_98y78_78_100_100m65_68_100_93m69_68_100_93ed_GUO.h5')
 #dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80dd.h5')
 #dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80dis.h5')
 #dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80dis_model.h5')
@@ -653,10 +653,10 @@ ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_6
 #sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80sc_fido.h5')
 
 
-non_mid = ed.predict(test_feature[:lin2 * 10])
+non_mid = ed.predict(test_feature[:lin2 * 15])
 non_mid = non_mid[:, :latent_dim]
 non_pre = classer.predict(non_mid)
-yes_mid = ed.predict(test_feature[lin2 * 10:])
+yes_mid = ed.predict(test_feature[lin2 * 15:])
 yes_mid = yes_mid[:, :latent_dim]
 yes_pre = classer.predict(yes_mid)
 print(non_mid.shape)
