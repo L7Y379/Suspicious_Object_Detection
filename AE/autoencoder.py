@@ -51,7 +51,7 @@ if __name__ == "__main__":
     epoches = 5
     model = autoencoder()
     # x = Variable(torch.randn(1, 28*28))
-    # encode, decode = model(x)
+    # encode, decode = models(x)
     # print(encode.shape)
     train_data = get_data()
     criterion = nn.MSELoss()
@@ -81,8 +81,8 @@ if __name__ == "__main__":
             if not os.path.exists('./simple_autoencoder'):
                 os.mkdir('./simple_autoencoder')
             save_image(pic, './simple_autoencoder/image_{}.png'.format(epoch + 1))
-    # torch.save(model, './autoencoder.pth')
-    # model = torch.load('./autoencoder.pth')
+    # torch.save(models, './autoencoder.pth')
+    # models = torch.load('./autoencoder.pth')
     code = Variable(torch.FloatTensor([[1.19, -3.36, 2.06]]).cuda())
     decode = model.decoder(code)
     decode_img = to_img(decode).squeeze()

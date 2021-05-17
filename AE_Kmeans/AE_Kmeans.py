@@ -127,8 +127,8 @@ autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
 autoencoder.summary()
 autoencoder.fit(train_feature_nosiy, train_feature, epochs=60, batch_size=128, verbose=1, validation_data=(test_feature_nosiy, test_feature))
 
-# autoencoder.save("model")
-# model = load_model("model")
+# autoencoder.save("models")
+# models = load_model("models")
 
 
 

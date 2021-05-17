@@ -315,17 +315,17 @@ reconstructed_img = decoder(encoded_repr)
 img2 = Input(shape=img_shape)
 encoded_repr2 = encoder2(img)
 reconstructed_img2 = decoder2(encoded_repr2)
-# For the adversarial_autoencoder model we will only train the generator
+# For the adversarial_autoencoder models we will only train the generator
 # It will say something like:
 #   UserWarning: Discrepancy between trainable weights and collected trainable weights,
-#   did you set `model.trainable` without calling `model.compile` after ?
+#   did you set `models.trainable` without calling `models.compile` after ?
 # We only set trainable to false for the discriminator when it is part of the autoencoder...
 discriminator.trainable = False
 discriminator2.trainable = False
 # The discriminator determines validity of the encoding
 validity = discriminator(encoded_repr)
 validity2 = discriminator2(encoded_repr2)
-# The adversarial_autoencoder model  (stacked generator and discriminator)
+# The adversarial_autoencoder models  (stacked generator and discriminator)
 adversarial_autoencoder = Model(img, [reconstructed_img, validity])
 adversarial_autoencoder.compile(loss=['mse', 'binary_crossentropy'], loss_weights=[0.999, 0.001], optimizer=optimizer)
 adversarial_autoencoder2 = Model(img, [reconstructed_img2, validity2])
@@ -476,29 +476,29 @@ def build_class(latent_dim2):
     validity = model(encoded_repr)
     return Model(encoded_repr, validity)
 # def build_dis(latent_dim):
-#     model = Sequential()
-#     model.add(Dense(800, input_dim=latent_dim))
-#     model.add(LeakyReLU(alpha=0.2))
-#     model.add(Dense(800))
-#     model.add(LeakyReLU(alpha=0.2))
-#     model.add(Dense(800))
-#     model.add(LeakyReLU(alpha=0.2))
-#     model.add(Dense(6, activation="softmax"))
+#     models = Sequential()
+#     models.add(Dense(800, input_dim=latent_dim))
+#     models.add(LeakyReLU(alpha=0.2))
+#     models.add(Dense(800))
+#     models.add(LeakyReLU(alpha=0.2))
+#     models.add(Dense(800))
+#     models.add(LeakyReLU(alpha=0.2))
+#     models.add(Dense(6, activation="softmax"))
 #     encoded_repr = Input(shape=(latent_dim,))
-#     validity = model(encoded_repr)
+#     validity = models(encoded_repr)
 #     return Model(encoded_repr, validity)
 # def build_dd(latent_dim2, img_shape):
-#     model = Sequential()
-#     model.add(Dense(800, input_dim=latent_dim2))
-#     model.add(LeakyReLU(alpha=0.2))
-#     model.add(Dense(800))
-#     model.add(LeakyReLU(alpha=0.2))
-#     model.add(Dense(800))
-#     model.add(LeakyReLU(alpha=0.2))
-#     model.add(Dense(np.prod(img_shape), activation='tanh'))
-#     model.add(Reshape(img_shape))
+#     models = Sequential()
+#     models.add(Dense(800, input_dim=latent_dim2))
+#     models.add(LeakyReLU(alpha=0.2))
+#     models.add(Dense(800))
+#     models.add(LeakyReLU(alpha=0.2))
+#     models.add(Dense(800))
+#     models.add(LeakyReLU(alpha=0.2))
+#     models.add(Dense(np.prod(img_shape), activation='tanh'))
+#     models.add(Reshape(img_shape))
 #     z = Input(shape=(latent_dim2,))
-#     img = model(z)
+#     img = models(z)
 #     return Model(z, img)
 
 opt = Adam(0.0002, 0.5)

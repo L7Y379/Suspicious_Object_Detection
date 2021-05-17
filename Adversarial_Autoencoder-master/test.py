@@ -305,7 +305,7 @@ def discriminator(x, reuse=False):
 def train(train_model=True):
     """
     Used to train the autoencoder by passing in the necessary inputs.
-    :param train_model: True -> Train the model, False -> Load the latest trained model and show the image grid.
+    :param train_model: True -> Train the models, False -> Load the latest trained models and show the image grid.
     :return: does not return anything
     """
     with tf.variable_scope(tf.get_variable_scope()):
@@ -359,7 +359,7 @@ def train(train_model=True):
     tf.summary.image(name='Generated Images', tensor=generated_images, max_outputs=10)
     summary_op = tf.summary.merge_all()
 
-    # Saving the model
+    # Saving the models
     saver = tf.train.Saver()
     step = 0
     with tf.Session() as sess:

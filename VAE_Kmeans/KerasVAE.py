@@ -201,7 +201,7 @@ z = Lambda(sampling)([z_mean, z_log_variance])
 
 encoder = Model(inputs, [z_mean, z_log_variance, z])
 
-# Build decoder model
+# Build decoder models
 decoder_input = Input(shape=(latent_dim,))
 decoder_h = Dense(128, activation='relu')(decoder_input)
 decoder_output = Dense(original_dim, activation='sigmoid')(decoder_h)

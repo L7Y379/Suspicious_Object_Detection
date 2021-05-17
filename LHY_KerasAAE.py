@@ -230,7 +230,7 @@ encoder = Model(inputs, [z_mean, z_log_variance, z])
 # In[6]:
 
 
-# Build decoder model
+# Build decoder models
 # The latent Gaussian variables are mapped to again a layer with dimension "intermediate_dim", finally the
 # reconstruction is formed by mapping to original dimension.
 # If properly trained, x_decoded_mean should be the same as x.

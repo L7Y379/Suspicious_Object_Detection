@@ -205,8 +205,8 @@ def build_encoder(latent_dim, img_shape):
 
 def build_discriminator(latent_dim):
     model = Sequential()
-    # model.add(Dense(512, input_dim=latent_dim))
-    # model.add(LeakyReLU(alpha=0.2))
+    # models.add(Dense(512, input_dim=latent_dim))
+    # models.add(LeakyReLU(alpha=0.2))
     model.add(Dense(256))
     model.add(LeakyReLU(alpha=0.2))
     model.add(Dense(1, activation="sigmoid"))
@@ -221,9 +221,9 @@ def build_discriminator(latent_dim):
 def build_decoder(latent_dim, img_shape):
     model = Sequential()
     model.add(Dense(128, input_dim=latent_dim,activation='relu'))
-    #model.add(LeakyReLU(alpha=0.2))
-    # model.add(Dense(512))
-    # model.add(LeakyReLU(alpha=0.2))
+    #models.add(LeakyReLU(alpha=0.2))
+    # models.add(Dense(512))
+    # models.add(LeakyReLU(alpha=0.2))
     model.add(Dense(np.prod(img_shape), activation='sigmoid'))
     model.add(Reshape(img_shape))
     z = Input(shape=(latent_dim,))
@@ -266,17 +266,17 @@ img = Input(shape=img_shape)
 encoded_repr = encoder(img)
 reconstructed_img = decoder(encoded_repr)
 
-# For the adversarial_autoencoder model we will only train the generator
+# For the adversarial_autoencoder models we will only train the generator
 # It will say something like:
 #   UserWarning: Discrepancy between trainable weights and collected trainable weights,
-#   did you set `model.trainable` without calling `model.compile` after ?
+#   did you set `models.trainable` without calling `models.compile` after ?
 # We only set trainable to false for the discriminator when it is part of the autoencoder...
 discriminator.trainable = False
 
 # The discriminator determines validity of the encoding
 validity = discriminator(encoded_repr)
 
-# The adversarial_autoencoder model  (stacked generator and discriminator)
+# The adversarial_autoencoder models  (stacked generator and discriminator)
 adversarial_autoencoder = Model(img, [reconstructed_img, validity])
 adversarial_autoencoder.compile(loss=['mse', 'binary_crossentropy'], loss_weights=[0.999, 0.001], optimizer=optimizer)
 

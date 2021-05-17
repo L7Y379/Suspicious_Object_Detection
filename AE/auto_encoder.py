@@ -42,7 +42,7 @@ print(x_train_nosiy.shape, x_test_nosiy.shape)
 
 #step 3 搭建网络结构
 #分别构建encoded和decoded,然后将它们链接起来构成整个autoencoder。使用Model建模。
-#build autoencoder model
+#build autoencoder models
 input_img = Input(shape=(28*28,))
 # encoded = Dense(100, activation='relu')(input_img)
 # decoded = Dense(784, activation='sigmoid')(encoded)

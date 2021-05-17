@@ -187,7 +187,7 @@ def next_batch(x, y, batch_size):
 def train(train_model=True):
     """
     Used to train the autoencoder by passing in the necessary inputs.
-    :param train_model: True -> Train the model, False -> Load the latest trained model and show the image grid.
+    :param train_model: True -> Train the models, False -> Load the latest trained models and show the image grid.
     :return: does not return anything
     """
 
@@ -285,7 +285,7 @@ def train(train_model=True):
     tf.summary.image(name='Generated Images', tensor=generated_images, max_outputs=10)
     summary_op = tf.summary.merge_all()
 
-    # Saving the model
+    # Saving the models
     saver = tf.train.Saver()
     step = 0
     with tf.Session() as sess:
@@ -357,6 +357,6 @@ def train(train_model=True):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Autoencoder Train Parameter")
     parser.add_argument('--train', '-t', type=bool, default=True,
-                        help='Set to True to train a new model, False to load weights and display image grid')
+                        help='Set to True to train a new models, False to load weights and display image grid')
     args = parser.parse_args()
     train(train_model=args.train)

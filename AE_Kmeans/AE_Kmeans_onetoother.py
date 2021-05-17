@@ -119,8 +119,8 @@ autoencoder.summary()
 
 autoencoder.fit(train_feature_nosiy, train_feature, epochs=1000, batch_size=128, verbose=1, validation_data=(test_feature_nosiy, test_feature))
 
-autoencoder.save("model")
-model = load_model("model")
+autoencoder.save("models")
+model = load_model("models")
 
 
 

@@ -458,10 +458,10 @@ reconstructed_img = decoder(encoded_repr)
 img2 = Input(shape=img_shape)
 encoded_repr2 = encoder2(img)
 reconstructed_img2 = decoder2(encoded_repr2)
-# For the adversarial_autoencoder model we will only train the generator
+# For the adversarial_autoencoder models we will only train the generator
 # It will say something like:
 #   UserWarning: Discrepancy between trainable weights and collected trainable weights,
-#   did you set `model.trainable` without calling `model.compile` after ?
+#   did you set `models.trainable` without calling `models.compile` after ?
 # We only set trainable to false for the discriminator when it is part of the autoencoder...
 discriminator.trainable = False
 discriminator2.trainable = False
