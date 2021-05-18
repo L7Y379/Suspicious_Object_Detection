@@ -345,9 +345,9 @@ def other_file_array():
     trainfile2 = trainfile2[:15]
     np.random.shuffle(trainfile2)
 
-    testfile = trainfile[10:]
+    testfile = trainfile[5:]
     trainfile = trainfile[:15]
-    testfile2 = trainfile2[10:]
+    testfile2 = trainfile2[5:]
     trainfile2 = trainfile2[:15]
 
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
@@ -542,12 +542,12 @@ fake2 = np.zeros((batch_size, 1))
 def sample_prior(latent_dim, batch_size):
     return np.random.normal(size=(batch_size, latent_dim))
 
-discriminator.load_weights('models/aae-csi2/discriminator.h5')
-discriminator2.load_weights('models/aae-csi2/discriminator2.h5')
-encoder.load_weights('models/aae-csi2/encoder.h5')
-encoder2.load_weights('models/aae-csi2/encoder2.h5')
-adversarial_autoencoder.load_weights('models/aae-csi2/adversarial_autoencoder.h5')
-adversarial_autoencoder2.load_weights('models/aae-csi2/adversarial_autoencoder2.h5')
+# discriminator.load_weights('models/aae-csi2/discriminator.h5')
+# discriminator2.load_weights('models/aae-csi2/discriminator2.h5')
+# encoder.load_weights('models/aae-csi2/encoder.h5')
+# encoder2.load_weights('models/aae-csi2/encoder2.h5')
+# adversarial_autoencoder.load_weights('models/aae-csi2/adversarial_autoencoder.h5')
+# adversarial_autoencoder2.load_weights('models/aae-csi2/adversarial_autoencoder2.h5')
 
 
 data=sample_prior(latent_dim, 100*(lincut2 - cut1 * 2))
@@ -644,8 +644,8 @@ class_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['ac
 dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3971_98y78_78_100_100m65_68_100_93m69_68_100_93classer_GUO.h5')
-ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3971_98y78_78_100_100m65_68_100_93m69_68_100_93ed_GUO.h5')
+classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/4000classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/4000ed.h5')
 #dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80dd.h5')
 #dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80dis.h5')
 #dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80dis_model.h5')

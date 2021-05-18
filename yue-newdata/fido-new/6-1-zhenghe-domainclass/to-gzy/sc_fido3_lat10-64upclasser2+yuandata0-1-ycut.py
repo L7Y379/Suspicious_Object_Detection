@@ -71,7 +71,7 @@ def read_data_cut(filenames):
             temp_label2 = 0
         elif ('ljc' in filename):
             temp_label2 = 1
-        elif ('gzy' in filename):
+        elif ('zhw' in filename):
             temp_label2 = 2
         elif ('lyx' in filename):
             temp_label2 = 3
@@ -79,7 +79,7 @@ def read_data_cut(filenames):
             temp_label2 = 4
         elif ('tk' in filename):
             temp_label2 = 5
-        elif ('zhw' in filename):
+        elif ('gzy' in filename):
             temp_label2 = 6
 
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
@@ -143,7 +143,7 @@ def read_data_cut2(filenames):
             temp_label2 = 0
         elif ('ljc' in filename):
             temp_label2 = 1
-        elif ('gzy' in filename):
+        elif ('zhw' in filename):
             temp_label2 = 2
         elif ('lyx' in filename):
             temp_label2 = 3
@@ -151,7 +151,7 @@ def read_data_cut2(filenames):
             temp_label2 = 4
         elif ('tk' in filename):
             temp_label2 = 5
-        elif ('zhw' in filename):
+        elif ('gzy' in filename):
             temp_label2 = 6
 
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
@@ -199,7 +199,7 @@ def read_data(filenames):
             temp_label2 = 0
         elif ('ljc' in filename):
             temp_label2 = 1
-        elif ('gzy' in filename):
+        elif ('zhw' in filename):
             temp_label2 = 2
         elif ('lyx' in filename):
             temp_label2 = 3
@@ -207,7 +207,7 @@ def read_data(filenames):
             temp_label2 = 4
         elif ('tk' in filename):
             temp_label2 = 5
-        elif ('zhw' in filename):
+        elif ('gzy' in filename):
             temp_label2 = 6
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
         temp_label2 = np.tile(temp_label2, (temp_feature.shape[0],))
@@ -231,7 +231,7 @@ def file_array():
     trainfile2 = []
     testfile = []
     testfile2 = []
-    for name in ['zb','ljc', 'gzy', 'lyx', 'cyh', 'tk']:
+    for name in ['zb','ljc', 'zhw', 'lyx', 'cyh', 'tk']:
         for j in ["0"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -259,7 +259,7 @@ def file_array():
     trainfile = trainfile[:115]
     #np.random.shuffle(trainfile)
 
-    for name in ['zb','ljc', 'gzy', 'lyx', 'cyh', 'tk']:
+    for name in ['zb','ljc', 'zhw', 'lyx', 'cyh', 'tk']:
         for j in ["1M"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -305,7 +305,7 @@ def other_file_array():
     testfile2 = []
     for j in ["0"]:  # "1S", "2S"
         for i in [i for i in range(0, 20)]:
-            fn = filepath + "zhw-2.5-M/" + "zhw-" + str(j) + "-" + str(i) + filetype
+            fn = filepath + "gzy-2.5-M/" + "gzy-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
     trainfile += filenames[:20]
     filenames = []
@@ -325,12 +325,12 @@ def other_file_array():
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:15]
+    trainfile = trainfile[:20]
     np.random.shuffle(trainfile)
 
     for j in ["1M"]:  # "1S", "2S"
         for i in [i for i in range(0, 20)]:
-            fn = filepath + "zhw-2.5-M/" + "zhw-" + str(j) + "-" + str(i) + filetype
+            fn = filepath + "gzy-2.5-M/" + "gzy-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
     trainfile2 += filenames[:20]
     filenames = []
@@ -350,13 +350,13 @@ def other_file_array():
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
-    trainfile2 = trainfile2[:15]
+    trainfile2 = trainfile2[:20]
     np.random.shuffle(trainfile2)
 
     testfile = trainfile[10:]
-    trainfile = trainfile[:15]
+    trainfile = trainfile[:20]
     testfile2 = trainfile2[10:]
-    trainfile2 = trainfile2[:15]
+    trainfile2 = trainfile2[:20]
 
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
@@ -481,7 +481,7 @@ discriminator2.summary()
 # In[30]:
 
 
-epochs = 5000
+epochs = 2000
 batch_size = 20000
 sample_interval = 100
 
@@ -656,13 +656,13 @@ dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
 # # Training
-# classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1000classer.h5')
-# ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1000ed.h5')
-# dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1000dd.h5')
-# dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1000dis.h5')
-# dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1000dis_model.h5')
-# class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1000class_model.h5')
-# sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1000sc_fido.h5')
+classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3000classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3000ed.h5')
+dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3000dd.h5')
+dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3000dis.h5')
+dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3000dis_model.h5')
+class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3000class_model.h5')
+sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3000sc_fido.h5')
 # all_data1=all_data[:int(len(all_data)/2)]
 # all_data2=all_data[int(len(all_data)/2):]
 # all_data=np.concatenate((all_data2,all_data1), axis=0)
@@ -855,10 +855,10 @@ for epoch in range(epochs):
 
 
 
-        non_mid3 = ed.predict(train_feature_ot[:lin2 * 15])
+        non_mid3 = ed.predict(train_feature_ot[:lin2 * 20])
         non_mid3 = non_mid3[:, :latent_dim]
         non_pre3 = classer.predict(non_mid3)
-        yes_mid3 = ed.predict(train_feature_ot[lin2 * 15:])
+        yes_mid3 = ed.predict(train_feature_ot[lin2 * 20:])
         yes_mid3 = yes_mid3[:, :latent_dim]
         yes_pre3 = classer.predict(yes_mid3)
 
@@ -930,10 +930,10 @@ for epoch in range(epochs):
         print(acc_yes_pre3_vot)
 
 
-        non_mid4 = ed.predict(train_feature_ot_cut[:(lincut2 - cut2_0 * 2) * 15])
+        non_mid4 = ed.predict(train_feature_ot_cut[:(lincut2 - cut2_0 * 2) * 20])
         non_mid4 = non_mid4[:, :latent_dim]
         non_pre4 = classer.predict(non_mid4)
-        yes_mid4 = ed.predict(train_feature_ot_cut[(lincut2 - cut2_0 * 2) * 15:])
+        yes_mid4 = ed.predict(train_feature_ot_cut[(lincut2 - cut2_0 * 2) * 20:])
         yes_mid4 = yes_mid4[:, :latent_dim]
         yes_pre4 = classer.predict(yes_mid4)
 
@@ -1071,39 +1071,15 @@ for epoch in range(epochs):
             #         acc_yes_pre_vot) + 'm' + str(acc_non_pre3) + '_' + str(acc_yes_pre3) + '_' + str(
             #         acc_non_pre3_vot) + '_' + str(acc_yes_pre3_vot) + 'm' + str(acc_non_pre4) + '_' + str(
             #         acc_yes_pre4) + '_' + str(acc_non_pre4_vot) + '_' + str(acc_yes_pre4_vot) + 'sc_fido.h5')
-    if epoch == 500:
-        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/500classer.h5')
-        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/500ed.h5')
-        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/500dd.h5')
-        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/500dis.h5')
-        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/500dis_model.h5')
-        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/500class_model.h5')
-        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/500sc_fido.h5')
+    # if epoch == 500:
+    #     classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/500classer.h5')
+    #     ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/500ed.h5')
+    #     dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/500dd.h5')
+    #     dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/500dis.h5')
+    #     dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/500dis_model.h5')
+    #     class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/500class_model.h5')
+    #     sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/500sc_fido.h5')
     if epoch == 1000:
-        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1000classer.h5')
-        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1000ed.h5')
-        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1000dd.h5')
-        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1000dis.h5')
-        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1000dis_model.h5')
-        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1000class_model.h5')
-        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1000sc_fido.h5')
-    if epoch == 2000:
-        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/2000classer.h5')
-        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/2000ed.h5')
-        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/2000dd.h5')
-        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/2000dis.h5')
-        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/2000dis_model.h5')
-        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/2000class_model.h5')
-        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/2000sc_fido.h5')
-    if epoch == 3000:
-        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3000classer.h5')
-        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3000ed.h5')
-        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3000dd.h5')
-        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3000dis.h5')
-        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3000dis_model.h5')
-        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3000class_model.h5')
-        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3000sc_fido.h5')
-    if epoch == 4000:
         classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/4000classer.h5')
         ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/4000ed.h5')
         dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/4000dd.h5')
@@ -1111,6 +1087,30 @@ for epoch in range(epochs):
         dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/4000dis_model.h5')
         class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/4000class_model.h5')
         sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/4000sc_fido.h5')
+    # if epoch == 2000:
+    #     classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/2000classer.h5')
+    #     ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/2000ed.h5')
+    #     dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/2000dd.h5')
+    #     dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/2000dis.h5')
+    #     dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/2000dis_model.h5')
+    #     class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/2000class_model.h5')
+    #     sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/2000sc_fido.h5')
+    # if epoch == 3000:
+    #     classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3000classer.h5')
+    #     ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3000ed.h5')
+    #     dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3000dd.h5')
+    #     dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3000dis.h5')
+    #     dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3000dis_model.h5')
+    #     class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3000class_model.h5')
+    #     sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3000sc_fido.h5')
+    # if epoch == 4000:
+    #     classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/4000classer.h5')
+    #     ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/4000ed.h5')
+    #     dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/4000dd.h5')
+    #     dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/4000dis.h5')
+    #     dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/4000dis_model.h5')
+    #     class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/4000class_model.h5')
+    #     sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/4000sc_fido.h5')
 print("%d [危险品分类loss: %f,acc: %.2f%%,域分类loss: %f,acc: %.2f%%,重构loss: %f]" % (
 epoch, c_loss[0], 100 * c_loss[1],d_loss[0],100 * d_loss[1], sc_fido_loss))
 classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/classer.h5')
