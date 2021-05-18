@@ -65,13 +65,13 @@ def read_data_cut(filenames):
             temp_label2 = 1
         elif ('gzy' in filename):
             temp_label2 = 2
-        elif ('lyx' in filename):
+        elif ('ljc' in filename):
             temp_label2 = 3
         elif ('cyh' in filename):
             temp_label2 = 4
         elif ('tk' in filename):
             temp_label2 = 5
-        elif ('ljc' in filename):
+        elif ('lyx' in filename):
             temp_label2 = 6
 
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
@@ -137,13 +137,13 @@ def read_data_cut2(filenames):
             temp_label2 = 1
         elif ('gzy' in filename):
             temp_label2 = 2
-        elif ('lyx' in filename):
+        elif ('ljc' in filename):
             temp_label2 = 3
         elif ('cyh' in filename):
             temp_label2 = 4
         elif ('tk' in filename):
             temp_label2 = 5
-        elif ('ljc' in filename):
+        elif ('lyx' in filename):
             temp_label2 = 6
 
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
@@ -193,13 +193,13 @@ def read_data(filenames):
             temp_label2 = 1
         elif ('gzy' in filename):
             temp_label2 = 2
-        elif ('lyx' in filename):
+        elif ('ljc' in filename):
             temp_label2 = 3
         elif ('cyh' in filename):
             temp_label2 = 4
         elif ('tk' in filename):
             temp_label2 = 5
-        elif ('ljc' in filename):
+        elif ('lyx' in filename):
             temp_label2 = 6
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
         temp_label2 = np.tile(temp_label2, (temp_feature.shape[0],))
@@ -223,7 +223,7 @@ def file_array():
     trainfile2 = []
     testfile = []
     testfile2 = []
-    for name in ['zb','zhw', 'gzy', 'lyx', 'cyh', 'tk']:
+    for name in ['zb','zhw', 'gzy', 'ljc', 'cyh', 'tk']:
         for j in ["0"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -251,7 +251,7 @@ def file_array():
     trainfile = trainfile[:115]
     #np.random.shuffle(trainfile)
 
-    for name in ['zb','zhw', 'gzy', 'lyx', 'cyh', 'tk']:
+    for name in ['zb','zhw', 'gzy', 'ljc', 'cyh', 'tk']:
         for j in ["1M"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -297,7 +297,7 @@ def other_file_array():
     testfile2 = []
     for j in ["0"]:  # "1S", "2S"
         for i in [i for i in range(0, 20)]:
-            fn = filepath + "ljc-2.5-M/" + "ljc-" + str(j) + "-" + str(i) + filetype
+            fn = filepath + "lyx-2.5-M/" + "lyx-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
     trainfile += filenames[:20]
     filenames = []
@@ -317,12 +317,12 @@ def other_file_array():
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:15]
-    np.random.shuffle(trainfile)
+    trainfile = trainfile[:20]
+    #np.random.shuffle(trainfile)
 
     for j in ["1M"]:  # "1S", "2S"
         for i in [i for i in range(0, 20)]:
-            fn = filepath + "ljc-2.5-M/" + "ljc-" + str(j) + "-" + str(i) + filetype
+            fn = filepath + "lyx-2.5-M/" + "lyx-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
     trainfile2 += filenames[:20]
     filenames = []
@@ -342,13 +342,13 @@ def other_file_array():
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
-    trainfile2 = trainfile2[:15]
-    np.random.shuffle(trainfile2)
+    trainfile2 = trainfile2[:20]
+    #np.random.shuffle(trainfile2)
 
     testfile = trainfile[10:]
-    trainfile = trainfile[:15]
+    trainfile = trainfile[:10]
     testfile2 = trainfile2[10:]
-    trainfile2 = trainfile2[:15]
+    trainfile2 = trainfile2[:10]
 
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
@@ -644,8 +644,8 @@ class_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['ac
 dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3971_98y78_78_100_100m65_68_100_93m69_68_100_93classer_GUO.h5')
-ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3971_98y78_78_100_100m65_68_100_93m69_68_100_93ed_GUO.h5')
+classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/2833_95y73_69_86_93m56_51_93_60m57_49_100_60classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/2833_95y73_69_86_93m56_51_93_60m57_49_100_60ed.h5')
 #dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80dd.h5')
 #dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80dis.h5')
 #dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80dis_model.h5')
@@ -839,10 +839,10 @@ print("投票后带东西源数据切割后准确率：")
 print(acc_yes_pre_vot)
 
 
-non_mid = ed.predict(train_feature_ot[:lin2 * 15])
+non_mid = ed.predict(train_feature_ot[:lin2 * 10])
 non_mid = non_mid[:, :latent_dim]
 non_pre = classer.predict(non_mid)
-yes_mid = ed.predict(train_feature_ot[lin2 * 15:])
+yes_mid = ed.predict(train_feature_ot[lin2 * 10:])
 yes_mid = yes_mid[:, :latent_dim]
 yes_pre = classer.predict(yes_mid)
 print(non_mid.shape)
@@ -938,10 +938,10 @@ print("投票后带东西目标数据准确率：")
 print(acc_yes_pre_vot)
 
 
-non_mid4 = ed.predict(train_feature_ot_cut[:(lincut2 - cut2_0 * 2) * 15])
+non_mid4 = ed.predict(train_feature_ot_cut[:(lincut2 - cut2_0 * 2) * 10])
 non_mid4 = non_mid4[:, :latent_dim]
 non_pre4 = classer.predict(non_mid4)
-yes_mid4 = ed.predict(train_feature_ot_cut[(lincut2 - cut2_0 * 2) * 15:])
+yes_mid4 = ed.predict(train_feature_ot_cut[(lincut2 - cut2_0 * 2) * 10:])
 yes_mid4 = yes_mid4[:, :latent_dim]
 yes_pre4 = classer.predict(yes_mid4)
 
