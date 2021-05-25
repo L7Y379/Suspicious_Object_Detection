@@ -15,8 +15,8 @@ import numpy as np
 from keras.utils import np_utils
 import time
 cut1=15
-cut2_0=5
-cut2_1M=5
+cut2_0=15
+cut2_1M=15
 lin=120
 lincut=120
 ww=1
@@ -223,7 +223,7 @@ def file_array():
     trainfile2 = []
     testfile = []
     testfile2 = []
-    for name in ['zb','zhw', 'gzy', 'lyx', 'cyh', 'ljc']:
+    for name in ['hsj','zhw', 'gzy', 'lyx', 'cyh', 'ljc']:
         for j in ["0"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -236,8 +236,6 @@ def file_array():
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
-    print(kmeans.cluster_centers_.shape)
-    print(kmeans.cluster_centers_)
     feature = feature - kmeans.cluster_centers_
     feature = np.square(feature)
     feature = np.sum(feature, axis=1)
@@ -248,10 +246,11 @@ def file_array():
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:110]
+    trainfile = trainfile[:115]
+    print(trainfile)
     #np.random.shuffle(trainfile)
 
-    for name in ['zb','zhw', 'gzy', 'lyx', 'cyh', 'ljc']:
+    for name in ['hsj','zhw', 'gzy', 'lyx', 'cyh', 'ljc']:
         for j in ["1M"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -263,8 +262,6 @@ def file_array():
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
-    print(kmeans.cluster_centers_.shape)
-    print(kmeans.cluster_centers_)
     feature = feature - kmeans.cluster_centers_
     feature = np.square(feature)
     feature = np.sum(feature, axis=1)
@@ -274,18 +271,374 @@ def file_array():
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
-    trainfile2 = trainfile2[:110]
+    trainfile2 = trainfile2[:115]
+    print(trainfile2)
     #np.random.shuffle(trainfile2)
 
-    testfile = trainfile[55:65]
-    trainfile = np.concatenate((trainfile[:55], trainfile[65:]), axis=0)
-    np.random.shuffle(trainfile)
-    testfile2 = trainfile2[55:65]
-    trainfile2 = np.concatenate((trainfile2[:55], trainfile2[65:]), axis=0)
-    np.random.shuffle(trainfile2)
+    # testfile = trainfile[55:65]
+    # trainfile = np.concatenate((trainfile[:55], trainfile[65:]), axis=0)
+    # np.random.shuffle(trainfile)
+    # testfile2 = trainfile2[55:65]
+    # trainfile2 = np.concatenate((trainfile2[:55], trainfile2[65:]), axis=0)
+    # np.random.shuffle(trainfile2)
+
+    testfile = np.concatenate((trainfile[55:65], trainfile[65:70]), axis=0)
+    trainfile = np.concatenate((trainfile[:55], trainfile[70:115]), axis=0)
+
+    #np.random.shuffle(trainfile)
+    testfile2 = np.concatenate((trainfile2[55:65], trainfile2[65:70]), axis=0)
+    trainfile2 = np.concatenate((trainfile2[:55], trainfile2[70:115]), axis=0)
+    #np.random.shuffle(trainfile2)
 
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
+    print(trainfile)
+    print(testfile)
+    return trainfile, testfile
+def file_array2():
+    filepath = 'D:/my bad/Suspicious object detection/data/caiji/CSV/'
+    filetype = '.csv'
+    filenames = []
+    trainfile = []
+    trainfile2 = []
+    testfile = []
+    testfile2 = []
+    for name in ['zb']:
+        for j in ["0"]:  # "1S", "2S"
+            for i in [i for i in range(0, 20)]:
+                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+    trainfile += filenames[:20]
+    filenames = []
+    trainfile = np.array(trainfile)
+    feature, lable, domain_label = read_data(trainfile)
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(20)
+    for i in range(0, 20):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        # print(k[i])
+    trainfile = trainfile[np.argsort(k)]
+    trainfile = trainfile[:18]
+    testfile = trainfile[8:10]
+    trainfile = np.concatenate((trainfile[:8], trainfile[10:]), axis=0)
+    # np.random.shuffle(trainfile)
+    alltrain = trainfile
+    alltest = testfile
+    trainfile = []
+
+    for name in ['zhw']:
+        for j in ["0"]:  # "1S", "2S"
+            for i in [i for i in range(0, 20)]:
+                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+    trainfile += filenames[:20]
+    filenames = []
+    trainfile = np.array(trainfile)
+    feature, lable, domain_label = read_data(trainfile)
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(20)
+    for i in range(0, 20):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        # print(k[i])
+    trainfile = trainfile[np.argsort(k)]
+    trainfile = trainfile[:18]
+    testfile = trainfile[8:11]
+    trainfile = np.concatenate((trainfile[:8], trainfile[11:]), axis=0)
+    # np.random.shuffle(trainfile)
+    alltrain = np.concatenate((alltrain, trainfile), axis=0)
+    alltest = np.concatenate((alltest, testfile), axis=0)
+    trainfile = []
+    for name in ['gzy']:
+        for j in ["0"]:  # "1S", "2S"
+            for i in [i for i in range(0, 20)]:
+                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+    trainfile += filenames[:20]
+    filenames = []
+    trainfile = np.array(trainfile)
+    feature, lable, domain_label = read_data(trainfile)
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(20)
+    for i in range(0, 20):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        # print(k[i])
+    trainfile = trainfile[np.argsort(k)]
+    trainfile = trainfile[:18]
+    testfile = trainfile[8:10]
+    trainfile = np.concatenate((trainfile[:8], trainfile[10:]), axis=0)
+    # np.random.shuffle(trainfile)
+    alltrain = np.concatenate((alltrain, trainfile), axis=0)
+    alltest = np.concatenate((alltest, testfile), axis=0)
+    trainfile = []
+    for name in ['lyx']:
+        for j in ["0"]:  # "1S", "2S"
+            for i in [i for i in range(0, 20)]:
+                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+    trainfile += filenames[:20]
+    filenames = []
+    trainfile = np.array(trainfile)
+    feature, lable, domain_label = read_data(trainfile)
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(20)
+    for i in range(0, 20):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        # print(k[i])
+    trainfile = trainfile[np.argsort(k)]
+    trainfile = trainfile[:18]
+    testfile = trainfile[8:10]
+    trainfile = np.concatenate((trainfile[:8], trainfile[10:]), axis=0)
+    # np.random.shuffle(trainfile)
+    alltrain = np.concatenate((alltrain, trainfile), axis=0)
+    alltest = np.concatenate((alltest, testfile), axis=0)
+    trainfile = []
+    for name in ['cyh']:
+        for j in ["0"]:  # "1S", "2S"
+            for i in [i for i in range(0, 20)]:
+                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+    trainfile += filenames[:20]
+    filenames = []
+    trainfile = np.array(trainfile)
+    feature, lable, domain_label = read_data(trainfile)
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(20)
+    for i in range(0, 20):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        # print(k[i])
+    trainfile = trainfile[np.argsort(k)]
+    trainfile = trainfile[:18]
+    testfile = trainfile[8:11]
+    trainfile = np.concatenate((trainfile[:8], trainfile[11:]), axis=0)
+    # np.random.shuffle(trainfile)
+    alltrain = np.concatenate((alltrain, trainfile), axis=0)
+    alltest = np.concatenate((alltest, testfile), axis=0)
+    trainfile = []
+    for name in ['ljc']:
+        for j in ["0"]:  # "1S", "2S"
+            for i in [i for i in range(0, 20)]:
+                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+    trainfile += filenames[:20]
+    filenames = []
+    trainfile = np.array(trainfile)
+    feature, lable, domain_label = read_data(trainfile)
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(20)
+    for i in range(0, 20):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        # print(k[i])
+    trainfile = trainfile[np.argsort(k)]
+    trainfile = trainfile[:18]
+    testfile = trainfile[8:11]
+    trainfile = np.concatenate((trainfile[:8], trainfile[11:]), axis=0)
+    # np.random.shuffle(trainfile)
+    alltrain = np.concatenate((alltrain, trainfile), axis=0)
+    alltest = np.concatenate((alltest, testfile), axis=0)
+    trainfile = []
+    for name in ['zb']:
+        for j in ["1M"]:  # "1S", "2S"
+            for i in [i for i in range(0, 20)]:
+                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+    trainfile += filenames[:20]
+    filenames = []
+    trainfile = np.array(trainfile)
+    feature, lable, domain_label = read_data(trainfile)
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(20)
+    for i in range(0, 20):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        # print(k[i])
+    trainfile = trainfile[np.argsort(k)]
+    trainfile = trainfile[:18]
+    testfile = trainfile[8:10]
+    trainfile = np.concatenate((trainfile[:8], trainfile[10:]), axis=0)
+    # np.random.shuffle(trainfile)
+    alltrain2 = trainfile
+    alltest2 = testfile
+    trainfile = []
+    for name in ['zhw']:
+        for j in ["1M"]:  # "1S", "2S"
+            for i in [i for i in range(0, 20)]:
+                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+    trainfile += filenames[:20]
+    filenames = []
+    trainfile = np.array(trainfile)
+    feature, lable, domain_label = read_data(trainfile)
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(20)
+    for i in range(0, 20):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        # print(k[i])
+    trainfile = trainfile[np.argsort(k)]
+    trainfile = trainfile[:18]
+    testfile = trainfile[8:11]
+    trainfile = np.concatenate((trainfile[:8], trainfile[11:]), axis=0)
+    # np.random.shuffle(trainfile)
+    alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
+    alltest2 = np.concatenate((alltest2, testfile), axis=0)
+    trainfile = []
+    for name in ['gzy']:
+        for j in ["1M"]:  # "1S", "2S"
+            for i in [i for i in range(0, 20)]:
+                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+    trainfile += filenames[:20]
+    filenames = []
+    trainfile = np.array(trainfile)
+    feature, lable, domain_label = read_data(trainfile)
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(20)
+    for i in range(0, 20):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        # print(k[i])
+    trainfile = trainfile[np.argsort(k)]
+    trainfile = trainfile[:18]
+    testfile = trainfile[8:10]
+    trainfile = np.concatenate((trainfile[:8], trainfile[10:]), axis=0)
+    # np.random.shuffle(trainfile)
+    alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
+    alltest2 = np.concatenate((alltest2, testfile), axis=0)
+    trainfile = []
+    for name in ['lyx']:
+        for j in ["1M"]:  # "1S", "2S"
+            for i in [i for i in range(0, 20)]:
+                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+    trainfile += filenames[:20]
+    filenames = []
+    trainfile = np.array(trainfile)
+    feature, lable, domain_label = read_data(trainfile)
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(20)
+    for i in range(0, 20):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        # print(k[i])
+    trainfile = trainfile[np.argsort(k)]
+    trainfile = trainfile[:18]
+    testfile = trainfile[8:10]
+    trainfile = np.concatenate((trainfile[:8], trainfile[10:]), axis=0)
+    # np.random.shuffle(trainfile)
+    alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
+    alltest2 = np.concatenate((alltest2, testfile), axis=0)
+    trainfile = []
+    for name in ['cyh']:
+        for j in ["1M"]:  # "1S", "2S"
+            for i in [i for i in range(0, 20)]:
+                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+    trainfile += filenames[:20]
+    filenames = []
+    trainfile = np.array(trainfile)
+    feature, lable, domain_label = read_data(trainfile)
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(20)
+    for i in range(0, 20):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        # print(k[i])
+    trainfile = trainfile[np.argsort(k)]
+    trainfile = trainfile[:18]
+    testfile = trainfile[8:11]
+    trainfile = np.concatenate((trainfile[:8], trainfile[11:]), axis=0)
+    # np.random.shuffle(trainfile)
+    alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
+    alltest2 = np.concatenate((alltest2, testfile), axis=0)
+    trainfile = []
+    for name in ['ljc']:
+        for j in ["1M"]:  # "1S", "2S"
+            for i in [i for i in range(0, 20)]:
+                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
+                filenames += [fn]
+    trainfile += filenames[:20]
+    filenames = []
+    trainfile = np.array(trainfile)
+    feature, lable, domain_label = read_data(trainfile)
+    kmeans = KMeans(n_clusters=1, n_init=50)
+    pred_train = kmeans.fit_predict(feature)
+    feature = feature - kmeans.cluster_centers_
+    feature = np.square(feature)
+    feature = np.sum(feature, axis=1)
+    feature = np.sqrt(feature)
+    k = np.arange(20)
+    for i in range(0, 20):
+        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
+        # print(k[i])
+    trainfile = trainfile[np.argsort(k)]
+    trainfile = trainfile[:18]
+    testfile = trainfile[8:11]
+    trainfile = np.concatenate((trainfile[:8], trainfile[11:]), axis=0)
+    # np.random.shuffle(trainfile)
+    alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
+    alltest2 = np.concatenate((alltest2, testfile), axis=0)
+
+    np.random.shuffle(alltrain)
+    np.random.shuffle(alltrain2)
+    # np.random.shuffle(alltest)
+    # np.random.shuffle(alltest2)
+    trainfile = np.concatenate((alltrain, alltrain2), axis=0)
+    print(trainfile.shape)
+
+    testfile = np.concatenate((alltest, alltest2), axis=0)
+    print(testfile.shape)
+
+
     return trainfile, testfile
 def other_file_array():
     filepath = 'D:/my bad/Suspicious object detection/data/caiji/CSV/'
@@ -353,68 +706,6 @@ def other_file_array():
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
     return trainfile, testfile
-def build_encoder(latent_dim, img_shape):
-    deterministic = 1
-    img = Input(shape=img_shape)
-    h = Flatten()(img)
-    h = Dense(800)(h)
-    h = LeakyReLU(alpha=0.2)(h)
-    h = Dense(800)(h)
-    h = LeakyReLU(alpha=0.2)(h)
-    latent_repr = Dense(latent_dim)(h)
-    return Model(img, latent_repr)
-def build_discriminator(latent_dim):
-    model = Sequential()
-    model.add(Dense(800, input_dim=latent_dim))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(800))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(1, activation="sigmoid"))
-    encoded_repr = Input(shape=(latent_dim,))
-    validity = model(encoded_repr)
-    return Model(encoded_repr, validity)
-def build_decoder(latent_dim, img_shape):
-    model = Sequential()
-    model.add(Dense(800, input_dim=latent_dim))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(800))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(np.prod(img_shape), activation='tanh'))
-    model.add(Reshape(img_shape))
-    z = Input(shape=(latent_dim,))
-    img = model(z)
-    return Model(z, img)
-def build_encoder2(latent_dim, img_shape):
-    deterministic = 1
-    img = Input(shape=img_shape)
-    h = Flatten()(img)
-    h = Dense(800)(h)
-    h = LeakyReLU(alpha=0.2)(h)
-    h = Dense(800)(h)
-    h = LeakyReLU(alpha=0.2)(h)
-    latent_repr = Dense(latent_dim)(h)
-    return Model(img, latent_repr)
-def build_discriminator2(latent_dim):
-    model = Sequential()
-    model.add(Dense(800, input_dim=latent_dim))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(800))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(1, activation="sigmoid"))
-    encoded_repr = Input(shape=(latent_dim,))
-    validity = model(encoded_repr)
-    return Model(encoded_repr, validity)
-def build_decoder2(latent_dim, img_shape):
-    model = Sequential()
-    model.add(Dense(800, input_dim=latent_dim))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(800))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(np.prod(img_shape), activation='tanh'))
-    model.add(Reshape(img_shape))
-    z = Input(shape=(latent_dim,))
-    img = model(z)
-    return Model(z, img)
 
 img_rows = 15
 img_cols = 18
@@ -422,54 +713,7 @@ channels = 1
 img_shape = (img_rows, img_cols, channels)
 # Results can be found in just_2_rv
 # latent_dim = 2
-latent_dim = 10
 
-optimizer = Adam(0.0002, 0.5)
-optimizer2 = Adam(0.0002, 0.5)
-# Build and compile the discriminator
-discriminator = build_discriminator(latent_dim)
-discriminator.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
-discriminator2 = build_discriminator2(latent_dim)
-discriminator2.compile(loss='binary_crossentropy', optimizer=optimizer2, metrics=['accuracy'])
-# In[27]:
-
-
-# Build the encoder / decoder
-encoder = build_encoder(latent_dim, img_shape)
-decoder = build_decoder(latent_dim, img_shape)
-encoder2 = build_encoder2(latent_dim, img_shape)
-decoder2 = build_decoder2(latent_dim, img_shape)
-# In[28]:
-
-
-# The generator takes the image, encodes it and reconstructs it
-# from the encoding
-img = Input(shape=img_shape)
-encoded_repr = encoder(img)
-reconstructed_img = decoder(encoded_repr)
-img2 = Input(shape=img_shape)
-encoded_repr2 = encoder2(img)
-reconstructed_img2 = decoder2(encoded_repr2)
-# For the adversarial_autoencoder models we will only train the generator
-# It will say something like:
-#   UserWarning: Discrepancy between trainable weights and collected trainable weights,
-#   did you set `models.trainable` without calling `models.compile` after ?
-# We only set trainable to false for the discriminator when it is part of the autoencoder...
-discriminator.trainable = False
-discriminator2.trainable = False
-# The discriminator determines validity of the encoding
-validity = discriminator(encoded_repr)
-validity2 = discriminator2(encoded_repr2)
-# The adversarial_autoencoder models  (stacked generator and discriminator)
-adversarial_autoencoder = Model(img, [reconstructed_img, validity])
-adversarial_autoencoder.compile(loss=['mse', 'binary_crossentropy'], loss_weights=[0.999, 0.001], optimizer=optimizer)
-adversarial_autoencoder2 = Model(img, [reconstructed_img2, validity2])
-adversarial_autoencoder2.compile(loss=['mse', 'binary_crossentropy'], loss_weights=[0.999, 0.001], optimizer=optimizer2)
-# In[29]:
-
-
-discriminator.summary()
-discriminator2.summary()
 # In[30]:
 
 
@@ -503,7 +747,7 @@ test_feature_ot=(test_feature_ot.astype('float32')-np.min(a))/(np.max(a)-np.min(
 test_feature=(test_feature.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
 X_train1 =train_feature_cut[:100*(lincut2 - cut1 * 2)]
 print(X_train1.shape)
-X_test1 =test_feature_cut[:10*(lincut2 - cut2_0 * 2)]
+X_test1 =test_feature_cut[:15*(lincut2 - cut2_0 * 2)]
 print(X_test1.shape)
 X_train1 = X_train1.reshape([X_train1.shape[0], img_rows, img_cols])
 X_test1 = X_test1.reshape([X_test1.shape[0], img_rows, img_cols])
@@ -512,7 +756,7 @@ X_test1 = np.expand_dims(X_test1, axis=3)
 
 X_train2 =train_feature_cut[100*(lincut2 - cut1 * 2):]
 print(X_train2.shape)
-X_test2 =test_feature_cut[10*(lincut2 - cut2_0 * 2):]
+X_test2 =test_feature_cut[15*(lincut2 - cut2_0 * 2):]
 print(X_test2.shape)
 X_train2 = X_train2.reshape([X_train2.shape[0], img_rows, img_cols])
 X_test2 = X_test2.reshape([X_test2.shape[0], img_rows, img_cols])
@@ -532,27 +776,7 @@ test_feature_ot = np.expand_dims(test_feature_ot, axis=3)
 print("train_feature_ot")
 print(train_feature_ot.shape)
 print(train_feature_ot_cut.shape)
-# Adversarial ground truths
-valid1 = np.ones((batch_size, 1))
-fake1 = np.zeros((batch_size, 1))
-valid2 = np.ones((batch_size, 1))
-fake2 = np.zeros((batch_size, 1))
 
-
-def sample_prior(latent_dim, batch_size):
-    return np.random.normal(size=(batch_size, latent_dim))
-
-discriminator.load_weights('models/aae-csi2/discriminator.h5')
-discriminator2.load_weights('models/aae-csi2/discriminator2.h5')
-encoder.load_weights('models/aae-csi2/encoder.h5')
-encoder2.load_weights('models/aae-csi2/encoder2.h5')
-adversarial_autoencoder.load_weights('models/aae-csi2/adversarial_autoencoder.h5')
-adversarial_autoencoder2.load_weights('models/aae-csi2/adversarial_autoencoder2.h5')
-
-
-data=sample_prior(latent_dim, 100*(lincut2 - cut1 * 2))
-scdata1=decoder.predict(data)
-scdata2=decoder2.predict(data)
 
 # X_SCdata1=0.5*X_train1+0.5*scdata1
 # X_SCdata2=0.5*X_train2+0.5*scdata2
@@ -644,19 +868,19 @@ class_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['ac
 dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80ed.h5')
-#dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80dd.h5')
-#dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80dis.h5')
-#dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80dis_model.h5')
-#class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80class_model.h5')
-#sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80sc_fido.h5')
+classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/545_65y64_66_80_80m68_56_100_80m70_57_100_80classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/545_65y64_66_80_80m68_56_100_80m70_57_100_80ed.h5')
+#dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/545_65y64_66_80_80m68_56_100_80m70_57_100_80dd.h5')
+#dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/545_65y64_66_80_80m68_56_100_80m70_57_100_80dis.h5')
+#dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/545_65y64_66_80_80m68_56_100_80m70_57_100_80dis_model.h5')
+#class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/545_65y64_66_80_80m68_56_100_80m70_57_100_80class_model.h5')
+#sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/545_65y64_66_80_80m68_56_100_80m70_57_100_80sc_fido.h5')
 
 
-non_mid = ed.predict(test_feature[:lin2 * 10])
+non_mid = ed.predict(test_feature[:lin2 * 15])
 non_mid = non_mid[:, :latent_dim]
 non_pre = classer.predict(non_mid)
-yes_mid = ed.predict(test_feature[lin2 * 10:])
+yes_mid = ed.predict(test_feature[lin2 * 15:])
 yes_mid = yes_mid[:, :latent_dim]
 yes_pre = classer.predict(yes_mid)
 print(non_mid.shape)
@@ -744,7 +968,7 @@ print("带东西源数据切割前准确率：")
 print(acc_yes_pre)
 print("投票后带东西源数据切割前准确率：")
 print(acc_yes_pre_vot)
-
+print()
 
 non_mid = ed.predict(X_test1)
 non_mid = non_mid[:, :latent_dim]
@@ -768,7 +992,8 @@ for i in range(0,int(len(non_pre))):
     if non_pre[i][0] < non_pre[i][1]:
         a1[1] = a1[1] + 1
         non_pre_1[i] = 0
-
+hhh=np.arange(15)
+m=0
 acc_non_pre=float(a1[0])/float(len(non_pre))
 a1=[0,0]
 for i in range(0,int(len(non_pre_1))):
@@ -781,13 +1006,17 @@ for i in range(0,int(len(non_pre_1))):
     if (k1[0]+k1[1]==(lincut2 - cut2_0 * 2)):
         if k1[0]>=k1[1]:
             a2[0]=a2[0]+1
+            hhh[m] = 1
+            m=m+1
         if k1[0]<k1[1]:
             a2[1]=a2[1]+1
+            hhh[m] = 0
+            m = m + 1
         k1=[0,0]
 acc_non_pre_vot=float(a2[0])/float(len(non_pre_1)/(lincut2 - cut2_0 * 2))
 print(a1)
 print(a2)
-
+print(hhh)
 
 
 print("不带东西源数据切割后准确率：")
@@ -814,7 +1043,8 @@ for i in range(0,int(len(yes_pre))):
     if yes_pre[i][0] <= yes_pre[i][1]:
         a1[1] = a1[1] + 1
         yes_pre_1[i] = 0
-
+hhh=np.arange(15)
+m=0
 acc_yes_pre=float(a1[1])/float(len(yes_pre))
 a1=[0,0]
 for i in range(0,int(len(yes_pre_1))):
@@ -827,17 +1057,22 @@ for i in range(0,int(len(yes_pre_1))):
     if (k1[0]+k1[1]==(lincut2 - cut2_0 * 2)):
         if k1[0]>k1[1]:
             a2[0]=a2[0]+1
+            hhh[m] = 1
+            m = m + 1
         if k1[0]<=k1[1]:
             a2[1]=a2[1]+1
+            hhh[m] = 0
+            m = m + 1
         k1=[0,0]
 acc_yes_pre_vot=float(a2[1])/float(len(yes_pre_1)/(lincut2 - cut2_0 * 2))
 print(a1)
 print(a2)
+print(hhh)
 print("带东西源数据切割后准确率：")
 print(acc_yes_pre)
 print("投票后带东西源数据切割后准确率：")
 print(acc_yes_pre_vot)
-
+print()
 
 non_mid = ed.predict(train_feature_ot[:lin2 * 15])
 non_mid = non_mid[:, :latent_dim]
@@ -936,7 +1171,7 @@ print("带东西目标数据准确率：")
 print(acc_yes_pre)
 print("投票后带东西目标数据准确率：")
 print(acc_yes_pre_vot)
-
+print()
 
 non_mid4 = ed.predict(train_feature_ot_cut[:(lincut2 - cut2_0 * 2) * 15])
 non_mid4 = non_mid4[:, :latent_dim]
