@@ -26,7 +26,7 @@ cut1=15
 cut2_0=15
 cut2_1M=15
 lin=115
-lincut=120
+lincut=115
 linlong=162
 ww=1
 lin2=int((lin*2)/ww)
@@ -443,7 +443,7 @@ def file_array():
     trainfile += filenames[:120]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable,domain_label = read_data(trainfile)
+    feature, lable,domain_label = read_datamid(trainfile)
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
@@ -470,7 +470,7 @@ def file_array():
     trainfile2 += filenames[:120]
     filenames = []
     trainfile2 = np.array(trainfile2)
-    feature, lable,domain_label = read_data(trainfile2)
+    feature, lable,domain_label = read_datamid(trainfile2)
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
@@ -515,7 +515,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -543,7 +543,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -570,7 +570,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -597,7 +597,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -624,7 +624,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -651,7 +651,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -678,7 +678,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -705,7 +705,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -732,7 +732,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -759,7 +759,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -786,7 +786,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -813,7 +813,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -860,7 +860,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -888,7 +888,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -915,7 +915,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -942,7 +942,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -969,7 +969,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -996,7 +996,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -1023,7 +1023,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -1050,7 +1050,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -1077,7 +1077,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -1104,7 +1104,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -1131,7 +1131,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -1157,7 +1157,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -1178,10 +1178,10 @@ def file_array3():
 
     np.random.shuffle(alltrain)
     np.random.shuffle(alltrain2)
-    np.random.shuffle(alltest)
-    np.random.shuffle(alltest2)
+    #np.random.shuffle(alltest)
+    #np.random.shuffle(alltest2)
     trainfile = np.concatenate((alltrain, alltrain2), axis=0)
-    np.random.shuffle(trainfile)
+    #np.random.shuffle(trainfile)
     print(trainfile.shape)
 
     testfile = np.concatenate((alltest, alltest2), axis=0)
@@ -1204,7 +1204,7 @@ def other_file_array():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable,domain_label = read_data(trainfile)
+    feature, lable,domain_label = read_datamid(trainfile)
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
@@ -1229,7 +1229,7 @@ def other_file_array():
     trainfile2 += filenames[:20]
     filenames = []
     trainfile2 = np.array(trainfile2)
-    feature, lable,domain_label = read_data(trainfile2)
+    feature, lable,domain_label = read_datamid(trainfile2)
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
@@ -1271,14 +1271,14 @@ trainfile_array, testfile_array = file_array3()#
 print(trainfile_array)
 print(testfile_array)
 train_feature, train_label,train_domain_label = read_datamid(trainfile_array)
-train_feature_cut, train_label_cut,train_domain_label_cut = read_data_cut(trainfile_array)
-test_feature, test_label,test_domain_label = read_data(testfile_array)
-test_feature_cut, test_label_cut,test_domain_label_cut = read_data_cut(testfile_array)
+train_feature_cut, train_label_cut,train_domain_label_cut = read_data_cutmid(trainfile_array)
+test_feature, test_label,test_domain_label = read_datamid(testfile_array)
+test_feature_cut, test_label_cut,test_domain_label_cut = read_data_cutmid(testfile_array)
 
 trainfile_other, testfile_other = other_file_array()#
-train_feature_ot, train_label_ot,train_domain_label_ot = read_data(trainfile_other)
-train_feature_ot_cut, train_label_ot_cut,train_domain_label_ot_cut = read_data_cut2(trainfile_other)
-test_feature_ot, test_label_ot,test_domain_label_ot = read_data(testfile_other)
+train_feature_ot, train_label_ot,train_domain_label_ot = read_datamid(trainfile_other)
+train_feature_ot_cut, train_label_ot_cut,train_domain_label_ot_cut = read_data_cut2mid(trainfile_other)
+test_feature_ot, test_label_ot,test_domain_label_ot = read_datamid(testfile_other)
 #全局归化为0~1
 #a=np.concatenate((train_feature, train_feature_ot), axis=0)
 a=train_feature_cut
@@ -1342,7 +1342,8 @@ all_data=X_SCdata
 print(all_data.shape)
 # all_data=np.concatenate((all_data,train_feature_ot), axis=0)
 # all_data=np.concatenate((all_data,train_feature_ot), axis=0)
-# all_data=np.concatenate((all_data,train_feature_ot), axis=0)
+# np.random.shuffle(all_data)
+#all_data=np.concatenate((all_data,train_feature_ot), axis=0)
 print(all_data.shape)
 latent_dim = 270
 latent_dim2=540
@@ -1442,8 +1443,8 @@ for epoch in range(epochs):
     idx2 = np.random.randint(0, all_data.shape[0], batch_size)
     imgs2 = all_data[idx2]
     sc_fido_loss = sc_fido.train_on_batch(imgs2, imgs2)
-    idx = np.random.randint(0, all_data.shape[0], batch_size)
-    imgs = all_data[idx]
+    idx = np.random.randint(0, X_SCdata.shape[0], batch_size)
+    imgs = X_SCdata[idx]
     d_loss = dis_model.train_on_batch(imgs, X_SCdata_domain_label[idx])
     c_loss = class_model.train_on_batch(imgs, X_SCdata_label[idx])
     # ---------------------
