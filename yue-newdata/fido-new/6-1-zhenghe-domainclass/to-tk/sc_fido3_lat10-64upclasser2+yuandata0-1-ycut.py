@@ -285,11 +285,11 @@ def file_array():
     trainfile2 = trainfile2[:105]
     #np.random.shuffle(trainfile2)
 
-    testfile = trainfile[55:70]
-    trainfile = np.concatenate((trainfile[:55], trainfile[70:]), axis=0)
+    testfile = trainfile[45:60]
+    trainfile = np.concatenate((trainfile[:45], trainfile[60:]), axis=0)
     np.random.shuffle(trainfile)
-    testfile2 = trainfile2[55:70]
-    trainfile2 = np.concatenate((trainfile2[:55], trainfile2[70:]), axis=0)
+    testfile2 = trainfile2[45:60]
+    trainfile2 = np.concatenate((trainfile2[:45], trainfile2[60:]), axis=0)
     np.random.shuffle(trainfile2)
 
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
@@ -906,6 +906,80 @@ for epoch in range(epochs):
     if epoch % 1 == 0:
         print("%d [危险品分类loss: %f,acc: %.2f%%,域分类loss: %f,acc: %.2f%%,重构loss: %f]" % (
         epoch, c_loss[0], 100 * c_loss[1],d_loss[0],100 * d_loss[1], sc_fido_loss))
+        non_mid = ed.predict(X_train1)
+        non_mid = non_mid[:, :latent_dim]
+        non_pre = classer.predict(non_mid)
+        yes_mid = ed.predict(X_train1)
+        yes_mid = yes_mid[:, :latent_dim]
+        yes_pre = classer.predict(yes_mid)
+
+        a1 = [0, 0]
+        a2 = [0, 0]
+        k1 = [0, 0]
+        non_pre_1 = np.arange(len(non_pre))
+        for i in range(0, int(len(non_pre))):
+            if non_pre[i][0] >= non_pre[i][1]:
+                a1[0] = a1[0] + 1
+                non_pre_1[i] = 1
+            if non_pre[i][0] < non_pre[i][1]:
+                a1[1] = a1[1] + 1
+                non_pre_1[i] = 0
+
+        acc_non_pre = float(a1[0]) / float(len(non_pre))
+        a1 = [0, 0]
+        for i in range(0, int(len(non_pre_1))):
+            if non_pre_1[i] == 1:
+                k1[0] = k1[0] + 1
+
+            if non_pre_1[i] == 0:
+                k1[1] = k1[1] + 1
+
+            if (k1[0] + k1[1] == (lincut2 - cut1 * 2)):
+                if k1[0] >= k1[1]:
+                    a2[0] = a2[0] + 1
+                if k1[0] < k1[1]:
+                    a2[1] = a2[1] + 1
+                k1 = [0, 0]
+        acc_non_pre_vot = float(a2[0]) / float(len(non_pre_1) / (lincut2 - cut1 * 2))
+        a1 = [0, 0]
+        a2 = [0, 0]
+        k1 = [0, 0]
+        for i in range(0, int(len(yes_pre))):
+            if yes_pre[i][0] > yes_pre[i][1]: a1[0] = a1[0] + 1
+            if yes_pre[i][0] <= yes_pre[i][1]: a1[1] = a1[1] + 1
+
+        a1 = [0, 0]
+        yes_pre_1 = np.arange(len(yes_pre))
+        for i in range(0, int(len(yes_pre))):
+            if yes_pre[i][0] > yes_pre[i][1]:
+                a1[0] = a1[0] + 1
+                yes_pre_1[i] = 1
+            if yes_pre[i][0] <= yes_pre[i][1]:
+                a1[1] = a1[1] + 1
+                yes_pre_1[i] = 0
+
+        acc_yes_pre = float(a1[1]) / float(len(yes_pre))
+        a1 = [0, 0]
+        for i in range(0, int(len(yes_pre_1))):
+            if yes_pre_1[i] == 1:
+                k1[0] = k1[0] + 1
+
+            if yes_pre_1[i] == 0:
+                k1[1] = k1[1] + 1
+
+            if (k1[0] + k1[1] == (lincut2 - cut1 * 2)):
+                if k1[0] > k1[1]:
+                    a2[0] = a2[0] + 1
+                if k1[0] <= k1[1]:
+                    a2[1] = a2[1] + 1
+                k1 = [0, 0]
+        acc_yes_pre_vot = float(a2[1]) / float(len(yes_pre_1) / (lincut2 - cut1 * 2))
+        print('源训练数据正确率：', end='   ')
+        print(acc_non_pre, end='   ')
+        print(acc_yes_pre, end='   ')
+        print(acc_non_pre_vot, end='   ')
+        print(acc_yes_pre_vot)
+
 
         non_mid = ed.predict(test_feature[:lin2 * 15])
         non_mid = non_mid[:, :latent_dim]

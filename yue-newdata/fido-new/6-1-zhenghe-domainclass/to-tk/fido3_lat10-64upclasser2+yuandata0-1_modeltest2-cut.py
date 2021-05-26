@@ -223,7 +223,7 @@ def file_array():
     trainfile2 = []
     testfile = []
     testfile2 = []
-    for name in ['hsj','zhw', 'gzy', 'lyx', 'cyh', 'ljc']:
+    for name in ['zb','zhw', 'gzy', 'lyx', 'cyh', 'ljc']:
         for j in ["0"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -236,6 +236,8 @@ def file_array():
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
+    print(kmeans.cluster_centers_.shape)
+    print(kmeans.cluster_centers_)
     feature = feature - kmeans.cluster_centers_
     feature = np.square(feature)
     feature = np.sum(feature, axis=1)
@@ -247,10 +249,9 @@ def file_array():
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:115]
-    print(trainfile)
     #np.random.shuffle(trainfile)
 
-    for name in ['hsj','zhw', 'gzy', 'lyx', 'cyh', 'ljc']:
+    for name in ['zb','zhw', 'gzy', 'lyx', 'cyh', 'ljc']:
         for j in ["1M"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -262,6 +263,8 @@ def file_array():
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
+    print(kmeans.cluster_centers_.shape)
+    print(kmeans.cluster_centers_)
     feature = feature - kmeans.cluster_centers_
     feature = np.square(feature)
     feature = np.sum(feature, axis=1)
@@ -271,29 +274,18 @@ def file_array():
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
-    trainfile2 = trainfile2[:115]
-    print(trainfile2)
+    trainfile2 = trainfile2[:120]
     #np.random.shuffle(trainfile2)
 
-    # testfile = trainfile[55:65]
-    # trainfile = np.concatenate((trainfile[:55], trainfile[65:]), axis=0)
-    # np.random.shuffle(trainfile)
-    # testfile2 = trainfile2[55:65]
-    # trainfile2 = np.concatenate((trainfile2[:55], trainfile2[65:]), axis=0)
-    # np.random.shuffle(trainfile2)
-
-    testfile = np.concatenate((trainfile[55:65], trainfile[65:70]), axis=0)
-    trainfile = np.concatenate((trainfile[:55], trainfile[70:115]), axis=0)
-
-    #np.random.shuffle(trainfile)
-    testfile2 = np.concatenate((trainfile2[55:65], trainfile2[65:70]), axis=0)
-    trainfile2 = np.concatenate((trainfile2[:55], trainfile2[70:115]), axis=0)
-    #np.random.shuffle(trainfile2)
+    testfile = np.concatenate((trainfile[50:60], trainfile[105:110]), axis=0)
+    trainfile = np.concatenate((trainfile[:45], trainfile[60:105]), axis=0)
+    np.random.shuffle(trainfile)
+    testfile2 = np.concatenate((trainfile2[45:50], trainfile2[50:60]), axis=0)
+    trainfile2 = np.concatenate((trainfile2[:45], trainfile2[60:105]), axis=0)
+    np.random.shuffle(trainfile2)
 
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
-    print(trainfile)
-    print(testfile)
     return trainfile, testfile
 def file_array2():
     filepath = 'D:/my bad/Suspicious object detection/data/caiji/CSV/'
@@ -745,7 +737,7 @@ train_feature_ot_cut=(train_feature_ot_cut.astype('float32')-np.min(a))/(np.max(
 train_feature=(train_feature.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
 test_feature_ot=(test_feature_ot.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
 test_feature=(test_feature.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
-X_train1 =train_feature_cut[:100*(lincut2 - cut1 * 2)]
+X_train1 =train_feature_cut[:90*(lincut2 - cut1 * 2)]
 print(X_train1.shape)
 X_test1 =test_feature_cut[:15*(lincut2 - cut2_0 * 2)]
 print(X_test1.shape)
@@ -754,7 +746,7 @@ X_test1 = X_test1.reshape([X_test1.shape[0], img_rows, img_cols])
 X_train1 = np.expand_dims(X_train1, axis=3)
 X_test1 = np.expand_dims(X_test1, axis=3)
 
-X_train2 =train_feature_cut[100*(lincut2 - cut1 * 2):]
+X_train2 =train_feature_cut[90*(lincut2 - cut1 * 2):]
 print(X_train2.shape)
 X_test2 =test_feature_cut[15*(lincut2 - cut2_0 * 2):]
 print(X_test2.shape)
@@ -782,10 +774,10 @@ print(train_feature_ot_cut.shape)
 # X_SCdata2=0.5*X_train2+0.5*scdata2
 X_SCdata1=X_train1
 X_SCdata2=X_train2
-X_SCdata1_label=train_label_cut[:100*(lincut2 - cut1 * 2)]
-X_SCdata2_label=train_label_cut[100*(lincut2 - cut1 * 2):]
-X_SCdata1_domain_label=train_domain_label_cut[:100*(lincut2 - cut1 * 2)]
-X_SCdata2_domain_label=train_domain_label_cut[100*(lincut2 - cut1 * 2):]
+X_SCdata1_label=train_label_cut[:90*(lincut2 - cut1 * 2)]
+X_SCdata2_label=train_label_cut[90*(lincut2 - cut1 * 2):]
+X_SCdata1_domain_label=train_domain_label_cut[:90*(lincut2 - cut1 * 2)]
+X_SCdata2_domain_label=train_domain_label_cut[90*(lincut2 - cut1 * 2):]
 
 X_SCdata=np.concatenate((X_train1,X_train2), axis=0)
 # X_SCdata=np.concatenate((X_SCdata,X_SCdata1), axis=0)
@@ -868,14 +860,117 @@ class_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['ac
 dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/545_65y64_66_80_80m68_56_100_80m70_57_100_80classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/545_65y64_66_80_80m68_56_100_80m70_57_100_80ed.h5')
-#dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/545_65y64_66_80_80m68_56_100_80m70_57_100_80dd.h5')
-#dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/545_65y64_66_80_80m68_56_100_80m70_57_100_80dis.h5')
-#dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/545_65y64_66_80_80m68_56_100_80m70_57_100_80dis_model.h5')
-#class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/545_65y64_66_80_80m68_56_100_80m70_57_100_80class_model.h5')
-#sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/545_65y64_66_80_80m68_56_100_80m70_57_100_80sc_fido.h5')
+classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1655_81y63_75_73_93m65_53_93_80m71_51_100_80classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1655_81y63_75_73_93m65_53_93_80m71_51_100_80ed.h5')
+#dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1655_81y63_75_73_93m65_53_93_80m71_51_100_80dd.h5')
+#dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1655_81y63_75_73_93m65_53_93_80m71_51_100_80dis.h5')
+#dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1655_81y63_75_73_93m65_53_93_80m71_51_100_80dis_model.h5')
+#class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1655_81y63_75_73_93m65_53_93_80m71_51_100_80class_model.h5')
+#sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1655_81y63_75_73_93m65_53_93_80m71_51_100_80sc_fido.h5')
 
+non_mid = ed.predict(X_train1)
+non_mid = non_mid[:, :latent_dim]
+non_pre = classer.predict(non_mid)
+yes_mid = ed.predict(X_train2)
+yes_mid = yes_mid[:, :latent_dim]
+yes_pre = classer.predict(yes_mid)
+print(non_mid.shape)
+print(yes_mid.shape)
+print(non_pre.shape)
+print(yes_pre.shape)
+
+a1=[0,0]
+a2=[0,0]
+k1=[0,0]
+non_pre_1 = np.arange(len(non_pre))
+for i in range(0,int(len(non_pre))):
+    if non_pre[i][0]>=non_pre[i][1]:
+        a1[0]=a1[0]+1
+        non_pre_1[i] =1
+    if non_pre[i][0] < non_pre[i][1]:
+        a1[1] = a1[1] + 1
+        non_pre_1[i] = 0
+hhh=np.arange(90)
+m=0
+acc_non_pre=float(a1[0])/float(len(non_pre))
+a1=[0,0]
+for i in range(0,int(len(non_pre_1))):
+    if non_pre_1[i]==1:
+        k1[0]=k1[0]+1
+        a1[0] = a1[0] + 1
+    if non_pre_1[i] == 0:
+        k1[1] = k1[1] + 1
+        a1[1] = a1[1] + 1
+    if (k1[0]+k1[1]==(lincut2 - cut2_0 * 2)):
+        if k1[0]>=k1[1]:
+            a2[0]=a2[0]+1
+            hhh[m] = 1
+            m=m+1
+        if k1[0]<k1[1]:
+            a2[1]=a2[1]+1
+            hhh[m] = 0
+            m = m + 1
+        k1=[0,0]
+acc_non_pre_vot=float(a2[0])/float(len(non_pre_1)/(lincut2 - cut2_0 * 2))
+print(a1)
+print(a2)
+print(hhh)
+
+
+print("不带东西源训练数据切割后准确率：")
+print(acc_non_pre)
+print("投票后不带东西源训练数据切割后准确率：")
+print(acc_non_pre_vot)
+
+
+a1=[0,0]
+a2=[0,0]
+k1=[0,0]
+for i in range(0,int(len(yes_pre))):
+    if yes_pre[i][0]>yes_pre[i][1]:a1[0]=a1[0]+1
+    if yes_pre[i][0] <= yes_pre[i][1]: a1[1] = a1[1] + 1
+# print("a1")
+print(a1)
+# acc_yes_pre=float(a1[1])/float(len(yes_pre))
+a1=[0,0]
+yes_pre_1 = np.arange(len(yes_pre))
+for i in range(0,int(len(yes_pre))):
+    if yes_pre[i][0]>yes_pre[i][1]:
+        a1[0]=a1[0]+1
+        yes_pre_1[i] =1
+    if yes_pre[i][0] <= yes_pre[i][1]:
+        a1[1] = a1[1] + 1
+        yes_pre_1[i] = 0
+hhh=np.arange(90)
+m=0
+acc_yes_pre=float(a1[1])/float(len(yes_pre))
+a1=[0,0]
+for i in range(0,int(len(yes_pre_1))):
+    if yes_pre_1[i]==1:
+        k1[0]=k1[0]+1
+        a1[0] = a1[0] + 1
+    if yes_pre_1[i] == 0:
+        k1[1] = k1[1] + 1
+        a1[1] = a1[1] + 1
+    if (k1[0]+k1[1]==(lincut2 - cut2_0 * 2)):
+        if k1[0]>k1[1]:
+            a2[0]=a2[0]+1
+            hhh[m] = 1
+            m = m + 1
+        if k1[0]<=k1[1]:
+            a2[1]=a2[1]+1
+            hhh[m] = 0
+            m = m + 1
+        k1=[0,0]
+acc_yes_pre_vot=float(a2[1])/float(len(yes_pre_1)/(lincut2 - cut2_0 * 2))
+print(a1)
+print(a2)
+print(hhh)
+print("带东西源训练数据切割后准确率：")
+print(acc_yes_pre)
+print("投票后带东西源训练数据切割后准确率：")
+print(acc_yes_pre_vot)
+print()
 
 non_mid = ed.predict(test_feature[:lin2 * 15])
 non_mid = non_mid[:, :latent_dim]
