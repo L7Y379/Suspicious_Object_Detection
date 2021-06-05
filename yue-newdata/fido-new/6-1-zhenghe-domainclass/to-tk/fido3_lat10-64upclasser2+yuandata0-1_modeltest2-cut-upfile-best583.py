@@ -1212,7 +1212,7 @@ def other_file_array():
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:15]
+    trainfile = trainfile[:20]
     #np.random.shuffle(trainfile)
 
     for j in ["1M"]:  # "1S", "2S"
@@ -1237,13 +1237,13 @@ def other_file_array():
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
-    trainfile2 = trainfile2[:15]
+    trainfile2 = trainfile2[:20]
     #np.random.shuffle(trainfile2)
 
     testfile = trainfile[10:]
-    trainfile = trainfile[:15]
+    trainfile = trainfile[:20]
     testfile2 = trainfile2[10:]
-    trainfile2 = trainfile2[:15]
+    trainfile2 = trainfile2[:20]
 
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
@@ -1718,10 +1718,10 @@ print("投票后带东西源数据切割后准确率：")
 print(acc_yes_pre_vot)
 print()
 
-non_mid = ed.predict(train_feature_ot[:lin2 * 15])
+non_mid = ed.predict(train_feature_ot[:lin2 * 20])
 non_mid = non_mid[:, :latent_dim]
 non_pre = classer.predict(non_mid)
-yes_mid = ed.predict(train_feature_ot[lin2 * 15:])
+yes_mid = ed.predict(train_feature_ot[lin2 * 20:])
 yes_mid = yes_mid[:, :latent_dim]
 yes_pre = classer.predict(yes_mid)
 print(non_mid.shape)
@@ -1817,10 +1817,10 @@ print("投票后带东西目标数据准确率：")
 print(acc_yes_pre_vot)
 print()
 
-non_mid4 = ed.predict(train_feature_ot_cut[:(lincut2 - cut2_0 * 2) * 15])
+non_mid4 = ed.predict(train_feature_ot_cut[:(lincut2 - cut2_0 * 2) * 20])
 non_mid4 = non_mid4[:, :latent_dim]
 non_pre4 = classer.predict(non_mid4)
-yes_mid4 = ed.predict(train_feature_ot_cut[(lincut2 - cut2_0 * 2) * 15:])
+yes_mid4 = ed.predict(train_feature_ot_cut[(lincut2 - cut2_0 * 2) * 20:])
 yes_mid4 = yes_mid4[:, :latent_dim]
 yes_pre4 = classer.predict(yes_mid4)
 
@@ -1840,7 +1840,8 @@ for i in range(0,int(len(non_pre4))):
     if non_pre4[i][0] < non_pre4[i][1]:
         a1[1] = a1[1] + 1
         non_pre4_1[i] = 0
-
+hhh=np.arange(20)
+m=0
 acc_non_pre4=float(a1[0])/float(len(non_pre4))
 a1=[0,0]
 for i in range(0,int(len(non_pre4_1))):
@@ -1853,13 +1854,17 @@ for i in range(0,int(len(non_pre4_1))):
     if (k1[0]+k1[1]==(lincut2 - cut2_0 * 2)):
         if k1[0]>=k1[1]:
             a2[0]=a2[0]+1
+            hhh[m] = 1
+            m = m + 1
         if k1[0]<k1[1]:
             a2[1]=a2[1]+1
+            hhh[m] = 0
+            m = m + 1
         k1=[0,0]
 acc_non_pre4_vot=float(a2[0])/float(len(non_pre4_1)/(lincut2 - cut2_0 * 2))
 print(a1)
 print(a2)
-
+print(hhh)
 print("切割不带东西目标数据准确率：")
 print(acc_non_pre4)
 print("投票后切割不带东西目标数据准确率：")
@@ -1884,7 +1889,8 @@ for i in range(0,int(len(yes_pre4))):
     if yes_pre4[i][0] <= yes_pre4[i][1]:
         a1[1] = a1[1] + 1
         yes_pre4_1[i] = 0
-
+hhh=np.arange(20)
+m=0
 acc_yes_pre4=float(a1[1])/float(len(yes_pre4))
 a1=[0,0]
 for i in range(0,int(len(yes_pre4_1))):
@@ -1897,12 +1903,17 @@ for i in range(0,int(len(yes_pre4_1))):
     if (k1[0]+k1[1]==(lincut2 - cut2_1M* 2)):
         if k1[0]>k1[1]:
             a2[0]=a2[0]+1
+            hhh[m] = 1
+            m = m + 1
         if k1[0]<=k1[1]:
             a2[1]=a2[1]+1
+            hhh[m] = 0
+            m = m + 1
         k1=[0,0]
 acc_yes_pre4_vot=float(a2[1])/float(len(yes_pre4_1)/(lincut2 - cut2_1M* 2))
 print(a1)
 print(a2)
+print(hhh)
 print("切割带东西目标数据准确率：")
 print(acc_yes_pre4)
 print("投票后切割带东西目标数据准确率：")

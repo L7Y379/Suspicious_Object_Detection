@@ -248,7 +248,7 @@ def file_array():
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:115]
+    trainfile = trainfile[:120]
     #np.random.shuffle(trainfile)
 
     for name in ['zb','zhw', 'gzy', 'ljc', 'cyh', 'tk']:
@@ -274,15 +274,15 @@ def file_array():
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
-    trainfile2 = trainfile2[:115]
+    trainfile2 = trainfile2[:120]
     #np.random.shuffle(trainfile2)
 
     testfile = trainfile[55:70]
-    trainfile = np.concatenate((trainfile[:55], trainfile[70:]), axis=0)
-    np.random.shuffle(trainfile)
+    trainfile = np.concatenate((trainfile[:55], trainfile[70:120]), axis=0)
+    #np.random.shuffle(trainfile)
     testfile2 = trainfile2[55:70]
-    trainfile2 = np.concatenate((trainfile2[:55], trainfile2[70:]), axis=0)
-    np.random.shuffle(trainfile2)
+    trainfile2 = np.concatenate((trainfile2[:55], trainfile2[70:120]), axis=0)
+    #np.random.shuffle(trainfile2)
 
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
@@ -346,75 +346,13 @@ def other_file_array():
     #np.random.shuffle(trainfile2)
 
     testfile = trainfile[10:]
-    trainfile = trainfile[:10]
+    trainfile = trainfile[:20]
     testfile2 = trainfile2[10:]
-    trainfile2 = trainfile2[:10]
+    trainfile2 = trainfile2[:20]
 
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
     return trainfile, testfile
-def build_encoder(latent_dim, img_shape):
-    deterministic = 1
-    img = Input(shape=img_shape)
-    h = Flatten()(img)
-    h = Dense(800)(h)
-    h = LeakyReLU(alpha=0.2)(h)
-    h = Dense(800)(h)
-    h = LeakyReLU(alpha=0.2)(h)
-    latent_repr = Dense(latent_dim)(h)
-    return Model(img, latent_repr)
-def build_discriminator(latent_dim):
-    model = Sequential()
-    model.add(Dense(800, input_dim=latent_dim))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(800))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(1, activation="sigmoid"))
-    encoded_repr = Input(shape=(latent_dim,))
-    validity = model(encoded_repr)
-    return Model(encoded_repr, validity)
-def build_decoder(latent_dim, img_shape):
-    model = Sequential()
-    model.add(Dense(800, input_dim=latent_dim))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(800))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(np.prod(img_shape), activation='tanh'))
-    model.add(Reshape(img_shape))
-    z = Input(shape=(latent_dim,))
-    img = model(z)
-    return Model(z, img)
-def build_encoder2(latent_dim, img_shape):
-    deterministic = 1
-    img = Input(shape=img_shape)
-    h = Flatten()(img)
-    h = Dense(800)(h)
-    h = LeakyReLU(alpha=0.2)(h)
-    h = Dense(800)(h)
-    h = LeakyReLU(alpha=0.2)(h)
-    latent_repr = Dense(latent_dim)(h)
-    return Model(img, latent_repr)
-def build_discriminator2(latent_dim):
-    model = Sequential()
-    model.add(Dense(800, input_dim=latent_dim))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(800))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(1, activation="sigmoid"))
-    encoded_repr = Input(shape=(latent_dim,))
-    validity = model(encoded_repr)
-    return Model(encoded_repr, validity)
-def build_decoder2(latent_dim, img_shape):
-    model = Sequential()
-    model.add(Dense(800, input_dim=latent_dim))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(800))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dense(np.prod(img_shape), activation='tanh'))
-    model.add(Reshape(img_shape))
-    z = Input(shape=(latent_dim,))
-    img = model(z)
-    return Model(z, img)
 
 img_rows = 15
 img_cols = 18
@@ -422,56 +360,6 @@ channels = 1
 img_shape = (img_rows, img_cols, channels)
 # Results can be found in just_2_rv
 # latent_dim = 2
-latent_dim = 10
-
-optimizer = Adam(0.0002, 0.5)
-optimizer2 = Adam(0.0002, 0.5)
-# Build and compile the discriminator
-discriminator = build_discriminator(latent_dim)
-discriminator.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
-discriminator2 = build_discriminator2(latent_dim)
-discriminator2.compile(loss='binary_crossentropy', optimizer=optimizer2, metrics=['accuracy'])
-# In[27]:
-
-
-# Build the encoder / decoder
-encoder = build_encoder(latent_dim, img_shape)
-decoder = build_decoder(latent_dim, img_shape)
-encoder2 = build_encoder2(latent_dim, img_shape)
-decoder2 = build_decoder2(latent_dim, img_shape)
-# In[28]:
-
-
-# The generator takes the image, encodes it and reconstructs it
-# from the encoding
-img = Input(shape=img_shape)
-encoded_repr = encoder(img)
-reconstructed_img = decoder(encoded_repr)
-img2 = Input(shape=img_shape)
-encoded_repr2 = encoder2(img)
-reconstructed_img2 = decoder2(encoded_repr2)
-# For the adversarial_autoencoder models we will only train the generator
-# It will say something like:
-#   UserWarning: Discrepancy between trainable weights and collected trainable weights,
-#   did you set `models.trainable` without calling `models.compile` after ?
-# We only set trainable to false for the discriminator when it is part of the autoencoder...
-discriminator.trainable = False
-discriminator2.trainable = False
-# The discriminator determines validity of the encoding
-validity = discriminator(encoded_repr)
-validity2 = discriminator2(encoded_repr2)
-# The adversarial_autoencoder models  (stacked generator and discriminator)
-adversarial_autoencoder = Model(img, [reconstructed_img, validity])
-adversarial_autoencoder.compile(loss=['mse', 'binary_crossentropy'], loss_weights=[0.999, 0.001], optimizer=optimizer)
-adversarial_autoencoder2 = Model(img, [reconstructed_img2, validity2])
-adversarial_autoencoder2.compile(loss=['mse', 'binary_crossentropy'], loss_weights=[0.999, 0.001], optimizer=optimizer2)
-# In[29]:
-
-
-discriminator.summary()
-discriminator2.summary()
-# In[30]:
-
 
 epochs = 5000
 batch_size = 20000
@@ -501,7 +389,7 @@ train_feature_ot_cut=(train_feature_ot_cut.astype('float32')-np.min(a))/(np.max(
 train_feature=(train_feature.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
 test_feature_ot=(test_feature_ot.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
 test_feature=(test_feature.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
-X_train1 =train_feature_cut[:100*(lincut2 - cut1 * 2)]
+X_train1 =train_feature_cut[:105*(lincut2 - cut1 * 2)]
 print(X_train1.shape)
 X_test1 =test_feature_cut[:15*(lincut2 - cut2_0 * 2)]
 print(X_test1.shape)
@@ -510,7 +398,7 @@ X_test1 = X_test1.reshape([X_test1.shape[0], img_rows, img_cols])
 X_train1 = np.expand_dims(X_train1, axis=3)
 X_test1 = np.expand_dims(X_test1, axis=3)
 
-X_train2 =train_feature_cut[100*(lincut2 - cut1 * 2):]
+X_train2 =train_feature_cut[105*(lincut2 - cut1 * 2):]
 print(X_train2.shape)
 X_test2 =test_feature_cut[15*(lincut2 - cut2_0 * 2):]
 print(X_test2.shape)
@@ -533,26 +421,7 @@ print("train_feature_ot")
 print(train_feature_ot.shape)
 print(train_feature_ot_cut.shape)
 # Adversarial ground truths
-valid1 = np.ones((batch_size, 1))
-fake1 = np.zeros((batch_size, 1))
-valid2 = np.ones((batch_size, 1))
-fake2 = np.zeros((batch_size, 1))
 
-
-def sample_prior(latent_dim, batch_size):
-    return np.random.normal(size=(batch_size, latent_dim))
-
-discriminator.load_weights('models/aae-csi2/discriminator.h5')
-discriminator2.load_weights('models/aae-csi2/discriminator2.h5')
-encoder.load_weights('models/aae-csi2/encoder.h5')
-encoder2.load_weights('models/aae-csi2/encoder2.h5')
-adversarial_autoencoder.load_weights('models/aae-csi2/adversarial_autoencoder.h5')
-adversarial_autoencoder2.load_weights('models/aae-csi2/adversarial_autoencoder2.h5')
-
-
-data=sample_prior(latent_dim, 100*(lincut2 - cut1 * 2))
-scdata1=decoder.predict(data)
-scdata2=decoder2.predict(data)
 
 # X_SCdata1=0.5*X_train1+0.5*scdata1
 # X_SCdata2=0.5*X_train2+0.5*scdata2
@@ -644,14 +513,116 @@ class_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['ac
 dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/2833_95y73_69_86_93m56_51_93_60m57_49_100_60classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/2833_95y73_69_86_93m56_51_93_60m57_49_100_60ed.h5')
+classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1009_87y84_59_93_66m55_53_80_60m56_51_80_60classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/1009_87y84_59_93_66m55_53_80_60m56_51_80_60ed.h5')
 #dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80dd.h5')
 #dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80dis.h5')
 #dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80dis_model.h5')
 #class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80class_model.h5')
 #sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15/3451_91y78_66_100_80m63_60_93_80m69_58_100_80sc_fido.h5')
+non_mid = ed.predict(X_train1)
+non_mid = non_mid[:, :latent_dim]
+non_pre = classer.predict(non_mid)
+yes_mid = ed.predict(X_train2)
+yes_mid = yes_mid[:, :latent_dim]
+yes_pre = classer.predict(yes_mid)
+print(non_mid.shape)
+print(yes_mid.shape)
+print(non_pre.shape)
+print(yes_pre.shape)
 
+a1=[0,0]
+a2=[0,0]
+k1=[0,0]
+non_pre_1 = np.arange(len(non_pre))
+for i in range(0,int(len(non_pre))):
+    if non_pre[i][0]>=non_pre[i][1]:
+        a1[0]=a1[0]+1
+        non_pre_1[i] =1
+    if non_pre[i][0] < non_pre[i][1]:
+        a1[1] = a1[1] + 1
+        non_pre_1[i] = 0
+hhh=np.arange(105)
+m=0
+acc_non_pre=float(a1[0])/float(len(non_pre))
+a1=[0,0]
+for i in range(0,int(len(non_pre_1))):
+    if non_pre_1[i]==1:
+        k1[0]=k1[0]+1
+        a1[0] = a1[0] + 1
+    if non_pre_1[i] == 0:
+        k1[1] = k1[1] + 1
+        a1[1] = a1[1] + 1
+    if (k1[0]+k1[1]==(lincut2 - cut1 * 2)):
+        if k1[0]>=k1[1]:
+            a2[0]=a2[0]+1
+            hhh[m] = 1
+            m=m+1
+        if k1[0]<k1[1]:
+            a2[1]=a2[1]+1
+            hhh[m] = 0
+            m = m + 1
+        k1=[0,0]
+acc_non_pre_vot=float(a2[0])/float(len(non_pre_1)/(lincut2 - cut1 * 2))
+print(a1)
+print(a2)
+print(hhh)
+
+
+print("不带东西源训练数据切割后准确率：")
+print(acc_non_pre)
+print("投票后不带东西源训练数据切割后准确率：")
+print(acc_non_pre_vot)
+
+
+a1=[0,0]
+a2=[0,0]
+k1=[0,0]
+for i in range(0,int(len(yes_pre))):
+    if yes_pre[i][0]>yes_pre[i][1]:a1[0]=a1[0]+1
+    if yes_pre[i][0] <= yes_pre[i][1]: a1[1] = a1[1] + 1
+# print("a1")
+print(a1)
+# acc_yes_pre=float(a1[1])/float(len(yes_pre))
+a1=[0,0]
+yes_pre_1 = np.arange(len(yes_pre))
+for i in range(0,int(len(yes_pre))):
+    if yes_pre[i][0]>yes_pre[i][1]:
+        a1[0]=a1[0]+1
+        yes_pre_1[i] =1
+    if yes_pre[i][0] <= yes_pre[i][1]:
+        a1[1] = a1[1] + 1
+        yes_pre_1[i] = 0
+hhh=np.arange(105)
+m=0
+acc_yes_pre=float(a1[1])/float(len(yes_pre))
+a1=[0,0]
+for i in range(0,int(len(yes_pre_1))):
+    if yes_pre_1[i]==1:
+        k1[0]=k1[0]+1
+        a1[0] = a1[0] + 1
+    if yes_pre_1[i] == 0:
+        k1[1] = k1[1] + 1
+        a1[1] = a1[1] + 1
+    if (k1[0]+k1[1]==(lincut2 - cut1 * 2)):
+        if k1[0]>k1[1]:
+            a2[0]=a2[0]+1
+            hhh[m] = 1
+            m = m + 1
+        if k1[0]<=k1[1]:
+            a2[1]=a2[1]+1
+            hhh[m] = 0
+            m = m + 1
+        k1=[0,0]
+acc_yes_pre_vot=float(a2[1])/float(len(yes_pre_1)/(lincut2 - cut1 * 2))
+print(a1)
+print(a2)
+print(hhh)
+print("带东西源训练数据切割后准确率：")
+print(acc_yes_pre)
+print("投票后带东西源训练数据切割后准确率：")
+print(acc_yes_pre_vot)
+print()
 
 non_mid = ed.predict(test_feature[:lin2 * 15])
 non_mid = non_mid[:, :latent_dim]
@@ -839,10 +810,10 @@ print("投票后带东西源数据切割后准确率：")
 print(acc_yes_pre_vot)
 
 
-non_mid = ed.predict(train_feature_ot[:lin2 * 10])
+non_mid = ed.predict(train_feature_ot[:lin2 * 20])
 non_mid = non_mid[:, :latent_dim]
 non_pre = classer.predict(non_mid)
-yes_mid = ed.predict(train_feature_ot[lin2 * 10:])
+yes_mid = ed.predict(train_feature_ot[lin2 * 20:])
 yes_mid = yes_mid[:, :latent_dim]
 yes_pre = classer.predict(yes_mid)
 print(non_mid.shape)
@@ -938,10 +909,10 @@ print("投票后带东西目标数据准确率：")
 print(acc_yes_pre_vot)
 
 
-non_mid4 = ed.predict(train_feature_ot_cut[:(lincut2 - cut2_0 * 2) * 10])
+non_mid4 = ed.predict(train_feature_ot_cut[:(lincut2 - cut2_0 * 2) * 20])
 non_mid4 = non_mid4[:, :latent_dim]
 non_pre4 = classer.predict(non_mid4)
-yes_mid4 = ed.predict(train_feature_ot_cut[(lincut2 - cut2_0 * 2) * 10:])
+yes_mid4 = ed.predict(train_feature_ot_cut[(lincut2 - cut2_0 * 2) * 20:])
 yes_mid4 = yes_mid4[:, :latent_dim]
 yes_pre4 = classer.predict(yes_mid4)
 
@@ -961,7 +932,8 @@ for i in range(0,int(len(non_pre4))):
     if non_pre4[i][0] < non_pre4[i][1]:
         a1[1] = a1[1] + 1
         non_pre4_1[i] = 0
-
+hhh=np.arange(20)
+m=0
 acc_non_pre4=float(a1[0])/float(len(non_pre4))
 a1=[0,0]
 for i in range(0,int(len(non_pre4_1))):
@@ -974,13 +946,17 @@ for i in range(0,int(len(non_pre4_1))):
     if (k1[0]+k1[1]==(lincut2 - cut2_0 * 2)):
         if k1[0]>=k1[1]:
             a2[0]=a2[0]+1
+            hhh[m] = 1
+            m = m + 1
         if k1[0]<k1[1]:
             a2[1]=a2[1]+1
+            hhh[m] = 0
+            m = m + 1
         k1=[0,0]
 acc_non_pre4_vot=float(a2[0])/float(len(non_pre4_1)/(lincut2 - cut2_0 * 2))
 print(a1)
 print(a2)
-
+print(hhh)
 print("切割不带东西目标数据准确率：")
 print(acc_non_pre4)
 print("投票后切割不带东西目标数据准确率：")
@@ -1005,7 +981,8 @@ for i in range(0,int(len(yes_pre4))):
     if yes_pre4[i][0] <= yes_pre4[i][1]:
         a1[1] = a1[1] + 1
         yes_pre4_1[i] = 0
-
+hhh=np.arange(20)
+m=0
 acc_yes_pre4=float(a1[1])/float(len(yes_pre4))
 a1=[0,0]
 for i in range(0,int(len(yes_pre4_1))):
@@ -1018,12 +995,17 @@ for i in range(0,int(len(yes_pre4_1))):
     if (k1[0]+k1[1]==(lincut2 - cut2_1M* 2)):
         if k1[0]>k1[1]:
             a2[0]=a2[0]+1
+            hhh[m] = 1
+            m = m + 1
         if k1[0]<=k1[1]:
             a2[1]=a2[1]+1
+            hhh[m] = 0
+            m = m + 1
         k1=[0,0]
 acc_yes_pre4_vot=float(a2[1])/float(len(yes_pre4_1)/(lincut2 - cut2_1M* 2))
 print(a1)
 print(a2)
+print(hhh)
 print("切割带东西目标数据准确率：")
 print(acc_yes_pre4)
 print("投票后切割带东西目标数据准确率：")

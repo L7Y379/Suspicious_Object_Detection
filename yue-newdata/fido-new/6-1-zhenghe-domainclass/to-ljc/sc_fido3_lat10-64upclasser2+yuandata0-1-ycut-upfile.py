@@ -74,13 +74,13 @@ def read_data_cut(filenames):
             temp_label2 = 1
         elif ('gzy' in filename):
             temp_label2 = 2
-        elif ('lyx' in filename):
+        elif ('tk' in filename):
             temp_label2 = 3
         elif ('cyh' in filename):
             temp_label2 = 4
-        elif ('ljc' in filename):
+        elif ('lyx' in filename):
             temp_label2 = 5
-        elif ('tk' in filename):
+        elif ('ljc' in filename):
             temp_label2 = 6
 
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
@@ -146,13 +146,13 @@ def read_data_cut2(filenames):
             temp_label2 = 1
         elif ('gzy' in filename):
             temp_label2 = 2
-        elif ('lyx' in filename):
+        elif ('tk' in filename):
             temp_label2 = 3
         elif ('cyh' in filename):
             temp_label2 = 4
-        elif ('ljc' in filename):
+        elif ('lyx' in filename):
             temp_label2 = 5
-        elif ('tk' in filename):
+        elif ('ljc' in filename):
             temp_label2 = 6
 
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
@@ -202,13 +202,13 @@ def read_data(filenames):
             temp_label2 = 1
         elif ('gzy' in filename):
             temp_label2 = 2
-        elif ('lyx' in filename):
+        elif ('tk' in filename):
             temp_label2 = 3
         elif ('cyh' in filename):
             temp_label2 = 4
-        elif ('ljc' in filename):
+        elif ('lyx' in filename):
             temp_label2 = 5
-        elif ('tk' in filename):
+        elif ('ljc' in filename):
             temp_label2 = 6
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
         temp_label2 = np.tile(temp_label2, (temp_feature.shape[0],))
@@ -267,13 +267,13 @@ def read_data_cutmid(filenames):
             temp_label2 = 1
         elif ('gzy' in filename):
             temp_label2 = 2
-        elif ('lyx' in filename):
+        elif ('tk' in filename):
             temp_label2 = 3
         elif ('cyh' in filename):
             temp_label2 = 4
-        elif ('ljc' in filename):
+        elif ('lyx' in filename):
             temp_label2 = 5
-        elif ('tk' in filename):
+        elif ('ljc' in filename):
             temp_label2 = 6
 
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
@@ -339,13 +339,13 @@ def read_data_cut2mid(filenames):
             temp_label2 = 1
         elif ('gzy' in filename):
             temp_label2 = 2
-        elif ('lyx' in filename):
+        elif ('tk' in filename):
             temp_label2 = 3
         elif ('cyh' in filename):
             temp_label2 = 4
-        elif ('ljc' in filename):
+        elif ('lyx' in filename):
             temp_label2 = 5
-        elif ('tk' in filename):
+        elif ('ljc' in filename):
             temp_label2 = 6
 
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
@@ -404,13 +404,13 @@ def read_datamid(filenames):
             temp_label2 = 1
         elif ('gzy' in filename):
             temp_label2 = 2
-        elif ('lyx' in filename):
+        elif ('tk' in filename):
             temp_label2 = 3
         elif ('cyh' in filename):
             temp_label2 = 4
-        elif ('ljc' in filename):
+        elif ('lyx' in filename):
             temp_label2 = 5
-        elif ('tk' in filename):
+        elif ('ljc' in filename):
             temp_label2 = 6
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
         temp_label2 = np.tile(temp_label2, (temp_feature.shape[0],))
@@ -434,7 +434,7 @@ def file_array():
     trainfile2 = []
     testfile = []
     testfile2 = []
-    for name in ['zb','zhw', 'gzy', 'lyx', 'cyh', 'ljc']:
+    for name in ['zb','zhw', 'gzy', 'lyx', 'cyh', 'tk']:
         for j in ["0"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -462,7 +462,7 @@ def file_array():
     trainfile = trainfile[:115]
     #np.random.shuffle(trainfile)
 
-    for name in ['zb','zhw', 'gzy', 'lyx', 'cyh', 'ljc']:
+    for name in ['zb','zhw', 'gzy', 'lyx', 'cyh', 'tk']:
         for j in ["1M"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -589,7 +589,7 @@ def file_array2():
     alltrain = np.concatenate((alltrain, trainfile), axis=0)
     alltest = np.concatenate((alltest, testfile), axis=0)
     trainfile = []
-    for name in ['lyx']:
+    for name in ['tk']:
         for j in ["0"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -643,7 +643,7 @@ def file_array2():
     alltrain = np.concatenate((alltrain, trainfile), axis=0)
     alltest = np.concatenate((alltest, testfile), axis=0)
     trainfile = []
-    for name in ['ljc']:
+    for name in ['lyx']:
         for j in ["0"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -751,7 +751,7 @@ def file_array2():
     alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
     alltest2 = np.concatenate((alltest2, testfile), axis=0)
     trainfile = []
-    for name in ['lyx']:
+    for name in ['tk']:
         for j in ["1M"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -805,7 +805,7 @@ def file_array2():
     alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
     alltest2 = np.concatenate((alltest2, testfile), axis=0)
     trainfile = []
-    for name in ['ljc']:
+    for name in ['lyx']:
         for j in ["1M"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -934,7 +934,7 @@ def file_array3():
     alltrain = np.concatenate((alltrain, trainfile), axis=0)
     alltest = np.concatenate((alltest, testfile), axis=0)
     trainfile = []
-    for name in ['lyx']:
+    for name in ['tk']:
         for j in ["0"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -988,7 +988,7 @@ def file_array3():
     alltrain = np.concatenate((alltrain, trainfile), axis=0)
     alltest = np.concatenate((alltest, testfile), axis=0)
     trainfile = []
-    for name in ['ljc']:
+    for name in ['lyx']:
         for j in ["0"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -1096,7 +1096,7 @@ def file_array3():
     alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
     alltest2 = np.concatenate((alltest2, testfile), axis=0)
     trainfile = []
-    for name in ['lyx']:
+    for name in ['tk']:
         for j in ["1M"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -1149,7 +1149,7 @@ def file_array3():
     alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
     alltest2 = np.concatenate((alltest2, testfile), axis=0)
     trainfile = []
-    for name in ['ljc']:
+    for name in ['lyx']:
         for j in ["1M"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -1199,7 +1199,7 @@ def other_file_array():
     testfile2 = []
     for j in ["0"]:  # "1S", "2S"
         for i in [i for i in range(0, 20)]:
-            fn = filepath + "tk-2.5-M/" + "tk-" + str(j) + "-" + str(i) + filetype
+            fn = filepath + "ljc-2.5-M/" + "ljc-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
     trainfile += filenames[:20]
     filenames = []
@@ -1224,7 +1224,7 @@ def other_file_array():
 
     for j in ["1M"]:  # "1S", "2S"
         for i in [i for i in range(0, 20)]:
-            fn = filepath + "tk-2.5-M/" + "tk-" + str(j) + "-" + str(i) + filetype
+            fn = filepath + "ljc-2.5-M/" + "ljc-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
     trainfile2 += filenames[:20]
     filenames = []
@@ -1340,7 +1340,7 @@ X_SCdata_domain_label=np.concatenate((X_SCdata1_domain_label,X_SCdata2_domain_la
 
 all_data=X_SCdata
 print(all_data.shape)
-all_data=np.concatenate((all_data,train_feature_ot), axis=0)
+# all_data=np.concatenate((all_data,train_feature_ot), axis=0)
 # all_data=np.concatenate((all_data,train_feature_ot), axis=0)
 # np.random.shuffle(all_data)
 #all_data=np.concatenate((all_data,train_feature_ot), axis=0)
@@ -1761,8 +1761,8 @@ for epoch in range(epochs):
         print(acc_non_pre4_vot, end='   ')
         print(acc_yes_pre4_vot)
         print()
-        if ((acc_non_pre3_vot >= 0.8) and (acc_yes_pre3_vot >= 0.8) and (c_loss[1] >= 0.65) and (
-                acc_non_pre4_vot >= 0.8) and (acc_yes_pre4_vot >= 0.8)):
+        if ((acc_non_pre3_vot >= 0.6) and (acc_yes_pre3_vot >= 0.6) and (c_loss[1] >= 0.65) and (
+                acc_non_pre4_vot >= 0.6) and (acc_yes_pre4_vot >= 0.6)):
             k = k + 1
             acc_non_pre = acc_non_pre * 100
             acc_non_pre = int(acc_non_pre)

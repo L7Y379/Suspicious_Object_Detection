@@ -74,13 +74,13 @@ def read_data_cut(filenames):
             temp_label2 = 1
         elif ('gzy' in filename):
             temp_label2 = 2
-        elif ('lyx' in filename):
+        elif ('tk' in filename):
             temp_label2 = 3
         elif ('cyh' in filename):
             temp_label2 = 4
         elif ('ljc' in filename):
             temp_label2 = 5
-        elif ('tk' in filename):
+        elif ('lyx' in filename):
             temp_label2 = 6
 
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
@@ -146,13 +146,13 @@ def read_data_cut2(filenames):
             temp_label2 = 1
         elif ('gzy' in filename):
             temp_label2 = 2
-        elif ('lyx' in filename):
+        elif ('tk' in filename):
             temp_label2 = 3
         elif ('cyh' in filename):
             temp_label2 = 4
         elif ('ljc' in filename):
             temp_label2 = 5
-        elif ('tk' in filename):
+        elif ('lyx' in filename):
             temp_label2 = 6
 
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
@@ -202,13 +202,13 @@ def read_data(filenames):
             temp_label2 = 1
         elif ('gzy' in filename):
             temp_label2 = 2
-        elif ('lyx' in filename):
+        elif ('tk' in filename):
             temp_label2 = 3
         elif ('cyh' in filename):
             temp_label2 = 4
         elif ('ljc' in filename):
             temp_label2 = 5
-        elif ('tk' in filename):
+        elif ('lyx' in filename):
             temp_label2 = 6
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
         temp_label2 = np.tile(temp_label2, (temp_feature.shape[0],))
@@ -267,13 +267,13 @@ def read_data_cutmid(filenames):
             temp_label2 = 1
         elif ('gzy' in filename):
             temp_label2 = 2
-        elif ('lyx' in filename):
+        elif ('tk' in filename):
             temp_label2 = 3
         elif ('cyh' in filename):
             temp_label2 = 4
         elif ('ljc' in filename):
             temp_label2 = 5
-        elif ('tk' in filename):
+        elif ('lyx' in filename):
             temp_label2 = 6
 
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
@@ -339,13 +339,13 @@ def read_data_cut2mid(filenames):
             temp_label2 = 1
         elif ('gzy' in filename):
             temp_label2 = 2
-        elif ('lyx' in filename):
+        elif ('tk' in filename):
             temp_label2 = 3
         elif ('cyh' in filename):
             temp_label2 = 4
         elif ('ljc' in filename):
             temp_label2 = 5
-        elif ('tk' in filename):
+        elif ('lyx' in filename):
             temp_label2 = 6
 
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
@@ -404,13 +404,13 @@ def read_datamid(filenames):
             temp_label2 = 1
         elif ('gzy' in filename):
             temp_label2 = 2
-        elif ('lyx' in filename):
+        elif ('tk' in filename):
             temp_label2 = 3
         elif ('cyh' in filename):
             temp_label2 = 4
         elif ('ljc' in filename):
             temp_label2 = 5
-        elif ('tk' in filename):
+        elif ('lyx' in filename):
             temp_label2 = 6
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
         temp_label2 = np.tile(temp_label2, (temp_feature.shape[0],))
@@ -434,7 +434,7 @@ def file_array():
     trainfile2 = []
     testfile = []
     testfile2 = []
-    for name in ['zb','zhw', 'gzy', 'lyx', 'cyh', 'ljc']:
+    for name in ['zb','zhw', 'gzy', 'ljc', 'cyh', 'tk']:
         for j in ["0"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -443,7 +443,7 @@ def file_array():
     trainfile += filenames[:120]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable,domain_label = read_datamid(trainfile)
+    feature, lable,domain_label = read_data(trainfile)
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
@@ -462,7 +462,7 @@ def file_array():
     trainfile = trainfile[:115]
     #np.random.shuffle(trainfile)
 
-    for name in ['zb','zhw', 'gzy', 'lyx', 'cyh', 'ljc']:
+    for name in ['zb','zhw', 'gzy', 'ljc', 'cyh', 'tk']:
         for j in ["1M"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -470,7 +470,7 @@ def file_array():
     trainfile2 += filenames[:120]
     filenames = []
     trainfile2 = np.array(trainfile2)
-    feature, lable,domain_label = read_datamid(trainfile2)
+    feature, lable,domain_label = read_data(trainfile2)
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
@@ -498,697 +498,6 @@ def file_array():
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
     return trainfile, testfile
-#对每个人的数据单独聚类
-def file_array2():
-    filepath = 'D:/my bad/Suspicious object detection/data/caiji/CSV/'
-    filetype = '.csv'
-    filenames = []
-    trainfile = []
-    trainfile2 = []
-    testfile = []
-    testfile2 = []
-    for name in ['zb']:
-        for j in ["0"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:20]
-    testfile = np.concatenate((trainfile[8:9], trainfile[9:9]), axis=0)
-    trainfile = np.concatenate((trainfile[:8], trainfile[10:18]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain = trainfile
-    alltest = testfile
-    trainfile = []
-
-    for name in ['zhw']:
-        for j in ["0"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:20]
-    testfile = np.concatenate((trainfile[8:11], trainfile[18:19]), axis=0)
-    trainfile = np.concatenate((trainfile[:8], trainfile[11:18]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain = np.concatenate((alltrain, trainfile), axis=0)
-    alltest = np.concatenate((alltest, testfile), axis=0)
-    trainfile = []
-    for name in ['gzy']:
-        for j in ["0"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:20]
-    testfile = np.concatenate((trainfile[9:10], trainfile[19:20]), axis=0)
-    trainfile = np.concatenate((trainfile[:8], trainfile[10:18]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain = np.concatenate((alltrain, trainfile), axis=0)
-    alltest = np.concatenate((alltest, testfile), axis=0)
-    trainfile = []
-    for name in ['lyx']:
-        for j in ["0"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:18]
-    testfile = trainfile[8:10]
-    trainfile = np.concatenate((trainfile[:8], trainfile[10:]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain = np.concatenate((alltrain, trainfile), axis=0)
-    alltest = np.concatenate((alltest, testfile), axis=0)
-    trainfile = []
-    for name in ['cyh']:
-        for j in ["0"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:18]
-    testfile = trainfile[8:11]
-    trainfile = np.concatenate((trainfile[:8], trainfile[11:]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain = np.concatenate((alltrain, trainfile), axis=0)
-    alltest = np.concatenate((alltest, testfile), axis=0)
-    trainfile = []
-    for name in ['ljc']:
-        for j in ["0"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:18]
-    testfile = trainfile[8:11]
-    trainfile = np.concatenate((trainfile[:8], trainfile[11:]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain = np.concatenate((alltrain, trainfile), axis=0)
-    alltest = np.concatenate((alltest, testfile), axis=0)
-    trainfile = []
-    for name in ['zb']:
-        for j in ["1M"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:20]
-    testfile = np.concatenate((trainfile[8:9], trainfile[9:9]), axis=0)
-    trainfile = np.concatenate((trainfile[:8], trainfile[10:18]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain2 = trainfile
-    alltest2 = testfile
-    trainfile = []
-    for name in ['zhw']:
-        for j in ["1M"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:20]
-    testfile = np.concatenate((trainfile[8:11], trainfile[18:19]), axis=0)
-    trainfile = np.concatenate((trainfile[:8], trainfile[11:18]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
-    alltest2 = np.concatenate((alltest2, testfile), axis=0)
-    trainfile = []
-    for name in ['gzy']:
-        for j in ["1M"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:20]
-    testfile = np.concatenate((trainfile[9:10], trainfile[19:20]), axis=0)
-    trainfile = np.concatenate((trainfile[:8], trainfile[10:18]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
-    alltest2 = np.concatenate((alltest2, testfile), axis=0)
-    trainfile = []
-    for name in ['lyx']:
-        for j in ["1M"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:18]
-    testfile = trainfile[8:10]
-    trainfile = np.concatenate((trainfile[:8], trainfile[10:]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
-    alltest2 = np.concatenate((alltest2, testfile), axis=0)
-    trainfile = []
-    for name in ['cyh']:
-        for j in ["1M"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:18]
-    testfile = trainfile[8:11]
-    trainfile = np.concatenate((trainfile[:8], trainfile[11:]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
-    alltest2 = np.concatenate((alltest2, testfile), axis=0)
-    trainfile = []
-    for name in ['ljc']:
-        for j in ["1M"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:18]
-    testfile = trainfile[8:11]
-    trainfile = np.concatenate((trainfile[:8], trainfile[11:]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
-    alltest2 = np.concatenate((alltest2, testfile), axis=0)
-
-    np.random.shuffle(alltrain)
-    np.random.shuffle(alltrain2)
-    # np.random.shuffle(alltest)
-    # np.random.shuffle(alltest2)
-    trainfile = np.concatenate((alltrain, alltrain2), axis=0)
-    print(trainfile.shape)
-
-    testfile = np.concatenate((alltest, alltest2), axis=0)
-    print(testfile.shape)
-
-
-    return trainfile, testfile
-def file_array3():
-    filepath = 'D:/my bad/Suspicious object detection/data/caiji/CSV/'
-    filetype = '.csv'
-    filenames = []
-    trainfile = []
-    trainfile2 = []
-    testfile = []
-    testfile2 = []
-    for name in ['zb']:
-        for j in ["0"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:20]
-    testfile = trainfile[0:1]
-    trainfile = np.concatenate((trainfile[1:1], trainfile[1:16]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain = trainfile
-    alltest = testfile
-    trainfile = []
-
-    for name in ['zhw']:
-        for j in ["0"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:20]
-    testfile = trainfile[8:12]
-    trainfile = np.concatenate((trainfile[:8], trainfile[12:19]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain = np.concatenate((alltrain, trainfile), axis=0)
-    alltest = np.concatenate((alltest, testfile), axis=0)
-    trainfile = []
-    for name in ['gzy']:
-        for j in ["0"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:20]
-    testfile = trainfile[8:10]
-    trainfile = np.concatenate((trainfile[:8], trainfile[10:17]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain = np.concatenate((alltrain, trainfile), axis=0)
-    alltest = np.concatenate((alltest, testfile), axis=0)
-    trainfile = []
-    for name in ['lyx']:
-        for j in ["0"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:20]
-    testfile = trainfile[8:10]
-    trainfile = np.concatenate((trainfile[:8], trainfile[10:17]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain = np.concatenate((alltrain, trainfile), axis=0)
-    alltest = np.concatenate((alltest, testfile), axis=0)
-    trainfile = []
-    for name in ['cyh']:
-        for j in ["0"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:20]
-    testfile = trainfile[8:11]
-    trainfile = np.concatenate((trainfile[:8], trainfile[11:18]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain = np.concatenate((alltrain, trainfile), axis=0)
-    alltest = np.concatenate((alltest, testfile), axis=0)
-    trainfile = []
-    for name in ['ljc']:
-        for j in ["0"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:20]
-    testfile = trainfile[8:11]
-    trainfile = np.concatenate((trainfile[:8], trainfile[11:18]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain = np.concatenate((alltrain, trainfile), axis=0)
-    alltest = np.concatenate((alltest, testfile), axis=0)
-    trainfile = []
-    for name in ['zb']:
-        for j in ["1M"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:20]
-    testfile = trainfile[0:1]
-    trainfile = np.concatenate((trainfile[1:1], trainfile[1:16]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain2 = trainfile
-    alltest2 = testfile
-    trainfile = []
-    for name in ['zhw']:
-        for j in ["1M"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:20]
-    testfile = trainfile[8:12]
-    trainfile = np.concatenate((trainfile[:8], trainfile[12:19]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
-    alltest2 = np.concatenate((alltest2, testfile), axis=0)
-    trainfile = []
-    for name in ['gzy']:
-        for j in ["1M"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:20]
-    testfile = trainfile[8:10]
-    trainfile = np.concatenate((trainfile[:8], trainfile[10:17]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
-    alltest2 = np.concatenate((alltest2, testfile), axis=0)
-    trainfile = []
-    for name in ['lyx']:
-        for j in ["1M"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:20]
-    testfile = trainfile[8:10]
-    trainfile = np.concatenate((trainfile[:8], trainfile[10:17]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
-    alltest2 = np.concatenate((alltest2, testfile), axis=0)
-    trainfile = []
-    for name in ['cyh']:
-        for j in ["1M"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[:20]
-    testfile = trainfile[8:11]
-    trainfile = np.concatenate((trainfile[:8], trainfile[11:18]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
-    alltest2 = np.concatenate((alltest2, testfile), axis=0)
-    trainfile = []
-    for name in ['ljc']:
-        for j in ["1M"]:  # "1S", "2S"
-            for i in [i for i in range(0, 20)]:
-                fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
-                filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_datamid(trainfile)
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:20]
-    testfile = trainfile[8:11]
-    trainfile = np.concatenate((trainfile[:8], trainfile[11:18]), axis=0)
-    # np.random.shuffle(trainfile)
-    alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
-    alltest2 = np.concatenate((alltest2, testfile), axis=0)
-
-    np.random.shuffle(alltrain)
-    np.random.shuffle(alltrain2)
-    #np.random.shuffle(alltest)
-    #np.random.shuffle(alltest2)
-    trainfile = np.concatenate((alltrain, alltrain2), axis=0)
-    #np.random.shuffle(trainfile)
-    print(trainfile.shape)
-
-    testfile = np.concatenate((alltest, alltest2), axis=0)
-    print(testfile.shape)
-
-
-    return trainfile, testfile
 def other_file_array():
     filepath = 'D:/my bad/Suspicious object detection/data/caiji/CSV/'
     filetype = '.csv'
@@ -1199,12 +508,12 @@ def other_file_array():
     testfile2 = []
     for j in ["0"]:  # "1S", "2S"
         for i in [i for i in range(0, 20)]:
-            fn = filepath + "tk-2.5-M/" + "tk-" + str(j) + "-" + str(i) + filetype
+            fn = filepath + "lyx-2.5-M/" + "lyx-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable,domain_label = read_datamid(trainfile)
+    feature, lable,domain_label = read_data(trainfile)
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
@@ -1224,12 +533,12 @@ def other_file_array():
 
     for j in ["1M"]:  # "1S", "2S"
         for i in [i for i in range(0, 20)]:
-            fn = filepath + "tk-2.5-M/" + "tk-" + str(j) + "-" + str(i) + filetype
+            fn = filepath + "lyx-2.5-M/" + "lyx-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
     trainfile2 += filenames[:20]
     filenames = []
     trainfile2 = np.array(trainfile2)
-    feature, lable,domain_label = read_datamid(trainfile2)
+    feature, lable,domain_label = read_data(trainfile2)
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
@@ -1256,10 +565,13 @@ def other_file_array():
     testfile = np.concatenate((testfile, testfile2), axis=0)
     return trainfile, testfile
 
+
 img_rows = 15
 img_cols = 18
 channels = 1
 img_shape = (img_rows, img_cols, channels)
+# Results can be found in just_2_rv
+
 
 epochs = 5000
 batch_size = 20000
@@ -1267,7 +579,7 @@ sample_interval = 100
 
 
 # Rescale -1 to 1
-trainfile_array, testfile_array = file_array3()#
+trainfile_array, testfile_array = file_array()#
 print(trainfile_array)
 print(testfile_array)
 train_feature, train_label,train_domain_label = read_datamid(trainfile_array)
@@ -1289,7 +601,7 @@ train_feature_ot_cut=(train_feature_ot_cut.astype('float32')-np.min(a))/(np.max(
 train_feature=(train_feature.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
 test_feature_ot=(test_feature_ot.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
 test_feature=(test_feature.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
-X_train1 =train_feature_cut[:90*(lincut2 - cut1 * 2)]
+X_train1 =train_feature_cut[:100*(lincut2 - cut1 * 2)]
 print(X_train1.shape)
 X_test1 =test_feature_cut[:15*(lincut2 - cut1 * 2)]
 print(X_test1.shape)
@@ -1298,7 +610,7 @@ X_test1 = X_test1.reshape([X_test1.shape[0], img_rows, img_cols])
 X_train1 = np.expand_dims(X_train1, axis=3)
 X_test1 = np.expand_dims(X_test1, axis=3)
 
-X_train2 =train_feature_cut[90*(lincut2 - cut1 * 2):]
+X_train2 =train_feature_cut[100*(lincut2 - cut1 * 2):]
 print(X_train2.shape)
 X_test2 =test_feature_cut[15*(lincut2 - cut1 * 2):]
 print(X_test2.shape)
@@ -1320,15 +632,17 @@ test_feature_ot = np.expand_dims(test_feature_ot, axis=3)
 print("train_feature_ot")
 print(train_feature_ot.shape)
 print(train_feature_ot_cut.shape)
+# Adversarial ground truths
+
 
 # X_SCdata1=0.5*X_train1+0.5*scdata1
 # X_SCdata2=0.5*X_train2+0.5*scdata2
 X_SCdata1=X_train1
 X_SCdata2=X_train2
-X_SCdata1_label=train_label_cut[:90*(lincut2 - cut1 * 2)]
-X_SCdata2_label=train_label_cut[90*(lincut2 - cut1 * 2):]
-X_SCdata1_domain_label=train_domain_label_cut[:90*(lincut2 - cut1 * 2)]
-X_SCdata2_domain_label=train_domain_label_cut[90*(lincut2 - cut1 * 2):]
+X_SCdata1_label=train_label_cut[:100*(lincut2 - cut1 * 2)]
+X_SCdata2_label=train_label_cut[100*(lincut2 - cut1 * 2):]
+X_SCdata1_domain_label=train_domain_label_cut[:100*(lincut2 - cut1 * 2)]
+X_SCdata2_domain_label=train_domain_label_cut[100*(lincut2 - cut1 * 2):]
 
 X_SCdata=np.concatenate((X_train1,X_train2), axis=0)
 # X_SCdata=np.concatenate((X_SCdata,X_SCdata1), axis=0)
@@ -1340,10 +654,9 @@ X_SCdata_domain_label=np.concatenate((X_SCdata1_domain_label,X_SCdata2_domain_la
 
 all_data=X_SCdata
 print(all_data.shape)
-all_data=np.concatenate((all_data,train_feature_ot), axis=0)
 # all_data=np.concatenate((all_data,train_feature_ot), axis=0)
-# np.random.shuffle(all_data)
-#all_data=np.concatenate((all_data,train_feature_ot), axis=0)
+# all_data=np.concatenate((all_data,train_feature_ot), axis=0)
+# all_data=np.concatenate((all_data,train_feature_ot), axis=0)
 print(all_data.shape)
 latent_dim = 270
 latent_dim2=540
@@ -1413,13 +726,13 @@ dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
 # # Training
-# classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/classer.h5')
-# ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/ed.h5')
-# dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/dd.h5')
-# dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/dis.h5')
-# dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/dis_model.h5')
-# class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/class_model.h5')
-# sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/sc_fido.h5')
+# classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/2000classer.h5')
+# ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/2000ed.h5')
+# dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/2000dd.h5')
+# dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/2000dis.h5')
+# dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/2000dis_model.h5')
+# class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/2000class_model.h5')
+# sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/2000sc_fido.h5')
 # all_data1=all_data[:int(len(all_data)/2)]
 # all_data2=all_data[int(len(all_data)/2):]
 # all_data=np.concatenate((all_data2,all_data1), axis=0)
@@ -1443,8 +756,8 @@ for epoch in range(epochs):
     idx2 = np.random.randint(0, all_data.shape[0], batch_size)
     imgs2 = all_data[idx2]
     sc_fido_loss = sc_fido.train_on_batch(imgs2, imgs2)
-    idx = np.random.randint(0, X_SCdata.shape[0], batch_size)
-    imgs = X_SCdata[idx]
+    idx = np.random.randint(0, all_data.shape[0], batch_size)
+    imgs = all_data[idx]
     d_loss = dis_model.train_on_batch(imgs, X_SCdata_domain_label[idx])
     c_loss = class_model.train_on_batch(imgs, X_SCdata_label[idx])
     # ---------------------
@@ -1761,8 +1074,8 @@ for epoch in range(epochs):
         print(acc_non_pre4_vot, end='   ')
         print(acc_yes_pre4_vot)
         print()
-        if ((acc_non_pre3_vot >= 0.8) and (acc_yes_pre3_vot >= 0.8) and (c_loss[1] >= 0.65) and (
-                acc_non_pre4_vot >= 0.8) and (acc_yes_pre4_vot >= 0.8)):
+        if ((acc_non_pre3_vot >= 0.6) and (acc_yes_pre3_vot >= 0.6) and (c_loss[1] >= 0.65) and (
+                acc_non_pre4_vot >= 0.6) and (acc_yes_pre4_vot >= 0.6)):
             k = k + 1
             acc_non_pre = acc_non_pre * 100
             acc_non_pre = int(acc_non_pre)
@@ -1793,65 +1106,90 @@ for epoch in range(epochs):
             c = 100 * c_loss[1]
             c = int(c)
             print(k)
-            classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/' + str(epoch) + '_' + str(c) + 'y' + str(
+            classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/' + str(epoch) + '_' + str(c) + 'y' + str(
                     acc_non_pre) + '_' + str(acc_yes_pre) + '_' + str(acc_non_pre_vot) + '_' + str(
                     acc_yes_pre_vot) + 'm' + str(acc_non_pre3) + '_' + str(acc_yes_pre3) + '_' + str(
                     acc_non_pre3_vot) + '_' + str(acc_yes_pre3_vot) + 'm' + str(acc_non_pre4) + '_' + str(
                     acc_yes_pre4) + '_' + str(acc_non_pre4_vot) + '_' + str(acc_yes_pre4_vot) + 'classer.h5')
-            ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/' + str(epoch) + '_' + str(c) + 'y' + str(
+            ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/' + str(epoch) + '_' + str(c) + 'y' + str(
                 acc_non_pre) + '_' + str(acc_yes_pre) + '_' + str(acc_non_pre_vot) + '_' + str(
                 acc_yes_pre_vot) + 'm' + str(acc_non_pre3) + '_' + str(acc_yes_pre3) + '_' + str(
                 acc_non_pre3_vot) + '_' + str(acc_yes_pre3_vot) + 'm' + str(acc_non_pre4) + '_' + str(
                 acc_yes_pre4) + '_' + str(acc_non_pre4_vot) + '_' + str(acc_yes_pre4_vot) + 'ed.h5')
+            # dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/' + str(epoch) + '_' + str(c) + 'y' + str(
+            #         acc_non_pre) + '_' + str(acc_yes_pre) + '_' + str(acc_non_pre_vot) + '_' + str(
+            #         acc_yes_pre_vot) + 'm' + str(acc_non_pre3) + '_' + str(acc_yes_pre3) + '_' + str(
+            #         acc_non_pre3_vot) + '_' + str(acc_yes_pre3_vot) + 'm' + str(acc_non_pre4) + '_' + str(
+            #         acc_yes_pre4) + '_' + str(acc_non_pre4_vot) + '_' + str(acc_yes_pre4_vot) + 'dd.h5')
+            # dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/' + str(epoch) + '_' + str(c) + 'y' + str(
+            #         acc_non_pre) + '_' + str(acc_yes_pre) + '_' + str(acc_non_pre_vot) + '_' + str(
+            #         acc_yes_pre_vot) + 'm' + str(acc_non_pre3) + '_' + str(acc_yes_pre3) + '_' + str(
+            #         acc_non_pre3_vot) + '_' + str(acc_yes_pre3_vot) + 'm' + str(acc_non_pre4) + '_' + str(
+            #         acc_yes_pre4) + '_' + str(acc_non_pre4_vot) + '_' + str(acc_yes_pre4_vot) + 'dis.h5')
+            # dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/' + str(epoch) + '_' + str(c) + 'y' + str(
+            #         acc_non_pre) + '_' + str(acc_yes_pre) + '_' + str(acc_non_pre_vot) + '_' + str(
+            #         acc_yes_pre_vot) + 'm' + str(acc_non_pre3) + '_' + str(acc_yes_pre3) + '_' + str(
+            #         acc_non_pre3_vot) + '_' + str(acc_yes_pre3_vot) + 'm' + str(acc_non_pre4) + '_' + str(
+            #         acc_yes_pre4) + '_' + str(acc_non_pre4_vot) + '_' + str(acc_yes_pre4_vot) + 'dis_model.h5')
+            # class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/' + str(epoch) + '_' + str(c) + 'y' + str(
+            #         acc_non_pre) + '_' + str(acc_yes_pre) + '_' + str(acc_non_pre_vot) + '_' + str(
+            #         acc_yes_pre_vot) + 'm' + str(acc_non_pre3) + '_' + str(acc_yes_pre3) + '_' + str(
+            #         acc_non_pre3_vot) + '_' + str(acc_yes_pre3_vot) + 'm' + str(acc_non_pre4) + '_' + str(
+            #         acc_yes_pre4) + '_' + str(acc_non_pre4_vot) + '_' + str(acc_yes_pre4_vot) + 'class_model.h5')
+            # sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/' + str(epoch) + '_' + str(c) + 'y' + str(
+            #         acc_non_pre) + '_' + str(acc_yes_pre) + '_' + str(acc_non_pre_vot) + '_' + str(
+            #         acc_yes_pre_vot) + 'm' + str(acc_non_pre3) + '_' + str(acc_yes_pre3) + '_' + str(
+            #         acc_non_pre3_vot) + '_' + str(acc_yes_pre3_vot) + 'm' + str(acc_non_pre4) + '_' + str(
+            #         acc_yes_pre4) + '_' + str(acc_non_pre4_vot) + '_' + str(acc_yes_pre4_vot) + 'sc_fido.h5')
     if epoch == 500:
-        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500classer.h5')
-        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500ed.h5')
-        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500dd.h5')
-        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500dis.h5')
-        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500dis_model.h5')
-        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500class_model.h5')
-        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500sc_fido.h5')
+        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/500classer.h5')
+        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/500ed.h5')
+        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/500dd.h5')
+        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/500dis.h5')
+        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/500dis_model.h5')
+        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/500class_model.h5')
+        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/500sc_fido.h5')
     if epoch == 1000:
-        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000classer.h5')
-        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000ed.h5')
-        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dd.h5')
-        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dis.h5')
-        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dis_model.h5')
-        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000class_model.h5')
-        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000sc_fido.h5')
+        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/1000classer.h5')
+        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/1000ed.h5')
+        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/1000dd.h5')
+        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/1000dis.h5')
+        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/1000dis_model.h5')
+        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/1000class_model.h5')
+        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/1000sc_fido.h5')
     if epoch == 2000:
-        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000classer.h5')
-        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000ed.h5')
-        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000dd.h5')
-        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000dis.h5')
-        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000dis_model.h5')
-        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000class_model.h5')
-        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000sc_fido.h5')
+        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/2000classer.h5')
+        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/2000ed.h5')
+        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/2000dd.h5')
+        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/2000dis.h5')
+        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/2000dis_model.h5')
+        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/2000class_model.h5')
+        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/2000sc_fido.h5')
     if epoch == 3000:
-        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000classer.h5')
-        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000ed.h5')
-        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000dd.h5')
-        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000dis.h5')
-        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000dis_model.h5')
-        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000class_model.h5')
-        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000sc_fido.h5')
+        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/3000classer.h5')
+        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/3000ed.h5')
+        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/3000dd.h5')
+        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/3000dis.h5')
+        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/3000dis_model.h5')
+        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/3000class_model.h5')
+        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/3000sc_fido.h5')
     if epoch == 4000:
-        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000classer.h5')
-        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000ed.h5')
-        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000dd.h5')
-        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000dis.h5')
-        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000dis_model.h5')
-        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000class_model.h5')
-        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000sc_fido.h5')
+        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/4000classer.h5')
+        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/4000ed.h5')
+        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/4000dd.h5')
+        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/4000dis.h5')
+        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/4000dis_model.h5')
+        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/4000class_model.h5')
+        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/4000sc_fido.h5')
 print("%d [危险品分类loss: %f,acc: %.2f%%,域分类loss: %f,acc: %.2f%%,重构loss: %f]" % (
 epoch, c_loss[0], 100 * c_loss[1],d_loss[0],100 * d_loss[1], sc_fido_loss))
-classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/classer.h5')
-ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/ed.h5')
-dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/dd.h5')
-dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/dis.h5')
-dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/dis_model.h5')
-class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/class_model.h5')
-sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/sc_fido.h5')
+classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/classer.h5')
+ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/ed.h5')
+dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/dd.h5')
+dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/dis.h5')
+dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/dis_model.h5')
+class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/class_model.h5')
+sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-up/sc_fido.h5')
 
 localtime2 = time.asctime( time.localtime(time.time()) )
 print ("开始时间为 :", localtime1)
