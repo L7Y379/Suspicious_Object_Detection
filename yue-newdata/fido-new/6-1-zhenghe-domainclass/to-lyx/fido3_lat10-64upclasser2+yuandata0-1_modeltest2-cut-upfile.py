@@ -1269,7 +1269,9 @@ trainfile_array, testfile_array = file_array3()#
 print(trainfile_array)
 print(testfile_array)
 train_feature, train_label,train_domain_label = read_datamid(trainfile_array)
+print(train_domain_label.shape)
 train_feature_cut, train_label_cut,train_domain_label_cut = read_data_cutmid(trainfile_array)
+print(train_domain_label_cut.shape)
 test_feature, test_label,test_domain_label = read_datamid(testfile_array)
 test_feature_cut, test_label_cut,test_domain_label_cut = read_data_cutmid(testfile_array)
 
