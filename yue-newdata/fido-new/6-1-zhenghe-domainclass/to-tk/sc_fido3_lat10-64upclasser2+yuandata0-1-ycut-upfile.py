@@ -1761,7 +1761,7 @@ for epoch in range(epochs):
         print(acc_non_pre4_vot, end='   ')
         print(acc_yes_pre4_vot)
         print()
-        if ((acc_non_pre3_vot >= 0.8) and (acc_yes_pre3_vot >= 0.8) and (c_loss[1] >= 0.65) and (
+        if ((acc_non_pre3_vot >= 0.7) and (acc_yes_pre3_vot >= 0.7) and (c_loss[1] >= 0.65) and (
                 acc_non_pre4_vot >= 0.8) and (acc_yes_pre4_vot >= 0.8)):
             k = k + 1
             acc_non_pre = acc_non_pre * 100

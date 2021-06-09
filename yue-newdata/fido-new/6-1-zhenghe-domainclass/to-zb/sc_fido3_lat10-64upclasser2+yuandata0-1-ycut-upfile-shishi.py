@@ -25,8 +25,8 @@ print ("本地时间为 :", localtime1)
 cut1=15
 cut2_0=15
 cut2_1M=15
-lin=120
-lincut=120
+lin=115
+lincut=115
 linlong=162
 ww=1
 lin2=int((lin*2)/ww)
@@ -68,11 +68,11 @@ def read_data_cut(filenames):
         elif ('-3M-' in filename):
             temp_label = 3
 
-        if ('zb' in filename):
+        if ('lyx' in filename):
             temp_label2 = 0
         elif ('zhw' in filename):
             temp_label2 = 1
-        elif ('lyx' in filename):
+        elif ('gzy' in filename):
             temp_label2 = 2
         elif ('tk' in filename):
             temp_label2 = 3
@@ -80,7 +80,7 @@ def read_data_cut(filenames):
             temp_label2 = 4
         elif ('ljc' in filename):
             temp_label2 = 5
-        elif ('gzy' in filename):
+        elif ('hsj' in filename):
             temp_label2 = 6
 
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
@@ -140,11 +140,11 @@ def read_data_cut2(filenames):
         elif ('-3M-' in filename):
             temp_label = 3
 
-        if ('zb' in filename):
+        if ('lyx' in filename):
             temp_label2 = 0
         elif ('zhw' in filename):
             temp_label2 = 1
-        elif ('lyx' in filename):
+        elif ('gzy' in filename):
             temp_label2 = 2
         elif ('tk' in filename):
             temp_label2 = 3
@@ -152,7 +152,7 @@ def read_data_cut2(filenames):
             temp_label2 = 4
         elif ('ljc' in filename):
             temp_label2 = 5
-        elif ('gzy' in filename):
+        elif ('hsj' in filename):
             temp_label2 = 6
 
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
@@ -196,11 +196,11 @@ def read_data(filenames):
         elif ('-3M-' in filename):
             temp_label = 3
 
-        if ('zb' in filename):
+        if ('lyx' in filename):
             temp_label2 = 0
         elif ('zhw' in filename):
             temp_label2 = 1
-        elif ('lyx' in filename):
+        elif ('gzy' in filename):
             temp_label2 = 2
         elif ('tk' in filename):
             temp_label2 = 3
@@ -208,7 +208,7 @@ def read_data(filenames):
             temp_label2 = 4
         elif ('ljc' in filename):
             temp_label2 = 5
-        elif ('gzy' in filename):
+        elif ('hsj' in filename):
             temp_label2 = 6
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
         temp_label2 = np.tile(temp_label2, (temp_feature.shape[0],))
@@ -261,11 +261,11 @@ def read_data_cutmid(filenames):
         elif ('-3M-' in filename):
             temp_label = 3
 
-        if ('zb' in filename):
+        if ('lyx' in filename):
             temp_label2 = 0
         elif ('zhw' in filename):
             temp_label2 = 1
-        elif ('lyx' in filename):
+        elif ('gzy' in filename):
             temp_label2 = 2
         elif ('tk' in filename):
             temp_label2 = 3
@@ -273,7 +273,7 @@ def read_data_cutmid(filenames):
             temp_label2 = 4
         elif ('ljc' in filename):
             temp_label2 = 5
-        elif ('gzy' in filename):
+        elif ('hsj' in filename):
             temp_label2 = 6
 
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
@@ -333,11 +333,11 @@ def read_data_cut2mid(filenames):
         elif ('-3M-' in filename):
             temp_label = 3
 
-        if ('zb' in filename):
+        if ('lyx' in filename):
             temp_label2 = 0
         elif ('zhw' in filename):
             temp_label2 = 1
-        elif ('lyx' in filename):
+        elif ('gzy' in filename):
             temp_label2 = 2
         elif ('tk' in filename):
             temp_label2 = 3
@@ -345,7 +345,7 @@ def read_data_cut2mid(filenames):
             temp_label2 = 4
         elif ('ljc' in filename):
             temp_label2 = 5
-        elif ('gzy' in filename):
+        elif ('hsj' in filename):
             temp_label2 = 6
 
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
@@ -398,11 +398,11 @@ def read_datamid(filenames):
         elif ('-3M-' in filename):
             temp_label = 3
 
-        if ('zb' in filename):
+        if ('lyx' in filename):
             temp_label2 = 0
         elif ('zhw' in filename):
             temp_label2 = 1
-        elif ('lyx' in filename):
+        elif ('gzy' in filename):
             temp_label2 = 2
         elif ('tk' in filename):
             temp_label2 = 3
@@ -410,7 +410,7 @@ def read_datamid(filenames):
             temp_label2 = 4
         elif ('ljc' in filename):
             temp_label2 = 5
-        elif ('gzy' in filename):
+        elif ('hsj' in filename):
             temp_label2 = 6
         temp_label = np.tile(temp_label, (temp_feature.shape[0],))
         temp_label2 = np.tile(temp_label2, (temp_feature.shape[0],))
@@ -434,7 +434,7 @@ def file_array():
     trainfile2 = []
     testfile = []
     testfile2 = []
-    for name in ['zb','zhw', 'lyx', 'ljc', 'cyh', 'tk']:
+    for name in ['lyx','zhw', 'gzy', 'ljc', 'cyh', 'tk']:
         for j in ["0"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -443,7 +443,7 @@ def file_array():
     trainfile += filenames[:120]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable,domain_label = read_data(trainfile)
+    feature, lable,domain_label = read_datamid(trainfile)
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
@@ -462,7 +462,7 @@ def file_array():
     trainfile = trainfile[:115]
     #np.random.shuffle(trainfile)
 
-    for name in ['zb','zhw', 'lyx', 'ljc', 'cyh', 'tk']:
+    for name in ['lyx','zhw', 'gzy', 'ljc', 'cyh', 'tk']:
         for j in ["1M"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -470,7 +470,7 @@ def file_array():
     trainfile2 += filenames[:120]
     filenames = []
     trainfile2 = np.array(trainfile2)
-    feature, lable,domain_label = read_data(trainfile2)
+    feature, lable,domain_label = read_datamid(trainfile2)
 
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
@@ -507,7 +507,7 @@ def file_array2():
     trainfile2 = []
     testfile = []
     testfile2 = []
-    for name in ['zb']:
+    for name in ['lyx']:
         for j in ["0"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -515,7 +515,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -543,7 +543,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -562,7 +562,7 @@ def file_array2():
     alltrain = np.concatenate((alltrain, trainfile), axis=0)
     alltest = np.concatenate((alltest, testfile), axis=0)
     trainfile = []
-    for name in ['lyx']:
+    for name in ['gzy']:
         for j in ["0"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -570,7 +570,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -597,7 +597,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -624,7 +624,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -651,7 +651,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -670,7 +670,7 @@ def file_array2():
     alltrain = np.concatenate((alltrain, trainfile), axis=0)
     alltest = np.concatenate((alltest, testfile), axis=0)
     trainfile = []
-    for name in ['zb']:
+    for name in ['lyx']:
         for j in ["1M"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -678,7 +678,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -705,7 +705,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -724,7 +724,7 @@ def file_array2():
     alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
     alltest2 = np.concatenate((alltest2, testfile), axis=0)
     trainfile = []
-    for name in ['lyx']:
+    for name in ['gzy']:
         for j in ["1M"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -732,7 +732,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -759,7 +759,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -786,7 +786,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -813,7 +813,7 @@ def file_array2():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -852,7 +852,7 @@ def file_array3():
     trainfile2 = []
     testfile = []
     testfile2 = []
-    for name in ['zb']:
+    for name in ['lyx']:
         for j in ["0"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -860,7 +860,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -888,7 +888,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -907,7 +907,7 @@ def file_array3():
     alltrain = np.concatenate((alltrain, trainfile), axis=0)
     alltest = np.concatenate((alltest, testfile), axis=0)
     trainfile = []
-    for name in ['lyx']:
+    for name in ['gzy']:
         for j in ["0"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -915,7 +915,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -942,7 +942,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -969,7 +969,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -996,7 +996,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -1015,7 +1015,7 @@ def file_array3():
     alltrain = np.concatenate((alltrain, trainfile), axis=0)
     alltest = np.concatenate((alltest, testfile), axis=0)
     trainfile = []
-    for name in ['zb']:
+    for name in ['lyx']:
         for j in ["1M"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -1023,7 +1023,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -1050,7 +1050,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -1069,7 +1069,7 @@ def file_array3():
     alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
     alltest2 = np.concatenate((alltest2, testfile), axis=0)
     trainfile = []
-    for name in ['lyx']:
+    for name in ['gzy']:
         for j in ["1M"]:  # "1S", "2S"
             for i in [i for i in range(0, 20)]:
                 fn = filepath + name + "-2.5-M/" + name + "-" + str(j) + "-" + str(i) + filetype
@@ -1077,7 +1077,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -1104,7 +1104,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -1131,7 +1131,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -1157,7 +1157,7 @@ def file_array3():
     trainfile += filenames[:20]
     filenames = []
     trainfile = np.array(trainfile)
-    feature, lable, domain_label = read_data(trainfile)
+    feature, lable, domain_label = read_datamid(trainfile)
     kmeans = KMeans(n_clusters=1, n_init=50)
     pred_train = kmeans.fit_predict(feature)
     feature = feature - kmeans.cluster_centers_
@@ -1199,73 +1199,7 @@ def other_file_array():
     testfile2 = []
     for j in ["0"]:  # "1S", "2S"
         for i in [i for i in range(0, 20)]:
-            fn = filepath + "gzy-2.5-M/" + "gzy-" + str(j) + "-" + str(i) + filetype
-            filenames += [fn]
-    trainfile += filenames[:20]
-    filenames = []
-    trainfile = np.array(trainfile)
-    feature, lable,domain_label = read_data(trainfile)
-
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    print(kmeans.cluster_centers_.shape)
-    print(kmeans.cluster_centers_)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:15]
-    np.random.shuffle(trainfile)
-
-    for j in ["1M"]:  # "1S", "2S"
-        for i in [i for i in range(0, 20)]:
-            fn = filepath + "gzy-2.5-M/" + "gzy-" + str(j) + "-" + str(i) + filetype
-            filenames += [fn]
-    trainfile2 += filenames[:20]
-    filenames = []
-    trainfile2 = np.array(trainfile2)
-    feature, lable,domain_label = read_data(trainfile2)
-
-    kmeans = KMeans(n_clusters=1, n_init=50)
-    pred_train = kmeans.fit_predict(feature)
-    print(kmeans.cluster_centers_.shape)
-    print(kmeans.cluster_centers_)
-    feature = feature - kmeans.cluster_centers_
-    feature = np.square(feature)
-    feature = np.sum(feature, axis=1)
-    feature = np.sqrt(feature)
-    k = np.arange(20)
-    for i in range(0, 20):
-        k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
-        # print(k[i])
-    trainfile2 = trainfile2[np.argsort(k)]
-    trainfile2 = trainfile2[:15]
-    np.random.shuffle(trainfile2)
-
-    testfile = trainfile[10:]
-    trainfile = trainfile[:15]
-    testfile2 = trainfile2[10:]
-    trainfile2 = trainfile2[:15]
-
-    trainfile = np.concatenate((trainfile, trainfile2), axis=0)
-    testfile = np.concatenate((testfile, testfile2), axis=0)
-    return trainfile, testfile
-def other_file_arraymid():
-    filepath = 'D:/my bad/Suspicious object detection/data/caiji/CSV/'
-    filetype = '.csv'
-    filenames = []
-    trainfile = []
-    trainfile2 = []
-    testfile = []
-    testfile2 = []
-    for j in ["0"]:  # "1S", "2S"
-        for i in [i for i in range(0, 20)]:
-            fn = filepath + "gzy-2.5-M/" + "gzy-" + str(j) + "-" + str(i) + filetype
+            fn = filepath + "hsj-2.5-M/" + "hsj-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
     trainfile += filenames[:20]
     filenames = []
@@ -1290,7 +1224,7 @@ def other_file_arraymid():
 
     for j in ["1M"]:  # "1S", "2S"
         for i in [i for i in range(0, 20)]:
-            fn = filepath + "gzy-2.5-M/" + "gzy-" + str(j) + "-" + str(i) + filetype
+            fn = filepath + "hsj-2.5-M/" + "hsj-" + str(j) + "-" + str(i) + filetype
             filenames += [fn]
     trainfile2 += filenames[:20]
     filenames = []
@@ -1321,6 +1255,7 @@ def other_file_arraymid():
     trainfile = np.concatenate((trainfile, trainfile2), axis=0)
     testfile = np.concatenate((testfile, testfile2), axis=0)
     return trainfile, testfile
+
 img_rows = 15
 img_cols = 18
 channels = 1
@@ -1335,12 +1270,12 @@ sample_interval = 100
 trainfile_array, testfile_array = file_array3()#
 print(trainfile_array)
 print(testfile_array)
-train_feature, train_label,train_domain_label = read_data(trainfile_array)
-train_feature_cut, train_label_cut,train_domain_label_cut = read_data_cut(trainfile_array)
+train_feature, train_label,train_domain_label = read_datamid(trainfile_array)
+train_feature_cut, train_label_cut,train_domain_label_cut = read_data_cutmid(trainfile_array)
 test_feature, test_label,test_domain_label = read_datamid(testfile_array)
 test_feature_cut, test_label_cut,test_domain_label_cut = read_data_cutmid(testfile_array)
 
-trainfile_other, testfile_other = other_file_arraymid()#
+trainfile_other, testfile_other = other_file_array()#
 train_feature_ot, train_label_ot,train_domain_label_ot = read_datamid(trainfile_other)
 train_feature_ot_cut, train_label_ot_cut,train_domain_label_ot_cut = read_data_cut2mid(trainfile_other)
 test_feature_ot, test_label_ot,test_domain_label_ot = read_datamid(testfile_other)
@@ -1419,14 +1354,14 @@ def build_ed(latent_dim2, img_shape):
     h = Flatten()(img)
     h = Dense(800, activation="relu")(h)
     h = Dense(800, activation="relu")(h)
-    h = Dense(800, activation="relu")(h)
+    #h = Dense(800, activation="relu")(h)
     latent_repr = Dense(latent_dim2)(h)
     return Model(img, latent_repr)
 def build_class(latent_dim):
     model = Sequential()
     model.add(Dense(800, input_dim=latent_dim, activation="relu"))
     model.add(Dense(800, activation="relu"))
-    model.add(Dense(800, activation="relu"))
+    #model.add(Dense(800, activation="relu"))
     model.add(Dense(2, activation="softmax"))
     encoded_repr = Input(shape=(latent_dim,))
     validity = model(encoded_repr)
@@ -1435,7 +1370,7 @@ def build_dis(latent_dim):
     model = Sequential()
     model.add(Dense(800, input_dim=latent_dim, activation="relu"))
     model.add(Dense(800, activation="relu"))
-    model.add(Dense(800, activation="relu"))
+    #model.add(Dense(800, activation="relu"))
     model.add(Dense(6, activation="softmax"))
     encoded_repr = Input(shape=(latent_dim,))
     validity = model(encoded_repr)
@@ -1444,7 +1379,7 @@ def build_dd(latent_dim2, img_shape):
     model = Sequential()
     model.add(Dense(800, input_dim=latent_dim2,activation="relu"))
     model.add(Dense(800, activation="relu"))
-    model.add(Dense(800, activation="relu"))
+    #model.add(Dense(800, activation="relu"))
     model.add(Dense(np.prod(img_shape), activation='sigmoid'))
     model.add(Reshape(img_shape))
     z = Input(shape=(latent_dim2,))
@@ -1478,13 +1413,13 @@ dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
 # # Training
-# classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000classer.h5')
-# ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000ed.h5')
-# dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000dd.h5')
-# dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000dis.h5')
-# dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000dis_model.h5')
-# class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000class_model.h5')
-# sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000sc_fido.h5')
+# classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/500classer.h5')
+# ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/500ed.h5')
+# dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/500dd.h5')
+# dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/500dis.h5')
+# dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/500dis_model.h5')
+# class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/500class_model.h5')
+# sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/500sc_fido.h5')
 # all_data1=all_data[:int(len(all_data)/2)]
 # all_data2=all_data[int(len(all_data)/2):]
 # all_data=np.concatenate((all_data2,all_data1), axis=0)
@@ -1509,7 +1444,7 @@ for epoch in range(epochs):
     imgs2 = all_data[idx2]
     sc_fido_loss = sc_fido.train_on_batch(imgs2, imgs2)
     idx = np.random.randint(0, X_SCdata.shape[0], batch_size)
-    imgs = all_data[idx]
+    imgs = X_SCdata[idx]
     d_loss = dis_model.train_on_batch(imgs, X_SCdata_domain_label[idx])
     c_loss = class_model.train_on_batch(imgs, X_SCdata_label[idx])
     # ---------------------
@@ -1600,7 +1535,7 @@ for epoch in range(epochs):
         # print(acc_yes_pre, end='   ')
         # print(acc_non_pre_vot, end='   ')
         # print(acc_yes_pre_vot)
-
+        #
         non_mid = ed.predict(X_test1)
         non_mid = non_mid[:, :latent_dim]
         non_pre = classer.predict(non_mid)
@@ -1826,8 +1761,6 @@ for epoch in range(epochs):
         print(acc_non_pre4_vot, end='   ')
         print(acc_yes_pre4_vot)
         print()
-        # if ((acc_non_pre3_vot >= 0.66) and (acc_yes_pre3_vot >= 0.66) and (c_loss[1] >= 0.65) and (
-        #         acc_non_pre4_vot >= 0.66) and (acc_yes_pre4_vot >= 0.66)):
         if ((c_loss[1] >= 0.61) and (acc_non_pre4_vot >= 0.6) and (acc_yes_pre4_vot >= 0.6)):
             k = k + 1
             acc_non_pre = acc_non_pre * 100
@@ -1838,15 +1771,6 @@ for epoch in range(epochs):
             acc_non_pre_vot = int(acc_non_pre_vot)
             acc_yes_pre_vot = acc_yes_pre_vot * 100
             acc_yes_pre_vot = int(acc_yes_pre_vot)
-
-            # acc_non_pre3 = acc_non_pre3 * 100
-            # acc_non_pre3 = int(acc_non_pre3)
-            # acc_yes_pre3 = acc_yes_pre3 * 100
-            # acc_yes_pre3 = int(acc_yes_pre3)
-            # acc_non_pre3_vot = acc_non_pre3_vot * 100
-            # acc_non_pre3_vot = int(acc_non_pre3_vot)
-            # acc_yes_pre3_vot = acc_yes_pre3_vot * 100
-            # acc_yes_pre3_vot = int(acc_yes_pre3_vot)
 
             acc_non_pre4 = acc_non_pre4 * 100
             acc_non_pre4 = int(acc_non_pre4)
@@ -1860,69 +1784,69 @@ for epoch in range(epochs):
             acc_non_pre3 = acc_non_pre4
             acc_yes_pre3 = acc_yes_pre4
             acc_non_pre3_vot = acc_non_pre4_vot
-            acc_yes_pre3_vot = acc_yes_pre4_vot
+            acc_yes_pre3_vot=acc_yes_pre4_vot
             c = 100 * c_loss[1]
             c = int(c)
             print(k)
-            classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/' + str(epoch) + '_' + str(c) + 'y' + str(
+            classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/' + str(epoch) + '_' + str(c) + 'y' + str(
                     acc_non_pre) + '_' + str(acc_yes_pre) + '_' + str(acc_non_pre_vot) + '_' + str(
                     acc_yes_pre_vot) + 'm' + str(acc_non_pre3) + '_' + str(acc_yes_pre3) + '_' + str(
                     acc_non_pre3_vot) + '_' + str(acc_yes_pre3_vot) + 'm' + str(acc_non_pre4) + '_' + str(
                     acc_yes_pre4) + '_' + str(acc_non_pre4_vot) + '_' + str(acc_yes_pre4_vot) + 'classer.h5')
-            ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/' + str(epoch) + '_' + str(c) + 'y' + str(
+            ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/' + str(epoch) + '_' + str(c) + 'y' + str(
                 acc_non_pre) + '_' + str(acc_yes_pre) + '_' + str(acc_non_pre_vot) + '_' + str(
                 acc_yes_pre_vot) + 'm' + str(acc_non_pre3) + '_' + str(acc_yes_pre3) + '_' + str(
                 acc_non_pre3_vot) + '_' + str(acc_yes_pre3_vot) + 'm' + str(acc_non_pre4) + '_' + str(
                 acc_yes_pre4) + '_' + str(acc_non_pre4_vot) + '_' + str(acc_yes_pre4_vot) + 'ed.h5')
     if epoch == 500:
-        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500classer.h5')
-        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500ed.h5')
-        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500dd.h5')
-        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500dis.h5')
-        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500dis_model.h5')
-        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500class_model.h5')
-        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500sc_fido.h5')
+        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/500classer.h5')
+        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/500ed.h5')
+        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/500dd.h5')
+        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/500dis.h5')
+        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/500dis_model.h5')
+        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/500class_model.h5')
+        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/500sc_fido.h5')
     if epoch == 1000:
-        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000classer.h5')
-        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000ed.h5')
-        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dd.h5')
-        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dis.h5')
-        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dis_model.h5')
-        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000class_model.h5')
-        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000sc_fido.h5')
+        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/1000classer.h5')
+        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/1000ed.h5')
+        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/1000dd.h5')
+        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/1000dis.h5')
+        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/1000dis_model.h5')
+        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/1000class_model.h5')
+        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/1000sc_fido.h5')
     if epoch == 2000:
-        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000classer.h5')
-        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000ed.h5')
-        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000dd.h5')
-        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000dis.h5')
-        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000dis_model.h5')
-        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000class_model.h5')
-        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000sc_fido.h5')
+        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/2000classer.h5')
+        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/2000ed.h5')
+        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/2000dd.h5')
+        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/2000dis.h5')
+        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/2000dis_model.h5')
+        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/2000class_model.h5')
+        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/2000sc_fido.h5')
     if epoch == 3000:
-        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000classer.h5')
-        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000ed.h5')
-        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000dd.h5')
-        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000dis.h5')
-        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000dis_model.h5')
-        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000class_model.h5')
-        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000sc_fido.h5')
+        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/3000classer.h5')
+        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/3000ed.h5')
+        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/3000dd.h5')
+        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/3000dis.h5')
+        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/3000dis_model.h5')
+        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/3000class_model.h5')
+        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/3000sc_fido.h5')
     if epoch == 4000:
-        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000classer.h5')
-        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000ed.h5')
-        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000dd.h5')
-        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000dis.h5')
-        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000dis_model.h5')
-        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000class_model.h5')
-        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000sc_fido.h5')
+        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/4000classer.h5')
+        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/4000ed.h5')
+        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/4000dd.h5')
+        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/4000dis.h5')
+        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/4000dis_model.h5')
+        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/4000class_model.h5')
+        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/4000sc_fido.h5')
 print("%d [危险品分类loss: %f,acc: %.2f%%,域分类loss: %f,acc: %.2f%%,重构loss: %f]" % (
 epoch, c_loss[0], 100 * c_loss[1],d_loss[0],100 * d_loss[1], sc_fido_loss))
-classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/classer.h5')
-ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/ed.h5')
-dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/dd.h5')
-dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/dis.h5')
-dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/dis_model.h5')
-class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/class_model.h5')
-sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/sc_fido.h5')
+classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/classer.h5')
+ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/ed.h5')
+dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/dd.h5')
+dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/dis.h5')
+dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/dis_model.h5')
+class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/class_model.h5')
+sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile-shishi/sc_fido.h5')
 
 localtime2 = time.asctime( time.localtime(time.time()) )
 print ("开始时间为 :", localtime1)
