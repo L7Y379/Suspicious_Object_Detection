@@ -1327,7 +1327,7 @@ channels = 1
 img_shape = (img_rows, img_cols, channels)
 
 epochs = 5000
-batch_size = 20000
+batch_size = 20
 sample_interval = 100
 
 
@@ -1478,10 +1478,10 @@ dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
 # # Training
-# classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000classer.h5')
-# ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000ed.h5')
-# dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000dd.h5')
-# dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000dis.h5')
+classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000ed.h5')
+dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000dd.h5')
+dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000dis.h5')
 # dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000dis_model.h5')
 # class_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000class_model.h5')
 # sc_fido.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000sc_fido.h5')
@@ -1828,7 +1828,7 @@ for epoch in range(epochs):
         print()
         # if ((acc_non_pre3_vot >= 0.66) and (acc_yes_pre3_vot >= 0.66) and (c_loss[1] >= 0.65) and (
         #         acc_non_pre4_vot >= 0.66) and (acc_yes_pre4_vot >= 0.66)):
-        if ((c_loss[1] >= 0.61) and (acc_non_pre4_vot >= 0.6) and (acc_yes_pre4_vot >= 0.6)):
+        if ((acc_non_pre_vot >= 0.86) and (acc_yes_pre_vot >= 0.86)and(c_loss[1] >= 0.61) and (acc_non_pre4_vot >= 0.66) and (acc_yes_pre4_vot >= 0.66)):
             k = k + 1
             acc_non_pre = acc_non_pre * 100
             acc_non_pre = int(acc_non_pre)
@@ -1874,46 +1874,58 @@ for epoch in range(epochs):
                 acc_yes_pre_vot) + 'm' + str(acc_non_pre3) + '_' + str(acc_yes_pre3) + '_' + str(
                 acc_non_pre3_vot) + '_' + str(acc_yes_pre3_vot) + 'm' + str(acc_non_pre4) + '_' + str(
                 acc_yes_pre4) + '_' + str(acc_non_pre4_vot) + '_' + str(acc_yes_pre4_vot) + 'ed.h5')
-    if epoch == 500:
-        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500classer.h5')
-        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500ed.h5')
-        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500dd.h5')
-        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500dis.h5')
-        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500dis_model.h5')
-        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500class_model.h5')
-        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500sc_fido.h5')
-    if epoch == 1000:
-        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000classer.h5')
-        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000ed.h5')
-        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dd.h5')
-        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dis.h5')
-        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dis_model.h5')
-        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000class_model.h5')
-        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000sc_fido.h5')
-    if epoch == 2000:
-        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000classer.h5')
-        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000ed.h5')
-        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000dd.h5')
-        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000dis.h5')
-        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000dis_model.h5')
-        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000class_model.h5')
-        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000sc_fido.h5')
-    if epoch == 3000:
-        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000classer.h5')
-        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000ed.h5')
-        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000dd.h5')
-        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000dis.h5')
-        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000dis_model.h5')
-        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000class_model.h5')
-        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000sc_fido.h5')
-    if epoch == 4000:
-        classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000classer.h5')
-        ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000ed.h5')
-        dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000dd.h5')
-        dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000dis.h5')
-        dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000dis_model.h5')
-        class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000class_model.h5')
-        sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000sc_fido.h5')
+            dis.save_weights(
+                'models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/' + str(epoch) + '_' + str(c) + 'y' + str(
+                    acc_non_pre) + '_' + str(acc_yes_pre) + '_' + str(acc_non_pre_vot) + '_' + str(
+                    acc_yes_pre_vot) + 'm' + str(acc_non_pre3) + '_' + str(acc_yes_pre3) + '_' + str(
+                    acc_non_pre3_vot) + '_' + str(acc_yes_pre3_vot) + 'm' + str(acc_non_pre4) + '_' + str(
+                    acc_yes_pre4) + '_' + str(acc_non_pre4_vot) + '_' + str(acc_yes_pre4_vot) + 'dis.h5')
+            dd.save_weights(
+                'models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/' + str(epoch) + '_' + str(c) + 'y' + str(
+                    acc_non_pre) + '_' + str(acc_yes_pre) + '_' + str(acc_non_pre_vot) + '_' + str(
+                    acc_yes_pre_vot) + 'm' + str(acc_non_pre3) + '_' + str(acc_yes_pre3) + '_' + str(
+                    acc_non_pre3_vot) + '_' + str(acc_yes_pre3_vot) + 'm' + str(acc_non_pre4) + '_' + str(
+                    acc_yes_pre4) + '_' + str(acc_non_pre4_vot) + '_' + str(acc_yes_pre4_vot) + 'dd.h5')
+    # if epoch == 500:
+    #     classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500classer.h5')
+    #     ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500ed.h5')
+    #     dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500dd.h5')
+    #     dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500dis.h5')
+    #     dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500dis_model.h5')
+    #     class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500class_model.h5')
+    #     sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/500sc_fido.h5')
+    # if epoch == 1000:
+    #     classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000classer.h5')
+    #     ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000ed.h5')
+    #     dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dd.h5')
+    #     dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dis.h5')
+    #     dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dis_model.h5')
+    #     class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000class_model.h5')
+    #     sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000sc_fido.h5')
+    # if epoch == 2000:
+    #     classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000classer.h5')
+    #     ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000ed.h5')
+    #     dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000dd.h5')
+    #     dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000dis.h5')
+    #     dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000dis_model.h5')
+    #     class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000class_model.h5')
+    #     sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2000sc_fido.h5')
+    # if epoch == 3000:
+    #     classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000classer.h5')
+    #     ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000ed.h5')
+    #     dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000dd.h5')
+    #     dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000dis.h5')
+    #     dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000dis_model.h5')
+    #     class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000class_model.h5')
+    #     sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3000sc_fido.h5')
+    # if epoch == 4000:
+    #     classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000classer.h5')
+    #     ed.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000ed.h5')
+    #     dd.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000dd.h5')
+    #     dis.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000dis.h5')
+    #     dis_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000dis_model.h5')
+    #     class_model.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000class_model.h5')
+    #     sc_fido.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4000sc_fido.h5')
 print("%d [危险品分类loss: %f,acc: %.2f%%,域分类loss: %f,acc: %.2f%%,重构loss: %f]" % (
 epoch, c_loss[0], 100 * c_loss[1],d_loss[0],100 * d_loss[1], sc_fido_loss))
 classer.save_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/classer.h5')
