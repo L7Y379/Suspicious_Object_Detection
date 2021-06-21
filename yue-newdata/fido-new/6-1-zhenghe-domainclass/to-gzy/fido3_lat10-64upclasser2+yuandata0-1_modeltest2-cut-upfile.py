@@ -17,8 +17,8 @@ import time
 cut1=15
 cut2_0=15
 cut2_1M=15
-lin=120
-lincut=120
+lin=130
+lincut=130
 linlong=162
 ww=1
 lin2=int((lin*2)/ww)
