@@ -17,8 +17,8 @@ import time
 cut1=15
 cut2_0=15
 cut2_1M=15
-lin=120
-lincut=120
+lin=130
+lincut=130
 linlong=162
 ww=1
 lin2=int((lin*2)/ww)
@@ -184,6 +184,7 @@ def read_datamid(filenames):
         idx1 = np.array([j for j in range(a - lin, a, ww)])  # 取中心点处左右分布数据
         idx2 = np.array([j for j in range(a, a + lin, ww)])  # 取中心点处左右分布数据
         idx = np.hstack((idx1, idx2))
+        #print(filename)
         temp_feature = temp_feature[idx]
         # 贴标签
         temp_label = -1  # 初始化
@@ -225,6 +226,7 @@ def read_datamid(filenames):
     label = np_utils.to_categorical(label)
     label2 = np_utils.to_categorical(label2)
     return np.array(feature[:, :270]), np.array(label),np.array(label2)
+#对每个人的数据单独聚类
 def file_array3():
     filepath = 'D:/my bad/Suspicious object detection/data/caiji/CSV/'
     filetype = '.csv'
@@ -254,7 +256,7 @@ def file_array3():
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:20]
-    testfile = np.concatenate((trainfile[1:1], trainfile[17:18]), axis=0)
+    testfile = trainfile[17:18]
     trainfile = np.concatenate((trainfile[1:1], trainfile[1:16]), axis=0)
     # np.random.shuffle(trainfile)
     alltrain = trainfile
@@ -282,7 +284,7 @@ def file_array3():
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:20]
-    testfile = np.concatenate((trainfile[9:12], trainfile[19:20]), axis=0)
+    testfile = trainfile[8:12]
     trainfile = np.concatenate((trainfile[:8], trainfile[12:19]), axis=0)
     # np.random.shuffle(trainfile)
     alltrain = np.concatenate((alltrain, trainfile), axis=0)
@@ -309,7 +311,7 @@ def file_array3():
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:20]
-    testfile = np.concatenate((trainfile[8:10], trainfile[17:17]), axis=0)
+    testfile = trainfile[8:10]
     trainfile = np.concatenate((trainfile[:8], trainfile[10:17]), axis=0)
     # np.random.shuffle(trainfile)
     alltrain = np.concatenate((alltrain, trainfile), axis=0)
@@ -336,7 +338,7 @@ def file_array3():
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:20]
-    testfile = np.concatenate((trainfile[8:8], trainfile[17:17]), axis=0)
+    testfile = trainfile[8:10]
     trainfile = np.concatenate((trainfile[:8], trainfile[10:17]), axis=0)
     # np.random.shuffle(trainfile)
     alltrain = np.concatenate((alltrain, trainfile), axis=0)
@@ -363,7 +365,7 @@ def file_array3():
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:20]
-    testfile = np.concatenate((trainfile[8:11], trainfile[18:20]), axis=0)
+    testfile = trainfile[8:11]
     trainfile = np.concatenate((trainfile[:8], trainfile[11:18]), axis=0)
     # np.random.shuffle(trainfile)
     alltrain = np.concatenate((alltrain, trainfile), axis=0)
@@ -390,7 +392,7 @@ def file_array3():
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:20]
-    testfile = np.concatenate((trainfile[8:11], trainfile[18:18]), axis=0)
+    testfile = trainfile[8:11]
     trainfile = np.concatenate((trainfile[:8], trainfile[11:18]), axis=0)
     # np.random.shuffle(trainfile)
     alltrain = np.concatenate((alltrain, trainfile), axis=0)
@@ -417,7 +419,7 @@ def file_array3():
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:20]
-    testfile = np.concatenate((trainfile[1:1], trainfile[17:18]), axis=0)
+    testfile = trainfile[17:18]
     trainfile = np.concatenate((trainfile[1:1], trainfile[1:16]), axis=0)
     # np.random.shuffle(trainfile)
     alltrain2 = trainfile
@@ -444,7 +446,7 @@ def file_array3():
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:20]
-    testfile = np.concatenate((trainfile[9:12], trainfile[19:20]), axis=0)
+    testfile = trainfile[8:12]
     trainfile = np.concatenate((trainfile[:8], trainfile[12:19]), axis=0)
     # np.random.shuffle(trainfile)
     alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
@@ -471,7 +473,7 @@ def file_array3():
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:20]
-    testfile = np.concatenate((trainfile[8:10], trainfile[17:17]), axis=0)
+    testfile = trainfile[8:10]
     trainfile = np.concatenate((trainfile[:8], trainfile[10:17]), axis=0)
     # np.random.shuffle(trainfile)
     alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
@@ -498,7 +500,7 @@ def file_array3():
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:20]
-    testfile = np.concatenate((trainfile[8:8], trainfile[17:17]), axis=0)
+    testfile = trainfile[8:10]
     trainfile = np.concatenate((trainfile[:8], trainfile[10:17]), axis=0)
     # np.random.shuffle(trainfile)
     alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
@@ -524,7 +526,7 @@ def file_array3():
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
         # print(k[i])
     trainfile = trainfile[:20]
-    testfile = np.concatenate((trainfile[8:11], trainfile[18:20]), axis=0)
+    testfile = trainfile[8:11]
     trainfile = np.concatenate((trainfile[:8], trainfile[11:18]), axis=0)
     # np.random.shuffle(trainfile)
     alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
@@ -551,16 +553,14 @@ def file_array3():
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
     trainfile = trainfile[:20]
-    testfile = np.concatenate((trainfile[8:11], trainfile[18:18]), axis=0)
+    testfile = trainfile[8:11]
     trainfile = np.concatenate((trainfile[:8], trainfile[11:18]), axis=0)
     # np.random.shuffle(trainfile)
     alltrain2 = np.concatenate((alltrain2, trainfile), axis=0)
     alltest2 = np.concatenate((alltest2, testfile), axis=0)
 
     #np.random.shuffle(alltrain)
-    print(alltrain.shape)
     #np.random.shuffle(alltrain2)
-    print(alltrain.shape)
     #np.random.shuffle(alltest)
     #np.random.shuffle(alltest2)
     trainfile = np.concatenate((alltrain, alltrain2), axis=0)
@@ -602,7 +602,7 @@ def other_file_arraymid():
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:20]
+    trainfile = trainfile[:15]
     #np.random.shuffle(trainfile)
 
     for j in ["1M"]:  # "1S", "2S"
@@ -627,7 +627,7 @@ def other_file_arraymid():
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
-    trainfile2 = trainfile2[:20]
+    trainfile2 = trainfile2[:15]
     #np.random.shuffle(trainfile2)
 
     testfile = trainfile[10:]
@@ -801,8 +801,10 @@ class_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['ac
 dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/_2071_91y76_70_93_93m59_59_93_86m59_59_93_86classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/_2071_91y76_70_93_93m59_59_93_86m59_59_93_86ed.h5')
+classer.load_weights(
+    'models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3993_99y81_81_93_100m54_52_60_60m54_52_60_60classer.h5')
+ed.load_weights(
+    'models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3993_99y81_81_93_100m54_52_60_60m54_52_60_60ed.h5')
 #dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dd.h5')
 #dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dis.h5')
 #dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dis_model.h5')

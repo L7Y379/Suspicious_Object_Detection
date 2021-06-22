@@ -184,7 +184,6 @@ def read_datamid(filenames):
         idx1 = np.array([j for j in range(a - lin, a, ww)])  # 取中心点处左右分布数据
         idx2 = np.array([j for j in range(a, a + lin, ww)])  # 取中心点处左右分布数据
         idx = np.hstack((idx1, idx2))
-        print(filename)
         temp_feature = temp_feature[idx]
         # 贴标签
         temp_label = -1  # 初始化
@@ -800,8 +799,10 @@ class_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['ac
 dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4143_94y85_76_100_93m63_63_100_93m63_63_100_93classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4143_94y85_76_100_93m63_63_100_93m63_63_100_93ed.h5')
+classer.load_weights(
+    'models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/_4337_97y84_80_100_100m60_68_93_100m60_68_93_100classer.h5')
+ed.load_weights(
+    'models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/_4337_97y84_80_100_100m60_68_93_100m60_68_93_100ed.h5')
 #dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dd.h5')
 #dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dis.h5')
 #dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dis_model.h5')
