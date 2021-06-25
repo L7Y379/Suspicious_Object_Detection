@@ -797,8 +797,10 @@ class_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['ac
 dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-classer.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2150mid_93y79_70_100_80m53_63_66_73m75_54_93_60classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/2150mid_93y79_70_100_80m53_63_66_73m75_54_93_60ed.h5')
+classer.load_weights(
+    'models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3655_94y84_72_93_86m53_59_80_60m71_59_86_73classer.h5')
+ed.load_weights(
+    'models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/3655_94y84_72_93_86m53_59_80_60m71_59_86_73ed.h5')
 #dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dd.h5')
 #dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dis.h5')
 #dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dis_model.h5')

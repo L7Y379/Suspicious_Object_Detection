@@ -601,8 +601,8 @@ def other_file_arraymid():
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
         # print(k[i])
     trainfile = trainfile[np.argsort(k)]
-    trainfile = trainfile[:15]
-    np.random.shuffle(trainfile)
+    trainfile = trainfile[:20]
+    #np.random.shuffle(trainfile)
 
     for j in ["1M"]:  # "1S", "2S"
         for i in [i for i in range(0, 20)]:
@@ -626,8 +626,8 @@ def other_file_arraymid():
         k[i] = np.mean(feature[i * lin2:(i + 1) * lin2])
         # print(k[i])
     trainfile2 = trainfile2[np.argsort(k)]
-    trainfile2 = trainfile2[:15]
-    np.random.shuffle(trainfile2)
+    trainfile2 = trainfile2[:20]
+    #np.random.shuffle(trainfile2)
 
     testfile = trainfile[10:]
     trainfile = trainfile[:15]
@@ -801,9 +801,9 @@ dis_model=Model(img3,validity2)
 dis_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
 classer.load_weights(
-    'models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4384_89y84_69_100_93m53_50_60_66m53_50_60_66classer.h5')
+    'models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/_4085_94y72_71_86_100m61_52_86_73m61_52_86_73classer.h5')
 ed.load_weights(
-    'models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/4384_89y84_69_100_93m53_50_60_66m53_50_60_66ed.h5')
+    'models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/_4085_94y72_71_86_100m61_52_86_73m61_52_86_73ed.h5')
 #dd.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dd.h5')
 #dis.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dis.h5')
 #dis_model.load_weights('models/fido3_lat10-64upclasser2+yuandata0-1-ycut15-upfile/1000dis_model.h5')
