@@ -1,0 +1,16 @@
+batch_size = 16
+epochs = 300
+lr = 0.01
+momentum = 0.9
+no_cuda =False
+cuda_id = '0'
+seed = 1
+log_interval = 10
+l2_decay = 5e-4
+class_num = 6
+param = 0.3
+bottle_neck = True
+root_path ="CSIdata/"
+source_name ="gesture/people/source"
+target_train ="gesture/people/target"
+target_test ="gesture/people/target"

@@ -926,10 +926,10 @@ sc_fido.compile(loss='mse', optimizer=opt)
 classer.summary()
 
 # # Training
-classer.load_weights('models/fido3_lat10-64upclasser(1)zhengjiashuju/1000classer.h5')
-ed.load_weights('models/fido3_lat10-64upclasser(1)zhengjiashuju/1000ed.h5')
-dd.load_weights('models/fido3_lat10-64upclasser(1)zhengjiashuju/1000dd.h5')
-sc_fido.load_weights('models/fido3_lat10-64upclasser(1)zhengjiashuju/1000sc_fido.h5')
+classer.load_weights('models/fido3_lat10-64upclasser(1)zhengjiashuju/classer.h5')
+ed.load_weights('models/fido3_lat10-64upclasser(1)zhengjiashuju/ed.h5')
+dd.load_weights('models/fido3_lat10-64upclasser(1)zhengjiashuju/dd.h5')
+sc_fido.load_weights('models/fido3_lat10-64upclasser(1)zhengjiashuju/sc_fido.h5')
 k=0
 for epoch in range(epochs):
 
