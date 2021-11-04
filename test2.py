@@ -1,10 +1,8 @@
 
 import numpy as np
-temp_label = np.tile(0, (60,))
-temp_label2 = np.tile(1, (30,))
-temp_label=np.concatenate((temp_label, temp_label2), axis=0)
-for i in range(8):
-    temp_label = np.concatenate((temp_label, temp_label), axis=0)
-print(temp_label.shape)
-print(temp_label)
+import pandas as pd
+fn1 = 'D:/my bad/Suspicious object detection/data/huodong/room1/room1_phase_data.csv'
+csvdata = pd.read_csv(fn1, header=None)
+csvdata = np.array(csvdata, dtype=np.float64)
+print(csvdata.shape)#(1200,18000)
 
