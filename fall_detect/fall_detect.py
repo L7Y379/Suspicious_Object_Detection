@@ -154,7 +154,7 @@ def train_model():
 
 def test():
     modelName = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1112_2.h5"
-    dirname = "D:/my bad/Suspicious object detection/data/fall/1112_pre_test"
+    dirname = "D:/my bad/Suspicious object detection/data/fall/1115_pre"
     k = 0  # 标识符 判断数据列表是否新建
     print("进入模型训练。。。")
     dataList = os.listdir(dirname)
@@ -233,7 +233,87 @@ def test():
     k1 = ac
     print("源平均测试数据准确率：" + str(ac))
     print(a_all)
+def test_walk():
+    modelName = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1112.h5"
+    dirname = "D:/my bad/Suspicious object detection/data/fall/1115_pre"
+    k = 0  # 标识符 判断数据列表是否新建
+    print("进入模型训练。。。")
+    dataList = os.listdir(dirname)
+    for i in range(0, len(dataList)):
+        path = os.path.join(dirname, dataList[i])
+        if os.path.isfile(path):
+            temp_data = pd.read_csv(path, error_bad_lines=False, header=None)
+            temp_data = np.array(temp_data, dtype=np.float64)
+            if k == 0:
+                raw_data = temp_data
+                label = getlabel(dataList[i])
+                k = 1
+            else:
+                raw_data = np.row_stack((raw_data, temp_data))
+                label = np.row_stack((label, getlabel(dataList[i])))
+    label = np_utils.to_categorical(label)
+    print("raw_data:", raw_data.shape)
+    print("label:", label.shape)
+    t = range(10000)
+    # plt.plot(t[:raw_data.shape[0]], raw_data[:, 0:1], 'r')
+    # plt.show()
+    # plt.savefig("D:\\my bad\\CSI_DATA\\fall_detection\\fall_detection\\data_model_dir\\data_dir\\2.png")
+    data = raw_data
+    label = label.astype(np.float32)
 
+    test_feature=data
+    print("test_feature" + str(test_feature.shape))
+
+    #全局归化为0~1
+    # a=test_feature
+    # test_feature = (test_feature.astype('float32')-np.min(a))/(np.max(a)-np.min(a))
+    #
+
+
+    min_max_scaler = MinMaxScaler(feature_range=[0, 1])
+    test_feature = min_max_scaler.fit_transform(test_feature)
+
+
+    test_feature = test_feature.reshape([int(test_feature.shape[0] / 200), 200, img_rows, img_cols])
+    test_feature = np.expand_dims(test_feature, axis=4)
+    opt = Adam(0.0002, 0.5)
+    cnn = build_cnn(img_shape)
+    rnn = build_rnn()
+    rnn.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
+    img3 = Input(shape=img_shape)
+    encoded_repr3 = cnn(img3)
+    validity1 = rnn(encoded_repr3)
+    crnn_model = Model(img3, validity1)
+    crnn_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
+    crnn_model.load_weights(modelName)
+
+    n = 0
+    a_all = np.zeros((5, 2))#五个动作：第一个跌倒，后四个非跌倒
+    for o in range(4):#四个人的数据
+        print(test_feature.shape)
+        non_mid = crnn_model.predict(test_feature[o * 30:(o + 1) * 30])#每个人30条数据，10条跌倒，20条非跌倒
+        non_pre = non_mid  # (30,2)
+        m = 0
+        a = np.zeros((5, 2))
+        for i in range(6):
+            for k in range(5):
+                x = np.argmax(non_pre[i * 5 + k])
+                if(i==0 or i==1):
+                    a[0][x] = a[0][x] + 1
+                    a_all[0][x] = a_all[0][x] + 1
+                else:
+                    a[i-1][x] = a[i-1][x] + 1
+                    a_all[i-1][x] = a_all[i-1][x] + 1
+                if ((x == 0 and i <= 1) or (x == 1 and i >= 2)):
+                    m = m + 1
+                    n = n + 1
+        acc = float(m) / float(len(non_pre))
+        print("源" + str(o + 1) + "测试数据准确率：" + str(acc))
+        print(a)
+    ac = float(n) / float(120)
+    k1 = ac
+    print("源平均测试数据准确率：" + str(ac))
+    print(a_all)
 
 #train_model()
-test()
+test_walk()
