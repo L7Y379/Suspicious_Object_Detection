@@ -17,6 +17,7 @@ img_rows = 15
 img_cols = 18
 channels = 1
 img_shape = (200,img_rows, img_cols, channels)
+img_shape_LSTM = (200,270)
 epochs = 300
 batch_size = 100
 latent_dim = 90
@@ -47,23 +48,23 @@ def train_t(train_feature,test_feature,train_label,model_path):
     print("train_label" + str(train_label.shape))
 
     #全局归化为0~1
-    a=train_feature.reshape(int(train_feature.shape[0] / 200),200*270)
-    a=a.T
-    min_max_scaler = MinMaxScaler(feature_range=[0, 1])
-    train_feature = min_max_scaler.fit_transform(a)
-    print(train_feature.shape)
-    train_feature=train_feature.T
-
-    a = test_feature.reshape(int(test_feature.shape[0] / 200), 200 * 270)
-    a = a.T
-    min_max_scaler = MinMaxScaler(feature_range=[0, 1])
-    test_feature = min_max_scaler.fit_transform(a)
-    print(test_feature.shape)
-    test_feature = test_feature.T
-    train_feature = train_feature.reshape([train_feature.shape[0], 200, img_rows, img_cols])
-    train_feature = np.expand_dims(train_feature, axis=4)
-    test_feature = test_feature.reshape([test_feature.shape[0], 200, img_rows, img_cols])
-    test_feature = np.expand_dims(test_feature, axis=4)
+    # a=train_feature.reshape(int(train_feature.shape[0] / 200),200*270)
+    # a=a.T
+    # min_max_scaler = MinMaxScaler(feature_range=[0, 1])
+    # train_feature = min_max_scaler.fit_transform(a)
+    # print(train_feature.shape)
+    # train_feature=train_feature.T
+    #
+    # a = test_feature.reshape(int(test_feature.shape[0] / 200), 200 * 270)
+    # a = a.T
+    # min_max_scaler = MinMaxScaler(feature_range=[0, 1])
+    # test_feature = min_max_scaler.fit_transform(a)
+    # print(test_feature.shape)
+    # test_feature = test_feature.T
+    # train_feature = train_feature.reshape([train_feature.shape[0], 200, img_rows, img_cols])
+    # train_feature = np.expand_dims(train_feature, axis=4)
+    # test_feature = test_feature.reshape([test_feature.shape[0], 200, img_rows, img_cols])
+    # test_feature = np.expand_dims(test_feature, axis=4)
 
 
     # 列归化为0~1
@@ -72,15 +73,15 @@ def train_t(train_feature,test_feature,train_label,model_path):
     # test_feature=min_max_scaler.fit_transform(test_feature)
 
     # 列归化为0~1（针对每个样本单独归一）
-    # min_max_scaler = MinMaxScaler(feature_range=[0, 1])
-    # for i in range(int(train_feature.shape[0]/200)):
-    #     train_feature[i*200:(i+1)*200]=min_max_scaler.fit_transform(train_feature[i*200:(i+1)*200])
-    # for i in range(int(test_feature.shape[0]/200)):
-    #     test_feature[i*200:(i+1)*200]=min_max_scaler.fit_transform(test_feature[i*200:(i+1)*200])
-    # train_feature = train_feature.reshape([int(train_feature.shape[0] / 200), 200, img_rows, img_cols])
-    # train_feature = np.expand_dims(train_feature, axis=4)
-    # test_feature = test_feature.reshape([int(test_feature.shape[0] / 200), 200, img_rows, img_cols])
-    # test_feature = np.expand_dims(test_feature, axis=4)
+    min_max_scaler = MinMaxScaler(feature_range=[0, 1])
+    for i in range(int(train_feature.shape[0]/200)):
+        train_feature[i*200:(i+1)*200]=min_max_scaler.fit_transform(train_feature[i*200:(i+1)*200])
+    for i in range(int(test_feature.shape[0]/200)):
+        test_feature[i*200:(i+1)*200]=min_max_scaler.fit_transform(test_feature[i*200:(i+1)*200])
+    train_feature = train_feature.reshape([int(train_feature.shape[0] / 200), 200, img_rows, img_cols])
+    train_feature = np.expand_dims(train_feature, axis=4)
+    test_feature = test_feature.reshape([int(test_feature.shape[0] / 200), 200, img_rows, img_cols])
+    test_feature = np.expand_dims(test_feature, axis=4)
 
     # 行归化为0~1
     # min_max_scaler = MinMaxScaler(feature_range=[0,1])
@@ -217,12 +218,12 @@ def model_train_test(dirname,dirname2, model_path):
 def train_test():
     print("train_test已调用")
 
-    model_path = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1112_1.h5"
+    model_path = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1112_lie1.h5"
     dirPath="D:/my bad/Suspicious object detection/data/fall/1112_pre"
     dirPath2 = "D:/my bad/Suspicious object detection/data/fall/1115_pre"
     model_train_test(dirPath,dirPath2, model_path)
 def test_walk():
-    modelName = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1112_1.h5"
+    modelName = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1112_lie1.h5"
     dirname = "D:/my bad/Suspicious object detection/data/fall/1115_pre"
     k = 0  # 标识符 判断数据列表是否新建
     print("进入模型训练。。。")
@@ -253,27 +254,28 @@ def test_walk():
     print("test_feature" + str(test_feature.shape))
 
     #全局归化为0~1
-    b1=test_feature.reshape(120,200,270)
-    a = test_feature.reshape(int(test_feature.shape[0] / 200), 200 * 270)
-    a = a.T
-    min_max_scaler = MinMaxScaler(feature_range=[0, 1])
-    test_feature = min_max_scaler.fit_transform(a)
-    print(test_feature.shape)
-    test_feature = test_feature.T
-    b2=test_feature.reshape(120,200,270)
-    plt.plot(b1[0])
-    plt.show()
-    plt.plot(b2[0])
-    plt.show()
-    test_feature = test_feature.reshape([test_feature.shape[0], 200, img_rows, img_cols])
-    test_feature = np.expand_dims(test_feature, axis=4)
+    #b1=test_feature.reshape(120,200,270)
+    #plt.plot(b[0])
+    # a = test_feature.reshape(int(test_feature.shape[0] / 200), 200 * 270)
+    # a = a.T
+    # min_max_scaler = MinMaxScaler(feature_range=[0, 1])
+    # test_feature = min_max_scaler.fit_transform(a)
+    # print(test_feature.shape)
+    # test_feature = test_feature.T
+    #b2=test_feature.reshape(120,200,270)
+    # plt.plot(b1[0])
+    # plt.show()
+    # plt.plot(b2[0])
+    # plt.show()
+    # test_feature = test_feature.reshape([test_feature.shape[0], 200, img_rows, img_cols])
+    # test_feature = np.expand_dims(test_feature, axis=4)
     #
 
-    # min_max_scaler = MinMaxScaler(feature_range=[0, 1])
-    # for i in range(int(test_feature.shape[0] / 200)):
-    #     test_feature[i * 200:(i + 1) * 200] = min_max_scaler.fit_transform(test_feature[i * 200:(i + 1) * 200])
-    # test_feature = test_feature.reshape([int(test_feature.shape[0] / 200), 200, img_rows, img_cols])
-    # test_feature = np.expand_dims(test_feature, axis=4)
+    min_max_scaler = MinMaxScaler(feature_range=[0, 1])
+    for i in range(int(test_feature.shape[0] / 200)):
+        test_feature[i * 200:(i + 1) * 200] = min_max_scaler.fit_transform(test_feature[i * 200:(i + 1) * 200])
+    test_feature = test_feature.reshape([int(test_feature.shape[0] / 200), 200, img_rows, img_cols])
+    test_feature = np.expand_dims(test_feature, axis=4)
 
 
     print(test_feature.shape)
@@ -316,5 +318,6 @@ def test_walk():
     print("源平均测试数据准确率：" + str(ac))
     print(a_all)
 
-#test_walk()
-train_test()
+#train_model()
+test_walk()
+#train_test()

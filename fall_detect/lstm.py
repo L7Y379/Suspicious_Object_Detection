@@ -11,76 +11,46 @@ import matplotlib.pyplot as plt
 import math
 
 nb_time_steps = 200  #时间序列长度
-nb_input_vector = 90 #输入序列
 ww=1
 img_rows = 15
 img_cols = 18
 channels = 1
 img_shape = (200,img_rows, img_cols, channels)
+img_shape_LSTM = (200,270)
 epochs = 300
 batch_size = 100
-latent_dim = 90
-
-def build_cnn(img_shape):
-    cnn = Sequential()
-    cnn.add(TimeDistributed(Conv2D(8, kernel_size=(3, 3), activation='relu',strides=(1,1), padding='same',input_shape=img_shape)))
-    cnn.add(TimeDistributed(MaxPooling2D(pool_size=(2, 2),strides=(3,2))))
-    cnn.add(TimeDistributed(Conv2D(16, kernel_size=(3, 3),activation='relu',strides=(1,1), padding='same')))
-    cnn.add(TimeDistributed(MaxPooling2D(pool_size=(2, 2),strides=(3,2))))
-    cnn.add(TimeDistributed(Conv2D(32, kernel_size=(3, 3), activation='relu',strides=(1,1), padding='same')))
-    cnn.add(TimeDistributed(Flatten()))
-    cnn.add(TimeDistributed(Dense(90, activation="relu")))
-    img = Input(shape=img_shape)
-    latent_repr = cnn(img)
-    return Model(img, latent_repr)
-def build_rnn():
+def build_LSTM():
     rnn=Sequential()
-    rnn.add(Bidirectional(LSTM(units=120, input_shape=(nb_time_steps, nb_input_vector))))
+    rnn.add(Bidirectional(LSTM(units=200, input_shape=(nb_time_steps, 270))))
     rnn.add(Dense(500, activation="relu"))
     rnn.add(Dense(2, activation="softmax"))
-    encoded_repr = Input(shape=(nb_time_steps, nb_input_vector))
+    encoded_repr = Input(shape=(nb_time_steps, 270))
     validity = rnn(encoded_repr)
     return Model(encoded_repr, validity)
-def train_t(train_feature,test_feature,train_label,model_path):
+def train_LSTM(train_feature,test_feature,train_label,model_path):
     print("train_feature" + str(train_feature.shape))
     print("test_feature" + str(test_feature.shape))
     print("train_label" + str(train_label.shape))
 
     #全局归化为0~1
-    a=train_feature.reshape(int(train_feature.shape[0] / 200),200*270)
-    a=a.T
-    min_max_scaler = MinMaxScaler(feature_range=[0, 1])
-    train_feature = min_max_scaler.fit_transform(a)
-    print(train_feature.shape)
-    train_feature=train_feature.T
-
-    a = test_feature.reshape(int(test_feature.shape[0] / 200), 200 * 270)
-    a = a.T
-    min_max_scaler = MinMaxScaler(feature_range=[0, 1])
-    test_feature = min_max_scaler.fit_transform(a)
-    print(test_feature.shape)
-    test_feature = test_feature.T
-    train_feature = train_feature.reshape([train_feature.shape[0], 200, img_rows, img_cols])
-    train_feature = np.expand_dims(train_feature, axis=4)
-    test_feature = test_feature.reshape([test_feature.shape[0], 200, img_rows, img_cols])
-    test_feature = np.expand_dims(test_feature, axis=4)
-
+    # a = train_feature.reshape(int(train_feature.shape[0] / 200), 200 * 270)
+    # a = a.T
+    # min_max_scaler = MinMaxScaler(feature_range=[0, 1])
+    # train_feature = min_max_scaler.fit_transform(a)
+    # print(train_feature.shape)
+    # train_feature = train_feature.T
+    #
+    # a = test_feature.reshape(int(test_feature.shape[0] / 200), 200 * 270)
+    # a = a.T
+    # min_max_scaler = MinMaxScaler(feature_range=[0, 1])
+    # test_feature = min_max_scaler.fit_transform(a)
+    # print(test_feature.shape)
+    # test_feature = test_feature.T
 
     # 列归化为0~1
-    # min_max_scaler = MinMaxScaler(feature_range=[0, 1])
-    # train_feature = min_max_scaler.fit_transform(train_feature)
-    # test_feature=min_max_scaler.fit_transform(test_feature)
-
-    # 列归化为0~1（针对每个样本单独归一）
-    # min_max_scaler = MinMaxScaler(feature_range=[0, 1])
-    # for i in range(int(train_feature.shape[0]/200)):
-    #     train_feature[i*200:(i+1)*200]=min_max_scaler.fit_transform(train_feature[i*200:(i+1)*200])
-    # for i in range(int(test_feature.shape[0]/200)):
-    #     test_feature[i*200:(i+1)*200]=min_max_scaler.fit_transform(test_feature[i*200:(i+1)*200])
-    # train_feature = train_feature.reshape([int(train_feature.shape[0] / 200), 200, img_rows, img_cols])
-    # train_feature = np.expand_dims(train_feature, axis=4)
-    # test_feature = test_feature.reshape([int(test_feature.shape[0] / 200), 200, img_rows, img_cols])
-    # test_feature = np.expand_dims(test_feature, axis=4)
+    min_max_scaler = MinMaxScaler(feature_range=[0, 1])
+    train_feature = min_max_scaler.fit_transform(train_feature)
+    test_feature=min_max_scaler.fit_transform(test_feature)
 
     # 行归化为0~1
     # min_max_scaler = MinMaxScaler(feature_range=[0,1])
@@ -93,15 +63,22 @@ def train_t(train_feature,test_feature,train_label,model_path):
     # test_feature = all[len(train_feature):(len(train_feature)+len(test_feature))]
     # train_feature_ot = all[(len(train_feature)+len(test_feature)):]
 
+    train_feature = train_feature.reshape([int(train_feature.shape[0]/200), 200, 270])
+    test_feature = test_feature.reshape([int(test_feature.shape[0]/200), 200, 270])
+
+    # train_feature = train_feature.reshape([train_feature.shape[0], 200, 270])
+    # test_feature = test_feature.reshape([test_feature.shape[0], 200, 270])
+    #train_feature = np.expand_dims(train_feature, axis=4)
+
     opt = Adam(0.0002, 0.5)
-    cnn = build_cnn(img_shape)
-    rnn = build_rnn()
-    rnn.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
-    img3 = Input(shape=img_shape)
-    encoded_repr3 = cnn(img3)
-    validity1 = rnn(encoded_repr3)
-    crnn_model = Model(img3, validity1)
-    crnn_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
+    # cnn = build_cnn(img_shape)
+    # rnn = build_rnn()
+    lstm=build_LSTM()
+    lstm.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
+    img3 = Input(shape=img_shape_LSTM)
+    validity1 = lstm(img3)
+    lstm_model = Model(img3, validity1)
+    lstm_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
     # crnn_model.load_weights('/content/drive/MyDrive/huodong/to-1/models/crnn-dislstm-to-4/4000crnn_model.h5')
     # dis.load_weights('/content/drive/MyDrive/huodong/to-1/models/crnn-dislstm-to-4/4000dis.h5')
     #crnn_model.save_weights(model_path)
@@ -112,15 +89,15 @@ def train_t(train_feature,test_feature,train_label,model_path):
 
         idx = np.random.randint(0, train_feature.shape[0], batch_size)
         imgs = train_feature[idx]
-        crnn_loss = crnn_model.train_on_batch(imgs, train_label[idx])
+        lstm_loss = lstm_model.train_on_batch(imgs, train_label[idx])
         if epoch % 10 == 0:
-            print("%d [fall_detection_loss: %f,acc: %.2f%%]" % (epoch, crnn_loss[0], 100 * crnn_loss[1]))
+            print("%d [fall_detection_loss: %f,acc: %.2f%%]" % (epoch, lstm_loss[0], 100 * lstm_loss[1]))
 
             n = 0
             a_all = np.zeros((5, 2))  # 五个动作：第一个跌倒，后四个非跌倒
             for o in range(4):  # 四个人的数据
                 print(test_feature.shape)
-                non_mid = crnn_model.predict(test_feature[o * 30:(o + 1) * 30])  # 每个人30条数据，10条跌倒，20条非跌倒
+                non_mid = lstm_model.predict(test_feature[o * 30:(o + 1) * 30])  # 每个人30条数据，10条跌倒，20条非跌倒
                 non_pre = non_mid  # (30,2)
                 m = 0
                 a = np.zeros((5, 2))
@@ -144,14 +121,14 @@ def train_t(train_feature,test_feature,train_label,model_path):
             print("源平均测试数据准确率：" + str(ac))
             print(a_all)
 
-            if(acc_test<ac):
-                acc_test=ac
-                crnn_model.save_weights(model_path)
-        # if (epoch!=0 and epoch % 20==0 and acc < crnn_loss[1]):
-        #     acc = crnn_loss[1]
+            if (acc_test < ac):
+                acc_test = ac
+                lstm_model.save_weights(model_path)
+        # if (epoch!=0 and epoch % 20==0 and acc < lstm_loss[1]):
+        #     acc = lstm_loss[1]
         #     # if os.path.exists(model_path):
         #     #     os.remove(model_path)
-        #     crnn_model.save_weights(model_path)
+        #     lstm_loss.save_weights(model_path)
 
     K.clear_session()
     print("训练完成")
@@ -171,6 +148,33 @@ def getlabel(path):
     print("label", label)
     return label
 #直接取预处理后的数据训练训练
+def model_train(dirname, model_path):
+    k = 0 #标识符 判断数据列表是否新建
+    print("进入模型训练。。。")
+    dataList = os.listdir(dirname)
+    for i in range(0,len(dataList)):
+        path = os.path.join(dirname,dataList[i])
+        if os.path.isfile(path):
+            temp_data=pd.read_csv(path, error_bad_lines=False, header=None)
+            temp_data = np.array(temp_data, dtype=np.float64)
+            if k == 0:
+                raw_data=temp_data
+                label = getlabel(dataList[i])
+                k = 1
+            else:
+                raw_data = np.row_stack((raw_data, temp_data))
+                label = np.row_stack((label, getlabel(dataList[i])))
+    label=np_utils.to_categorical(label)
+    print("raw_data:",raw_data.shape)
+    print("label:", label.shape)
+    t = range(10000)
+    #plt.plot(t[:raw_data.shape[0]], raw_data[:, 0:1], 'r')
+    #plt.show()
+    #plt.savefig("D:\\my bad\\CSI_DATA\\fall_detection\\fall_detection\\data_model_dir\\data_dir\\2.png")
+    data=raw_data
+    label = label.astype(np.float32)
+    #train(data,label, model_path)
+    train_LSTM(data, label, model_path)
 def model_train_test(dirname,dirname2, model_path):
     k = 0 #标识符 判断数据列表是否新建
     print("进入模型训练。。。")
@@ -213,16 +217,16 @@ def model_train_test(dirname,dirname2, model_path):
     print("label2:", label2.shape)
     data2 = raw_data
     label2 = label2.astype(np.float32)
-    train_t(data,data2,label, model_path)
+    train_LSTM(data,data2,label, model_path)
 def train_test():
     print("train_test已调用")
 
-    model_path = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1112_1.h5"
+    model_path = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1112_lstm.h5"
     dirPath="D:/my bad/Suspicious object detection/data/fall/1112_pre"
     dirPath2 = "D:/my bad/Suspicious object detection/data/fall/1115_pre"
     model_train_test(dirPath,dirPath2, model_path)
 def test_walk():
-    modelName = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1112_1.h5"
+    modelName = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1112_lstm.h5"
     dirname = "D:/my bad/Suspicious object detection/data/fall/1115_pre"
     k = 0  # 标识符 判断数据列表是否新建
     print("进入模型训练。。。")
@@ -252,59 +256,71 @@ def test_walk():
     test_feature=data
     print("test_feature" + str(test_feature.shape))
 
-    #全局归化为0~1
-    b1=test_feature.reshape(120,200,270)
-    a = test_feature.reshape(int(test_feature.shape[0] / 200), 200 * 270)
-    a = a.T
-    min_max_scaler = MinMaxScaler(feature_range=[0, 1])
-    test_feature = min_max_scaler.fit_transform(a)
-    print(test_feature.shape)
-    test_feature = test_feature.T
-    b2=test_feature.reshape(120,200,270)
-    plt.plot(b1[0])
-    plt.show()
-    plt.plot(b2[0])
-    plt.show()
-    test_feature = test_feature.reshape([test_feature.shape[0], 200, img_rows, img_cols])
-    test_feature = np.expand_dims(test_feature, axis=4)
-    #
-
+    # 全局归化为0~1
+    # a = train_feature.reshape(int(train_feature.shape[0] / 200), 200 * 270)
+    # a = a.T
     # min_max_scaler = MinMaxScaler(feature_range=[0, 1])
-    # for i in range(int(test_feature.shape[0] / 200)):
-    #     test_feature[i * 200:(i + 1) * 200] = min_max_scaler.fit_transform(test_feature[i * 200:(i + 1) * 200])
-    # test_feature = test_feature.reshape([int(test_feature.shape[0] / 200), 200, img_rows, img_cols])
-    # test_feature = np.expand_dims(test_feature, axis=4)
+    # train_feature = min_max_scaler.fit_transform(a)
+    # print(train_feature.shape)
+    # train_feature = train_feature.T
+    #
+    # a = test_feature.reshape(int(test_feature.shape[0] / 200), 200 * 270)
+    # a = a.T
+    # min_max_scaler = MinMaxScaler(feature_range=[0, 1])
+    # test_feature = min_max_scaler.fit_transform(a)
+    # print(test_feature.shape)
+    # test_feature = test_feature.T
 
+    # 列归化为0~1
+    min_max_scaler = MinMaxScaler(feature_range=[0, 1])
+    test_feature = min_max_scaler.fit_transform(test_feature)
 
-    print(test_feature.shape)
-    #opt = Adam(0.0002, 0.5)
-    cnn = build_cnn(img_shape)
-    rnn = build_rnn()
-    #rnn.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
-    img3 = Input(shape=img_shape)
-    encoded_repr3 = cnn(img3)
-    validity1 = rnn(encoded_repr3)
-    crnn_model = Model(img3, validity1)
-    #crnn_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
-    crnn_model.load_weights(modelName)
+    # 行归化为0~1
+    # min_max_scaler = MinMaxScaler(feature_range=[0,1])
+    # all = np.concatenate((train_feature, test_feature), axis=0)
+    # all = np.concatenate((all, train_feature_ot), axis=0)
+    # all=all.T
+    # all= min_max_scaler.fit_transform(all)
+    # all=all.T
+    # train_feature = all[:len(train_feature)]
+    # test_feature = all[len(train_feature):(len(train_feature)+len(test_feature))]
+    # train_feature_ot = all[(len(train_feature)+len(test_feature)):]
 
+    test_feature = test_feature.reshape([int(test_feature.shape[0] / 200), 200, 270])
+
+    # train_feature = train_feature.reshape([train_feature.shape[0], 200, 270])
+    # test_feature = test_feature.reshape([test_feature.shape[0], 200, 270])
+    # train_feature = np.expand_dims(train_feature, axis=4)
+
+    opt = Adam(0.0002, 0.5)
+    # cnn = build_cnn(img_shape)
+    # rnn = build_rnn()
+    lstm = build_LSTM()
+    lstm.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
+    img3 = Input(shape=img_shape_LSTM)
+    validity1 = lstm(img3)
+    lstm_model = Model(img3, validity1)
+    lstm_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
+    # crnn_model.load_weights('/content/drive/MyDrive/huodong/to-1/models/crnn-dislstm-to-4/4000crnn_model.h5')
+    # dis.load_weights('/content/drive/MyDrive/huodong/to-1/models/crnn-dislstm-to-4/4000dis.h5')
+    # crnn_model.save_weights(model_path)
     n = 0
-    a_all = np.zeros((5, 2))#五个动作：第一个跌倒，后四个非跌倒
-    for o in range(4):#四个人的数据
+    a_all = np.zeros((5, 2))  # 五个动作：第一个跌倒，后四个非跌倒
+    for o in range(4):  # 四个人的数据
         print(test_feature.shape)
-        non_mid = crnn_model.predict(test_feature[o * 30:(o + 1) * 30])#每个人30条数据，10条跌倒，20条非跌倒
+        non_mid = lstm_model.predict(test_feature[o * 30:(o + 1) * 30])  # 每个人30条数据，10条跌倒，20条非跌倒
         non_pre = non_mid  # (30,2)
         m = 0
         a = np.zeros((5, 2))
         for i in range(6):
             for k in range(5):
                 x = np.argmax(non_pre[i * 5 + k])
-                if(i==0 or i==1):
+                if (i == 0 or i == 1):
                     a[0][x] = a[0][x] + 1
                     a_all[0][x] = a_all[0][x] + 1
                 else:
-                    a[i-1][x] = a[i-1][x] + 1
-                    a_all[i-1][x] = a_all[i-1][x] + 1
+                    a[i - 1][x] = a[i - 1][x] + 1
+                    a_all[i - 1][x] = a_all[i - 1][x] + 1
                 if ((x == 0 and i <= 1) or (x == 1 and i >= 2)):
                     m = m + 1
                     n = n + 1
@@ -315,6 +331,9 @@ def test_walk():
     k1 = ac
     print("源平均测试数据准确率：" + str(ac))
     print(a_all)
+    K.clear_session()
+    # train_stop()
 
-#test_walk()
-train_test()
+#train_model()
+test_walk()
+#train_test()
