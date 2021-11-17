@@ -160,12 +160,15 @@ def data_cut(data,sampleNum=200):
     for i in range(data.shape[1]):
         max_var = 0
         max_index = 0
+        #print("i",i,"i")
         for j in range(data.shape[0]-sampleNum):
             current_var=np.var(data[j:j+sampleNum,i:i+1])
+            #print(current_var)
             if(current_var>=max_var):
                 max_var=current_var
                 max_index=j
         all_index[i]=max_index
+
     print("all_index",all_index)
     mean_index=int(np.mean(all_index))
     print(mean_index)
@@ -233,12 +236,12 @@ def pre_handle1(raw_data):
     print("data_shape:", data.shape)
     print("数据已预处理")
     return data
-path1=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1112\ly_dx7.dat"
-path2=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1112\ly_dx8.dat"
-path3=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1112\ly_dx9.dat"
-path4=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1112\ly_dx10.dat"
-path5=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1112\ly_dd11.dat"
-path6=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1112\ly_dd12.dat"
+path1=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1112\zb_jz1.dat"
+path2=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1112\zb_jz2.dat"
+path3=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1112\zb_jz3.dat"
+path4=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1112\zb_jz1.dat"
+path5=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1112\zb_jz2.dat"
+path6=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1112\zb_jz3.dat"
 data1=get_data(path1)
 data2=get_data(path2)
 data3=get_data(path3)
@@ -256,9 +259,12 @@ data5=pre_handle(data5)
 data6=pre_handle(data6)
 data7=pre_handle(data7)
 
-#data1=data_cut(data1)
-# data2=data_cut(data2)
-# data3=data_cut(data3)
+data1=data_cut(data1)
+data2=data_cut(data2)
+data3=data_cut(data3)
+# data4=data_cut(data4)
+# data5=data_cut(data5)
+# data6=data_cut(data6)
 
 data1=np.array(data1, dtype=np.float64)
 data2=np.array(data2, dtype=np.float64)

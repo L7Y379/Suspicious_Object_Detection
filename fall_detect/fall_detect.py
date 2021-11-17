@@ -222,7 +222,7 @@ def train_test():
     dirPath2 = "D:/my bad/Suspicious object detection/data/fall/1115_pre"
     model_train_test(dirPath,dirPath2, model_path)
 def test_walk():
-    modelName = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1112_1.h5"
+    modelName = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1112_2.h5"
     dirname = "D:/my bad/Suspicious object detection/data/fall/1115_pre"
     k = 0  # 标识符 判断数据列表是否新建
     print("进入模型训练。。。")
@@ -261,10 +261,10 @@ def test_walk():
     print(test_feature.shape)
     test_feature = test_feature.T
     b2=test_feature.reshape(120,200,270)
-    plt.plot(b1[0])
-    plt.show()
-    plt.plot(b2[0])
-    plt.show()
+    # plt.plot(b1[0])
+    # plt.show()
+    # plt.plot(b2[0])
+    # plt.show()
     test_feature = test_feature.reshape([test_feature.shape[0], 200, img_rows, img_cols])
     test_feature = np.expand_dims(test_feature, axis=4)
     #
@@ -316,5 +316,5 @@ def test_walk():
     print("源平均测试数据准确率：" + str(ac))
     print(a_all)
 
-#test_walk()
-train_test()
+test_walk()
+#train_test()
