@@ -9,7 +9,6 @@ ly_jz8.dat,1
 ly_jz9.dat,1
 ly_jz10.dat,1
 ly_ql1.dat,1
-ly_ql1.dat,1
 ly_ql2.dat,1
 ly_ql3.dat,1
 ly_ql4.dat,1
@@ -33,7 +32,6 @@ ly_dd1.dat,0
 ly_dd2.dat,0
 ly_dd3.dat,0
 ly_dd4.dat,0
-ly_dd4.dat,0
 ly_dd5.dat,0
 ly_dd6.dat,0
 ly_dd7.dat,0
@@ -42,12 +40,9 @@ ly_dd9.dat,0
 ly_dd10.dat,0
 ly_dd11.dat,0
 ly_dd12.dat,0
-ly_dd12.dat,0
 ly_dd13.dat,0
 ly_dd14.dat,0
 ly_dd15.dat,0
-ly_dd16.dat,0
-ly_dd16.dat,0
 ly_dd16.dat,0
 ly_dd17.dat,0
 ly_dd18.dat,0
@@ -90,7 +85,6 @@ zb_dd4.dat,0
 zb_dd5.dat,0
 zb_dd6.dat,0
 zb_dd7.dat,0
-zb_dd8.dat,0
 zb_dd8.dat,0
 zb_dd9.dat,0
 zb_dd10.dat,0
@@ -136,7 +130,6 @@ zhw_dx10.dat,1
 zhw_ql10.dat,1
 zhw_dd1.dat,0
 zhw_dd2.dat,0
-zhw_dd2.dat,0
 zhw_dd3.dat,0
 zhw_dd4.dat,0
 zhw_dd5.dat,0
@@ -148,8 +141,6 @@ zhw_dd10.dat,0
 zhw_dd11.dat,0
 zhw_dd12.dat,0
 zhw_dd13.dat,0
-zhw_dd13.dat,0
-zhw_dd14.dat,0
 zhw_dd14.dat,0
 zhw_dd15.dat,0
 zhw_dd16.dat,0
@@ -178,7 +169,6 @@ cy_ql4.dat,1
 cy_dx5.dat,1
 cy_ql5.dat,1
 cy_dx6.dat,1
-cy_dx6.dat,1
 cy_ql6.dat,1
 cy_dx7.dat,1
 cy_ql7.dat,1
@@ -198,7 +188,6 @@ cy_dd7.dat,0
 cy_dd8.dat,0
 cy_dd9.dat,0
 cy_dd10.dat,0
-cy_dd11.dat,0
 cy_dd11.dat,0
 cy_dd12.dat,0
 cy_dd13.dat,0

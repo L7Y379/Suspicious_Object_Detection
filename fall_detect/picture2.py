@@ -243,12 +243,12 @@ def pre_handle1(raw_data):
     print("data_shape:", data.shape)
     print("数据已预处理")
     return data
-path1=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1117\ly_walk1.dat"
-path2=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1117\ly_walk2.dat"
-path3=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1117\ly_walk3.dat"
-path4=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1117\ly_dd4.dat"
-path5=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1117\ly_dd5.dat"
-path6=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1117\ly_dd6.dat"
+path1=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\test_dir\test_2.dat"
+path2=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\test_dir\test_2.dat"
+path3=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1119\ly_dd7.dat"
+path4=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1119\ly_dd8.dat"
+path5=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1119\ly_dd9.dat"
+path6=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1119\ly_dd10.dat"
 data1=get_data(path1)
 data2=get_data(path2)
 data3=get_data(path3)
@@ -267,11 +267,11 @@ data6=pre_handle(data6)
 data7=pre_handle(data7)
 
 data1=data_cut(data1)
-data2=data_cut(data2)
-data3=data_cut(data3)
-data4=data_cut(data4)
-data5=data_cut(data5)
-data6=data_cut(data6)
+#data2=data_cut(data2)
+#data3=data_cut(data3)
+#data4=data_cut(data4)
+#data5=data_cut(data5)
+#data6=data_cut(data6)
 
 data1=np.array(data1, dtype=np.float64)
 data2=np.array(data2, dtype=np.float64)

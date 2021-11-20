@@ -11,6 +11,8 @@ from keras.utils import np_utils
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 import math
+os.environ['KERAS_BACKEND']='tensorflow'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 nb_time_steps = 200  #时间序列长度
 nb_input_vector = 90 #输入序列
@@ -19,7 +21,7 @@ img_rows = 15
 img_cols = 18
 channels = 1
 img_shape = (200,img_rows, img_cols, channels)
-epochs = 300
+epochs = 400
 batch_size = 100
 latent_dim = 90
 
@@ -110,7 +112,6 @@ def train_t(train_feature,test_feature,train_label,model_path):
     k = 0
     acc=0
     acc_test=0
-    loss=0
     for epoch in range(epochs):
 
         idx = np.random.randint(0, train_feature.shape[0], batch_size)
@@ -143,13 +144,12 @@ def train_t(train_feature,test_feature,train_label,model_path):
                 print("源" + str(o + 1) + "测试数据准确率：" + str(acc))
                 print(a)
             ac = float(n) / float(120)
-            k1 = ac
             print("源平均测试数据准确率：" + str(ac))
             print(a_all)
 
-            if(acc_test<=ac and loss<=crnn_loss[1]):
+            if( epoch != 0 and acc_test<ac and acc < crnn_loss[1]):
                 acc_test=ac
-                loss=crnn_loss[1]
+                acc = crnn_loss[1]
                 crnn_model.save_weights(model_path)
         # if (epoch!=0 and epoch % 20==0 and acc < crnn_loss[1]):
         #     acc = crnn_loss[1]
@@ -175,50 +175,8 @@ def getlabel(path):
     print("label", label)
     return label
 #直接取预处理后的数据训练训练
-def model_train_test(dirname,dirname2, model_path):
-    k = 0 #标识符 判断数据列表是否新建
-    print("进入模型训练。。。")
-    dataList = os.listdir(dirname)
-    for i in range(0,len(dataList)):
-        path = os.path.join(dirname,dataList[i])
-        if os.path.isfile(path):
-            temp_data=pd.read_csv(path, error_bad_lines=False, header=None)
-            temp_data = np.array(temp_data, dtype=np.float64)
-            if k == 0:
-                raw_data=temp_data
-                label = getlabel(dataList[i])
-                k = 1
-            else:
-                raw_data = np.row_stack((raw_data, temp_data))
-                label = np.row_stack((label, getlabel(dataList[i])))
-    label=np_utils.to_categorical(label)
-    print("raw_data:",raw_data.shape)
-    print("label:", label.shape)
-    data=raw_data
-    label = label.astype(np.float32)
 
-    k = 0  # 标识符 判断数据列表是否新建
-    print("进入模型训练。。。")
-    dataList = os.listdir(dirname2)
-    for i in range(0, len(dataList)):
-        path = os.path.join(dirname2, dataList[i])
-        if os.path.isfile(path):
-            temp_data = pd.read_csv(path, error_bad_lines=False, header=None)
-            temp_data = np.array(temp_data, dtype=np.float64)
-            if k == 0:
-                raw_data = temp_data
-                label2 = getlabel(dataList[i])
-                k = 1
-            else:
-                raw_data = np.row_stack((raw_data, temp_data))
-                label2 = np.row_stack((label2, getlabel(dataList[i])))
-    label2 = np_utils.to_categorical(label2)
-    print("raw_data:", raw_data.shape)
-    print("label2:", label2.shape)
-    data2 = raw_data
-    label2 = label2.astype(np.float32)
-    train_t(data,data2,label, model_path)
-def model_train_test2(dirname,dirname2,dirPath_test, model_path):
+def model_train_test4(dirname,dirname2,dirname3,dirname4,dirname5,dirname6,dirPath_test, model_path):
     k = 0 #标识符 判断数据列表是否新建
     print("进入模型训练。。。")
     dataList = os.listdir(dirname)
@@ -243,6 +201,61 @@ def model_train_test2(dirname,dirname2,dirPath_test, model_path):
     dataList = os.listdir(dirname2)
     for i in range(0, len(dataList)):
         path = os.path.join(dirname2, dataList[i])
+        if os.path.isfile(path):
+            temp_data = pd.read_csv(path, error_bad_lines=False, header=None)
+            temp_data = np.array(temp_data, dtype=np.float64)
+            raw_data = np.row_stack((raw_data, temp_data))
+            label = np.row_stack((label, getlabel(dataList[i])))
+    #label = np_utils.to_categorical(label)
+    print("raw_data:", raw_data.shape)
+    print("label:", label.shape)
+    print("label:", label)
+    #data = raw_data
+    #label = label.astype(np.float32)
+
+    dataList = os.listdir(dirname3)
+    for i in range(0, len(dataList)):
+        path = os.path.join(dirname3, dataList[i])
+        if os.path.isfile(path):
+            temp_data = pd.read_csv(path, error_bad_lines=False, header=None)
+            temp_data = np.array(temp_data, dtype=np.float64)
+            raw_data = np.row_stack((raw_data, temp_data))
+            label = np.row_stack((label, getlabel(dataList[i])))
+    # label = np_utils.to_categorical(label)
+    print("raw_data:", raw_data.shape)
+    print("label:", label.shape)
+    print("label:", label)
+
+    dataList = os.listdir(dirname4)
+    for i in range(0, len(dataList)):
+        path = os.path.join(dirname4, dataList[i])
+        if os.path.isfile(path):
+            temp_data = pd.read_csv(path, error_bad_lines=False, header=None)
+            temp_data = np.array(temp_data, dtype=np.float64)
+            raw_data = np.row_stack((raw_data, temp_data))
+            label = np.row_stack((label, getlabel(dataList[i])))
+    # label = np_utils.to_categorical(label)
+    print("raw_data:", raw_data.shape)
+    print("label:", label.shape)
+    print("label:", label)
+
+    dataList = os.listdir(dirname5)
+    for i in range(0, len(dataList)):
+        path = os.path.join(dirname5, dataList[i])
+        if os.path.isfile(path):
+            temp_data = pd.read_csv(path, error_bad_lines=False, header=None)
+            temp_data = np.array(temp_data, dtype=np.float64)
+            raw_data = np.row_stack((raw_data, temp_data))
+            label = np.row_stack((label, getlabel(dataList[i])))
+    # label = np_utils.to_categorical(label)
+    print("raw_data:", raw_data.shape)
+    print("label:", label.shape)
+    print("label:", label)
+
+
+    dataList = os.listdir(dirname6)
+    for i in range(0, len(dataList)):
+        path = os.path.join(dirname6, dataList[i])
         if os.path.isfile(path):
             temp_data = pd.read_csv(path, error_bad_lines=False, header=None)
             temp_data = np.array(temp_data, dtype=np.float64)
@@ -278,18 +291,22 @@ def model_train_test2(dirname,dirname2,dirPath_test, model_path):
     data2 = raw_data
     label2 = label2.astype(np.float32)
     train_t(data,data2,label, model_path)
+
 def train_test():
     print("train_test已调用")
 
-    model_path = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1119_2.h5"
-    dirPath="D:/my bad/Suspicious object detection/data/fall/1119_pre"
-    #dirPath2 = "D:/my bad/Suspicious object detection/data/fall/1117_pre"
-    dirPath_test = "D:/my bad/Suspicious object detection/data/fall/1119_test_pre"
-    model_train_test(dirPath, dirPath_test, model_path)
-    #model_train_test2(dirPath,dirPath2, dirPath_test,model_path)
+    model_path = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1112_1115_1117_1119.h5"
+    dirPath="D:/my bad/Suspicious object detection/data/fall/1112_1115_1117_1119_pre/1112_pre"
+    dirPath2 = "D:/my bad/Suspicious object detection/data/fall/1112_1115_1117_1119_pre/1115_pre"
+    dirPath3 = "D:/my bad/Suspicious object detection/data/fall/1112_1115_1117_1119_pre/1117_pre"
+    dirPath4 = "D:/my bad/Suspicious object detection/data/fall/1112_1115_1117_1119_pre/1119_pre"
+    dirPath5 = "D:/my bad/Suspicious object detection/data/fall/1112_1115_1117_1119_pre/1112_pre_test"
+    dirPath6 = "D:/my bad/Suspicious object detection/data/fall/1112_1115_1117_1119_pre/1119_test_pre"
+    dirPath_test = "D:/my bad/Suspicious object detection/data/fall/1112_1115_1117_1119_pre_test"
+    model_train_test4(dirPath, dirPath2,dirPath3,dirPath4,dirPath5,dirPath6, dirPath_test, model_path)
 def test_walk():
-    modelName = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1119_2.h5"
-    dirname = "D:/my bad/Suspicious object detection/data/fall/1119_test_pre"
+    modelName = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1112_1115_1117_1119.h5"
+    dirname = "D:/my bad/Suspicious object detection/data/fall/1112_1115_1117_1119_pre_test"
     k = 0  # 标识符 判断数据列表是否新建
     print("进入模型训练。。。")
     dataList = os.listdir(dirname)
@@ -357,7 +374,7 @@ def test_walk():
     n = 0
     a_all = np.zeros((5, 2))#五个动作：第一个跌倒，后四个非跌倒
     for o in range(4):#四个人的数据
-        print(test_feature.shape)
+        #print(test_feature.shape)
         non_mid = crnn_model.predict(test_feature[o * 30:(o + 1) * 30])#每个人30条数据，10条跌倒，20条非跌倒
         non_pre = non_mid  # (30,2)
         m = 0
