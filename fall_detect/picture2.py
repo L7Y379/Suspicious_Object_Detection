@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pywt
 img_shape=(3,3,30)
 def hampel(X):
     length = X.shape[0] - 1
@@ -38,6 +39,31 @@ def smooth(a, WSZ):
     start = np.cumsum(a[:WSZ - 1])[::2] / r
     stop = (np.cumsum(a[:-WSZ:-1])[::2] / r)[::-1]
     return np.concatenate((start, out0, stop))
+def dwt(data, title):
+    """Decompose and plot a signal S.
+    S = An + Dn + Dn-1 + ... + D1
+    """
+    mode = pywt.Modes.smooth
+    w = pywt.Wavelet('sym5')#选取小波函数
+    a = data
+    ca = []#近似分量
+    for i in range(5):
+        (a, d) = pywt.dwt(a, w, mode)#进行5阶离散小波变换
+        print(len(a))
+        ca.append(a)
+    #len(ca)=len(cd)=5,ca[0]
+    rec_a = []
+    for i, coeff in enumerate(ca):
+        coeff_list = [coeff, None] + [None] * i
+        rec_a.append(pywt.waverec(coeff_list, w))#重构
+    print("len(rec_a)",len(rec_a))
+    for i in range(len(rec_a)):
+        print(len(rec_a[i]))
+    plt.plot(rec_a[0])
+    plt.plot(rec_a[1])
+    plt.plot(rec_a[2])
+    plt.show()
+    return rec_a[4]
 def parse_csi(payload, Ntx, Nrx):
     # Compute CSI from all this crap
     csi = np.zeros(shape=(Ntx, Nrx, 30), dtype=np.dtype(np.complex))
@@ -180,6 +206,15 @@ def data_cut(data,sampleNum=200):
     #     var_all=var_all+np.var(data[mean_index:mean_index+sampleNum,i:i+1])
     # print("var_all",var_all)
     return data[mean_index:mean_index+sampleNum,:]
+def data_cut_walk(data,sampleNum=200):
+
+    #num_cut1=int((data.shape[0]-450)/2)
+    num_cut1=50
+    data=data[num_cut1:num_cut1+400,:]
+    idx = np.array([j for j in range(0 ,400, 2)])
+    data=data[idx]
+    print(data.shape)
+    return data
 def data_cut2(data,sampleNum=200):
     #计算每个子载波的每个滑动窗口的方差，然后相加比较最大方差
     var_num=np.zeros((data.shape[0]-sampleNum)*data.shape[1])
@@ -243,12 +278,12 @@ def pre_handle1(raw_data):
     print("data_shape:", data.shape)
     print("数据已预处理")
     return data
-path1=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\test_dir\test_2.dat"
-path2=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\test_dir\test_2.dat"
-path3=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1119\ly_dd7.dat"
-path4=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1119\ly_dd8.dat"
-path5=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1119\ly_dd9.dat"
-path6=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1119\ly_dd10.dat"
+path1=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1125\ly_dd4.dat"
+path2=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1125\ly_dd5.dat"
+path3=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1125\ly_dd6.dat"
+path4=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1126_test\zb_dd1.dat"
+path5=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1126_test\zb_dd2.dat"
+path6=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1126_test\zb_dd3.dat"
 data1=get_data(path1)
 data2=get_data(path2)
 data3=get_data(path3)
@@ -258,20 +293,24 @@ data6=get_data(path6)
 
 data7=np.concatenate((data1,data2,data3,data4,data5,data6),axis=0)
 
+#sss=dwt(data1[:, 10:11],data1.shape[0])
+#hhh=data1[:, 10:11]
 data1=pre_handle(data1)
 data2=pre_handle(data2)
 data3=pre_handle(data3)
 data4=pre_handle(data4)
 data5=pre_handle(data5)
 data6=pre_handle(data6)
-data7=pre_handle(data7)
+#data7=pre_handle(data7)
 
-data1=data_cut(data1)
-#data2=data_cut(data2)
-#data3=data_cut(data3)
-#data4=data_cut(data4)
-#data5=data_cut(data5)
-#data6=data_cut(data6)
+
+
+# data1=data_cut(data1)
+# data2=data_cut(data2)
+# data3=data_cut(data3)
+# data4=data_cut_walk(data4)
+# data5=data_cut_walk(data5)
+# data6=data_cut_walk(data6)
 
 data1=np.array(data1, dtype=np.float64)
 data2=np.array(data2, dtype=np.float64)
@@ -283,13 +322,29 @@ data7=np.array(data7, dtype=np.float64)
 print(data1.shape)
 # print(data2.shape)
 # print(data3.shape)
+# plt.plot(data1)
+# plt.show()
+# plt.plot(data2)
+# plt.show()
+# plt.plot(data3)
+# plt.show()
+# plt.plot(data4)
+# plt.show()
+# plt.plot(data5)
+# plt.show()
+# plt.plot(data6)
+# plt.show()
+
 data1 = data1[:, 10:11]
 data2 = data2[:, 10:11]
 data3 = data3[:, 10:11]
 data4 = data4[:, 10:11]
 data5 = data5[:, 10:11]
 data6 = data6[:, 10:11]
-data7 = data7[:, 10:11]
+print(data1.shape)
+
+
+#data7 = data7[:, 10:11]
 t = range(10000)
 plt.plot(t[:data1.shape[0]], data1, 'r')
 plt.plot(t[:data2.shape[0]], data2, 'g')

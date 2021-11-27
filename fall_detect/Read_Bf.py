@@ -180,7 +180,7 @@ def get_scale_csi(csi_st):
 
 #filename='C:\\Users\\11029\\Desktop\\hhh.dat'
 #filename='D:/my bad/Suspicious object detection/data/huodong/room1/data.csv'
-filename=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1119\zhw_walk3.dat"
+filename=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1123_test\tk_dd7.dat"
 dicts=read_bf_file(filename)
 # AAA = list(map(get_scale_csi, dicts))
 # bbb = np.abs(np.array(AAA))

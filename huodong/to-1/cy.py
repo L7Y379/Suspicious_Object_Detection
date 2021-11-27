@@ -40,50 +40,20 @@ device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 # In[2]:
 
 
-files = ['E:\\JupyterProjrcts\\CY\\Dataset\\5L_cross_position\\data.csv', 'E:\\JupyterProjrcts\\CY\\Dataset\\5L_cross_position\\label.csv']
+#files = ['/content/drive/MyDrive/huodong/data/data.csv', '/content/drive/MyDrive/huodong/data/label.csv']
+files = ['D:/my bad/Suspicious object detection/data/huodong/room1/data.csv', 'D:/my bad/Suspicious object detection/data/huodong/room1/label.csv']
 for file in files:
     read_data = pd.read_csv(file, header=None, skip_blank_lines=True, dtype=np.float32)
     if file.find("label") == -1:
         gesture_data = read_data.values
     else:
         gesture_label = read_data.values
-
-
-# In[13]:
-
-
-plt.plot(gesture_data[0][::270])
-ddd = []
-for i in  gesture_data[0][::270]:
-    ddd.append(i)
-ddd
-
-
-# In[17]:
-
-
-gesture_data[0][:500]
-
-
-# In[18]:
-
-
-index = []
-uuu = ""
-for i in range(300):
-    index.append(i)
-    uuu += ",{}".format(i)
-uuu
-
-
-# In[12]:
-
-
+print(gesture_data.shape)
+print(gesture_label.shape)
 scaler = MinMaxScaler(feature_range=(0,1), copy=False)
 scaler_gesture_data = np.array(scaler.fit_transform(gesture_data))
-scaler_gesture_data = gesture_data.reshape([-1, 200, 270]).transpose(0,2,1)
+scaler_gesture_data = gesture_data.reshape([-1, 200, 90]).transpose(0,2,1)
 print(scaler_gesture_data.shape)
-
 
 def guassian_kernel(source, target, kernel_mul=2.0, kernel_num=5, fix_sigma=None):
     '''
@@ -157,8 +127,6 @@ def cal_mmd(source, target, slabel, tlabel):
         if len(s) != 0 and len(nt) != 0:
             loss -= (mmd_rbf(s, nt)*b)
     return loss
-
-
 class Feature_extractor(nn.Module):
     def __init__(self, feature_len):
         super(Feature_extractor, self).__init__()
@@ -187,8 +155,6 @@ class Feature_extractor(nn.Module):
         feature = self.feature_extractor(ipt)
 
         return feature
-
-
 class ClassClassfier(nn.Module):
     def __init__(self, class_num):
         super(ClassClassfier, self).__init__()
@@ -207,12 +173,6 @@ class ClassClassfier(nn.Module):
         class_out = self.class_classifier(ipt)
 
         return class_out
-
-
-
-# In[40]:
-
-
 def get_acc(all_loders, target_loder):
     lr = 0.001
     class_num = 6
@@ -279,10 +239,6 @@ def get_acc(all_loders, target_loder):
         print('t-acc:', acc_num / total_num)
     return feature_extractor
 
-
-# In[ ]:
-
-
 stack_scaler_gesture_data = np.vstack((scaler_gesture_data,scaler_gesture_data))
 stack_gesture_label = np.vstack((gesture_label,gesture_label))
 batchsz =  60
@@ -295,10 +251,13 @@ for k in range(1):
     for i in range(4):
         train_data = torch.from_numpy(stack_scaler_gesture_data[end+i*120:end+i*120+120])
         train_label = torch.from_numpy(stack_gesture_label[end+i*120:end+i*120+120]).type(torch.long)
-        source_set = torch.utils.data.TensorDataset(train_data, train_label)
-        source_loder = torch.utils.data.DataLoader(source_set, batch_size = batchsz, shuffle=True)
+        source_set = torch.utils.data.TensorDataset(train_data, train_label)#((120,90,200),(120,6))
+        #print(source_set.shape)
+        source_loder = torch.utils.data.DataLoader(source_set, batch_size = batchsz, shuffle=True)#((60,90,200),(60,6)  (60,90,200),(60,6))
 
         all_loders.append(source_loder)
+
+    #print(all_loders.)
 
     target_data = torch.from_numpy(stack_scaler_gesture_data[start:end])
     target_label = torch.from_numpy(stack_gesture_label[start:end]).type(torch.long)
@@ -308,16 +267,8 @@ for k in range(1):
     print(k+1)
     all_feature_extractors.append(get_acc(all_loders, target_loder))
 
-
-# In[20]:
-
-
 from sklearn.manifold import TSNE
 tsne = TSNE(n_components = 2, random_state=0)
-
-
-# In[25]:
-
 
 feature_extractor = all_feature_extractors[0]
 total_source_data = torch.from_numpy(scaler_gesture_data[:480])

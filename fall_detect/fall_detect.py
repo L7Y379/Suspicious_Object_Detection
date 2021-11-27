@@ -281,10 +281,10 @@ def model_train_test2(dirname,dirname2,dirPath_test, model_path):
 def train_test():
     print("train_test已调用")
 
-    model_path = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1119_2.h5"
-    dirPath="D:/my bad/Suspicious object detection/data/fall/1119_pre"
+    model_path = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1123.h5"
+    dirPath="D:/my bad/Suspicious object detection/data/fall/1123_pre"
     #dirPath2 = "D:/my bad/Suspicious object detection/data/fall/1117_pre"
-    dirPath_test = "D:/my bad/Suspicious object detection/data/fall/1119_test_pre"
+    dirPath_test = "D:/my bad/Suspicious object detection/data/fall/1117_pre"
     model_train_test(dirPath, dirPath_test, model_path)
     #model_train_test2(dirPath,dirPath2, dirPath_test,model_path)
 def test_walk():
@@ -382,5 +382,5 @@ def test_walk():
     print("源平均测试数据准确率：" + str(ac))
     print(a_all)
 
-test_walk()
-#train_test()
+#test_walk()
+train_test()

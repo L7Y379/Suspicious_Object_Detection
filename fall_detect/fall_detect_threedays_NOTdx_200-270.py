@@ -1,8 +1,9 @@
 #全局归一化
 import os
+import tensorflow as tf
 import pandas as pd
 import numpy as np
-from keras.layers import LSTM,Input, Dense,Flatten,MaxPooling2D,TimeDistributed,Bidirectional, Conv2D
+from keras.layers import LSTM,Input, Dense,Flatten,MaxPooling2D,TimeDistributed,Bidirectional, Conv2D,Lambda
 from keras.models import Sequential, Model
 #from keras.optimizers import adam_v2
 from keras.optimizers import Adam
@@ -14,16 +15,13 @@ import math
 os.environ['KERAS_BACKEND']='tensorflow'
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-nb_time_steps = 200  #时间序列长度
-nb_input_vector = 90 #输入序列
+nb_time_steps = 660  #时间序列长度
+nb_input_vector = 32 #输入序列
 ww=1
-img_rows = 15
-img_cols = 18
 channels = 1
-img_shape = (200,img_rows, img_cols, channels)
+img_shape = (200,270, channels)
 epochs = 300
-batch_size = 100
-latent_dim = 90
+batch_size = 50
 
 def build_cnn(img_shape):
     cnn = Sequential()
@@ -34,6 +32,18 @@ def build_cnn(img_shape):
     cnn.add(TimeDistributed(Conv2D(32, kernel_size=(3, 3), activation='relu',strides=(1,1), padding='same')))
     cnn.add(TimeDistributed(Flatten()))
     cnn.add(TimeDistributed(Dense(90, activation="relu")))
+    img = Input(shape=img_shape)
+    latent_repr = cnn(img)
+    return Model(img, latent_repr)
+def build_cnn2(img_shape):
+    cnn = Sequential()
+    cnn.add((Conv2D(16, kernel_size=(4, 4), activation='relu',strides=(1,1), padding='same',input_shape=img_shape)))
+    cnn.add((MaxPooling2D(pool_size=(2, 2),strides=(3,3))))
+    cnn.add((Conv2D(16, kernel_size=(4, 4),activation='relu',strides=(1,1), padding='same')))
+    cnn.add((MaxPooling2D(pool_size=(2, 2),strides=(3,3))))
+    cnn.add((Conv2D(nb_input_vector, kernel_size=(4, 4), activation='relu',strides=(1,1), padding='same')))
+    #cnn.add(TimeDistributed(Flatten()))
+    #cnn.add(TimeDistributed(Dense(90, activation="relu")))
     img = Input(shape=img_shape)
     latent_repr = cnn(img)
     return Model(img, latent_repr)
@@ -64,10 +74,10 @@ def train_t(train_feature,test_feature,train_label,model_path):
     test_feature = min_max_scaler.fit_transform(a)
     print(test_feature.shape)
     test_feature = test_feature.T
-    train_feature = train_feature.reshape([train_feature.shape[0], 200, img_rows, img_cols])
-    train_feature = np.expand_dims(train_feature, axis=4)
-    test_feature = test_feature.reshape([test_feature.shape[0], 200, img_rows, img_cols])
-    test_feature = np.expand_dims(test_feature, axis=4)
+    train_feature = train_feature.reshape([train_feature.shape[0], 200, 270])
+    train_feature = np.expand_dims(train_feature, axis=3)
+    test_feature = test_feature.reshape([test_feature.shape[0], 200, 270])
+    test_feature = np.expand_dims(test_feature, axis=3)
 
 
     # 列归化为0~1
@@ -81,9 +91,9 @@ def train_t(train_feature,test_feature,train_label,model_path):
     #     train_feature[i*200:(i+1)*200]=min_max_scaler.fit_transform(train_feature[i*200:(i+1)*200])
     # for i in range(int(test_feature.shape[0]/200)):
     #     test_feature[i*200:(i+1)*200]=min_max_scaler.fit_transform(test_feature[i*200:(i+1)*200])
-    # train_feature = train_feature.reshape([int(train_feature.shape[0] / 200), 200, img_rows, img_cols])
+    # train_feature = train_feature.reshape([int(train_feature.shape[0] / 200), 200, 270])
     # train_feature = np.expand_dims(train_feature, axis=4)
-    # test_feature = test_feature.reshape([int(test_feature.shape[0] / 200), 200, img_rows, img_cols])
+    # test_feature = test_feature.reshape([int(test_feature.shape[0] / 200), 200, 270])
     # test_feature = np.expand_dims(test_feature, axis=4)
 
     # 行归化为0~1
@@ -98,12 +108,15 @@ def train_t(train_feature,test_feature,train_label,model_path):
     # train_feature_ot = all[(len(train_feature)+len(test_feature)):]
     opt = Adam(0.0002, 0.5)
     #opt = adam_v2.Adam(0.0002, 0.5)
-    cnn = build_cnn(img_shape)
+    cnn = build_cnn2(img_shape)
     rnn = build_rnn()
     rnn.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
     img3 = Input(shape=img_shape)
     encoded_repr3 = cnn(img3)
-    validity1 = rnn(encoded_repr3)
+    def get_class(x):
+        return tf.reshape(x, [-1, x.shape[1]*x.shape[2], x.shape[3]])
+    encoded_repr3_class = Lambda(get_class)(encoded_repr3)
+    validity1 = rnn(encoded_repr3_class)
     crnn_model = Model(img3, validity1)
     crnn_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
     # crnn_model.load_weights('/content/drive/MyDrive/huodong/to-1/models/crnn-dislstm-to-4/4000crnn_model.h5')
@@ -112,6 +125,7 @@ def train_t(train_feature,test_feature,train_label,model_path):
     k = 0
     acc=0
     acc_test=0
+    loss = 0
     for epoch in range(epochs):
 
         idx = np.random.randint(0, train_feature.shape[0], batch_size)
@@ -121,14 +135,14 @@ def train_t(train_feature,test_feature,train_label,model_path):
             print("%d [fall_detection_loss: %f,acc: %.2f%%]" % (epoch, crnn_loss[0], 100 * crnn_loss[1]))
 
             n = 0
-            a_all = np.zeros((5, 2))  # 五个动作：第一个跌倒，后四个非跌倒
+            a_all = np.zeros((3, 2))  # 3个动作：第一个跌倒，后两个个非跌倒
             for o in range(4):  # 四个人的数据
                 #print(test_feature.shape)
-                non_mid = crnn_model.predict(test_feature[o * 30:(o + 1) * 30])  # 每个人30条数据，10条跌倒，20条非跌倒
-                non_pre = non_mid  # (30,2)
+                non_mid = crnn_model.predict(test_feature[o * 20:(o + 1) * 20])  # 每个人30条数据，10条跌倒，10条非跌倒
+                non_pre = non_mid  # (20,2)
                 m = 0
-                a = np.zeros((5, 2))
-                for i in range(6):
+                a = np.zeros((3, 2))
+                for i in range(4):
                     for k in range(5):
                         x = np.argmax(non_pre[i * 5 + k])
                         if (i == 0 or i == 1):
@@ -143,13 +157,16 @@ def train_t(train_feature,test_feature,train_label,model_path):
                 acc = float(m) / float(len(non_pre))
                 print("源" + str(o + 1) + "测试数据准确率：" + str(acc))
                 print(a)
-            ac = float(n) / float(120)
+            ac = float(n) / float(80)
             k1 = ac
             print("源平均测试数据准确率：" + str(ac))
+            print("精度：" + str(a_all[0:1, 0:1] / (a_all[0:1, 0:1] + a_all[1:2, 0:1] + a_all[2:3, 0:1])))
+            print("召回率：" + str(a_all[0:1, 0:1] / (a_all[0:1, 0:1] + a_all[0:1, 1:2])))
             print(a_all)
 
-            if(acc_test<ac):
-                acc_test=ac
+            if (acc_test <= ac and loss <= crnn_loss[1]):
+                acc_test = ac
+                loss = crnn_loss[1]
                 crnn_model.save_weights(model_path)
         # if (epoch!=0 and epoch % 20==0 and acc < crnn_loss[1]):
         #     acc = crnn_loss[1]
@@ -356,20 +373,17 @@ def model_train_test3(dirname,dirname2,dirname3,dirPath_test, model_path):
 def train_test():
     print("train_test已调用")
 
-    model_path = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1115_1117_1119.h5"
-    # dirPath="D:/my bad/Suspicious object detection/data/fall/1112_1115_1117_pre/1112_pre"
-    # dirPath2 = "D:/my bad/Suspicious object detection/data/fall/1112_1115_1117_pre/1115_pre"
-    # dirPath3 = "D:/my bad/Suspicious object detection/data/fall/1112_1115_1117_pre/1119_pre"
-    dirPath = "D:/my bad/Suspicious object detection/data/fall/1115_pre"
-    dirPath2 = "D:/my bad/Suspicious object detection/data/fall/1117_pre"
-    dirPath3 = "D:/my bad/Suspicious object detection/data/fall/1119_pre"
-    dirPath_test = "D:/my bad/Suspicious object detection/data/fall/1112_pre"
-    #model_train_test(dirPath,dirPath_test, model_path)
-    #model_train_test2(dirPath,dirPath2, dirPath_test,model_path)
-    model_train_test3(dirPath, dirPath2,dirPath3, dirPath_test, model_path)
+    model_path = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1112_1117_1119_notdx.h5"
+    dirPath = "D:/my bad/Suspicious object detection/data/fall/notdx/1125_pre"
+    dirPath2 = "D:/my bad/Suspicious object detection/data/fall/notdx/1125_aft_pre"
+    dirPath3 = "D:/my bad/Suspicious object detection/data/fall/notdx/1119_pre"
+    dirPath_test = "D:/my bad/Suspicious object detection/data/fall/notdx/1126_test_pre"
+    # model_train_test(dirPath,dirPath_test, model_path)
+    model_train_test2(dirPath, dirPath2, dirPath_test, model_path)
+    # model_train_test3(dirPath, dirPath2,dirPath3, dirPath_test, model_path)
 def test_walk():
-    modelName = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1115_1117_1119.h5"
-    dirname = "D:/my bad/Suspicious object detection/data/fall/1112_pre_test"
+    modelName = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1112_1115_1117_notdx.h5"
+    dirname = "D:/my bad/Suspicious object detection/data/fall/notdx/1119_pre"
     k = 0  # 标识符 判断数据列表是否新建
     print("进入模型训练。。。")
     dataList = os.listdir(dirname)
@@ -399,67 +413,75 @@ def test_walk():
     print("test_feature" + str(test_feature.shape))
 
     #全局归化为0~1
-    b1=test_feature.reshape(120,200,270)
+    #b1=test_feature.reshape(80,200,270)
     a = test_feature.reshape(int(test_feature.shape[0] / 200), 200 * 270)
     a = a.T
     min_max_scaler = MinMaxScaler(feature_range=[0, 1])
     test_feature = min_max_scaler.fit_transform(a)
     print(test_feature.shape)
     test_feature = test_feature.T
-    b2=test_feature.reshape(120,200,270)
+    #b2=test_feature.reshape(80,200,270)
     # plt.plot(b1[0])
     # plt.show()
     # plt.plot(b2[0])
     # plt.show()
-    test_feature = test_feature.reshape([test_feature.shape[0], 200, img_rows, img_cols])
-    test_feature = np.expand_dims(test_feature, axis=4)#(N,200,15,18,1)
+    test_feature = test_feature.reshape([test_feature.shape[0], 200, 270])
+    test_feature = np.expand_dims(test_feature, axis=3)#(N,200,270,1)
     #
 
     # min_max_scaler = MinMaxScaler(feature_range=[0, 1])
     # for i in range(int(test_feature.shape[0] / 200)):
     #     test_feature[i * 200:(i + 1) * 200] = min_max_scaler.fit_transform(test_feature[i * 200:(i + 1) * 200])
-    # test_feature = test_feature.reshape([int(test_feature.shape[0] / 200), 200, img_rows, img_cols])
+    # test_feature = test_feature.reshape([int(test_feature.shape[0] / 200), 200, 270])
     # test_feature = np.expand_dims(test_feature, axis=4)
 
 
     print(test_feature.shape)
     #opt = Adam(0.0002, 0.5)
-    cnn = build_cnn(img_shape)
+    cnn = build_cnn2(img_shape)
     rnn = build_rnn()
     #rnn.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
     img3 = Input(shape=img_shape)
     encoded_repr3 = cnn(img3)
-    validity1 = rnn(encoded_repr3)
+    print(encoded_repr3.shape)
+    def get_class(x):
+        return tf.reshape(x, [-1, x.shape[1]*x.shape[2], x.shape[3]])
+    encoded_repr3_class = Lambda(get_class)(encoded_repr3)
+    print(encoded_repr3_class.shape)
+    validity1 = rnn(encoded_repr3_class)
     crnn_model = Model(img3, validity1)
     #crnn_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
-    crnn_model.load_weights(modelName)
+    #crnn_model.load_weights(modelName)
 
     n = 0
-    a_all = np.zeros((5, 2))#五个动作：第一个跌倒，后四个非跌倒
-    for o in range(4):#四个人的数据
-        non_mid = crnn_model.predict(test_feature[o * 30:(o + 1) * 30])#每个人30条数据，10条跌倒，20条非跌倒
-        non_pre = non_mid  # (30,2)
+    a_all = np.zeros((3, 2))  # 3个动作：第一个跌倒，后两个个非跌倒
+    for o in range(4):  # 四个人的数据
+        # print(test_feature.shape)
+        non_mid = crnn_model.predict(test_feature[o * 20:(o + 1) * 20])  # 每个人30条数据，10条跌倒，10条非跌倒
+        non_pre = non_mid  # (20,2)
         m = 0
-        a = np.zeros((5, 2))
-        for i in range(6):
+        a = np.zeros((3, 2))
+        for i in range(4):
             for k in range(5):
                 x = np.argmax(non_pre[i * 5 + k])
-                if(i==0 or i==1):
+                if (i == 0 or i == 1):
                     a[0][x] = a[0][x] + 1
                     a_all[0][x] = a_all[0][x] + 1
                 else:
-                    a[i-1][x] = a[i-1][x] + 1
-                    a_all[i-1][x] = a_all[i-1][x] + 1
+                    a[i - 1][x] = a[i - 1][x] + 1
+                    a_all[i - 1][x] = a_all[i - 1][x] + 1
                 if ((x == 0 and i <= 1) or (x == 1 and i >= 2)):
                     m = m + 1
                     n = n + 1
         acc = float(m) / float(len(non_pre))
         print("源" + str(o + 1) + "测试数据准确率：" + str(acc))
         print(a)
-    ac = float(n) / float(120)
+    ac = float(n) / float(80)
     k1 = ac
     print("源平均测试数据准确率：" + str(ac))
+    print("精度：" + str(a_all[0:1, 0:1] / (a_all[0:1, 0:1] + a_all[1:2, 0:1] + a_all[2:3, 0:1])))
+    print("召回率：" + str(a_all[0:1, 0:1] / (a_all[0:1, 0:1] + a_all[0:1, 1:2])))
     print(a_all)
 
-test_walk()
-#train_test()
+#test_walk()
+train_test()
