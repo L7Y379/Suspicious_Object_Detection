@@ -264,6 +264,9 @@ data1=get_data(path1)
 # data4=get_data(path4)
 # data5=get_data(path5)
 # data6=get_data(path6)
-data1=pre_handle(data1)
-plot_signal_decomp(data1[:, 10:11], 'sym5', "DWT: Ecg sample - Symmlets5")
+#data1=pre_handle(data1)
+data1=data1.T
+data1=data1[0]
+print(data1.shape)
+plot_signal_decomp(data1, 'sym5', "DWT: Ecg sample - Symmlets5")
 plt.show()

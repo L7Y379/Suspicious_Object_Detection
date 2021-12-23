@@ -1,6 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pywt
+import time
+import resampy
+import scipy.signal as scipy_signal
 img_shape=(3,3,30)
 def hampel(X):
     length = X.shape[0] - 1
@@ -39,12 +42,12 @@ def smooth(a, WSZ):
     start = np.cumsum(a[:WSZ - 1])[::2] / r
     stop = (np.cumsum(a[:-WSZ:-1])[::2] / r)[::-1]
     return np.concatenate((start, out0, stop))
-def dwt(data, title):
+def dwt(data):
     """Decompose and plot a signal S.
     S = An + Dn + Dn-1 + ... + D1
     """
     mode = pywt.Modes.smooth
-    w = pywt.Wavelet('sym5')#选取小波函数
+    w = pywt.Wavelet('db4')#选取小波函数
     a = data
     ca = []#近似分量
     for i in range(5):
@@ -57,12 +60,12 @@ def dwt(data, title):
         coeff_list = [coeff, None] + [None] * i
         rec_a.append(pywt.waverec(coeff_list, w))#重构
     print("len(rec_a)",len(rec_a))
-    for i in range(len(rec_a)):
-        print(len(rec_a[i]))
-    plt.plot(rec_a[0])
-    plt.plot(rec_a[1])
-    plt.plot(rec_a[2])
-    plt.show()
+    # for i in range(len(rec_a)):
+    #     print(len(rec_a[i]))
+    # plt.plot(rec_a[0])
+    # plt.plot(rec_a[1])
+    # plt.plot(rec_a[2])
+    # plt.show()
     return rec_a[4]
 def parse_csi(payload, Ntx, Nrx):
     # Compute CSI from all this crap
@@ -181,7 +184,7 @@ def read_bf_file(filename, curpin, decoder="python"):
             dicts.append(bfee_dict)
 
     return dicts, curpin
-def data_cut(data,sampleNum=200):
+def data_cut(data,sampleNum=300):
     all_index = np.zeros(data.shape[1])
     var_max_all = 0
     for i in range(data.shape[1]):
@@ -206,14 +209,9 @@ def data_cut(data,sampleNum=200):
     #     var_all=var_all+np.var(data[mean_index:mean_index+sampleNum,i:i+1])
     # print("var_all",var_all)
     return data[mean_index:mean_index+sampleNum,:]
-def data_cut_walk(data,sampleNum=200):
-
-    #num_cut1=int((data.shape[0]-450)/2)
-    num_cut1=50
-    data=data[num_cut1:num_cut1+400,:]
-    idx = np.array([j for j in range(0 ,400, 2)])
-    data=data[idx]
-    print(data.shape)
+def data_cut_walk(data,sampleNum=300):
+    data = scipy_signal.resample(data, int(sampleNum)+2)
+    data=data[1:sampleNum+1]
     return data
 def data_cut2(data,sampleNum=200):
     #计算每个子载波的每个滑动窗口的方差，然后相加比较最大方差
@@ -246,7 +244,7 @@ def get_data(path):
     #amplitude_list_new = amplitude_list_new[200:200+sampleNum] ##获取1000条数据是这样么
     #
     return amplitude_list_new
-def pre_handle(raw_data):
+def pre_handle_onlysmooth(raw_data):
     data_flag = 0
     for i in range(0, raw_data.shape[1]):
         #print(i)
@@ -262,7 +260,7 @@ def pre_handle(raw_data):
     print("data_shape:", data.shape)
     print("数据已预处理")
     return data
-def pre_handle1(raw_data):
+def pre_handle_smooth_hample(raw_data):
     data_flag = 0
     for i in range(0, raw_data.shape[1]):
         #print(i)
@@ -278,12 +276,44 @@ def pre_handle1(raw_data):
     print("data_shape:", data.shape)
     print("数据已预处理")
     return data
-path1=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1125\ly_dd4.dat"
-path2=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1125\ly_dd5.dat"
-path3=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1125\ly_dd6.dat"
-path4=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1126_test\zb_dd1.dat"
-path5=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1126_test\zb_dd2.dat"
-path6=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1126_test\zb_dd3.dat"
+def pre_handle_onlydwt(raw_data):
+    data_flag = 0
+    for i in range(0, raw_data.shape[1]):
+        #print(i)
+        data1 = raw_data[:, i].reshape(-1)
+        datatmp = dwt(data1)
+        #datatmp = hampel(data1)
+        #datatmp = smooth(data1,25)
+        if data_flag == 0:
+            data = datatmp.reshape(-1, 1)
+            data_flag = 1
+        else:
+            data = np.column_stack((data, datatmp.reshape(-1, 1)))
+    print("data_shape:", data.shape)
+    print("数据已预处理")
+    return data
+def pre_handle_smooth_dwt(raw_data):
+    data_flag = 0
+    for i in range(0, raw_data.shape[1]):
+        #print(i)
+        data1 = raw_data[:, i].reshape(-1)
+        datatmp = smooth(dwt(data1), 25)
+        #datatmp = hampel(data1)
+        #datatmp = smooth(data1,25)
+        if data_flag == 0:
+            data = datatmp.reshape(-1, 1)
+            data_flag = 1
+        else:
+            data = np.column_stack((data, datatmp.reshape(-1, 1)))
+    print("data_shape:", data.shape)
+    print("数据已预处理")
+    return data
+path1=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1202\tk_dd2.dat"
+path2=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1117\ly_walk3.dat"
+path3=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1117\zb_walk4.dat"
+path4=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1117\ly_dd3.dat"
+path5=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1117\cy_dd3.dat"
+path6=r"D:\my bad\CSI_DATA\fall_detection\fall_detection\data_model_dir\data_dir\1117\zb_dd3.dat"
 data1=get_data(path1)
 data2=get_data(path2)
 data3=get_data(path3)
@@ -295,20 +325,20 @@ data7=np.concatenate((data1,data2,data3,data4,data5,data6),axis=0)
 
 #sss=dwt(data1[:, 10:11],data1.shape[0])
 #hhh=data1[:, 10:11]
-data1=pre_handle(data1)
-data2=pre_handle(data2)
-data3=pre_handle(data3)
-data4=pre_handle(data4)
-data5=pre_handle(data5)
-data6=pre_handle(data6)
-#data7=pre_handle(data7)
+data1=pre_handle_onlysmooth(data1)
+data2=pre_handle_onlysmooth(data2)
+data3=pre_handle_onlysmooth(data3)
+data4=pre_handle_onlysmooth(data4)
+data5=pre_handle_onlysmooth(data5)
+data6=pre_handle_onlysmooth(data6)
+data7=pre_handle_onlysmooth(data7)
 
 
 
-# data1=data_cut(data1)
+#data1=data_cut(data1)
 # data2=data_cut(data2)
 # data3=data_cut(data3)
-# data4=data_cut_walk(data4)
+#data4=data_cut_walk(data4)
 # data5=data_cut_walk(data5)
 # data6=data_cut_walk(data6)
 
@@ -319,38 +349,46 @@ data4=np.array(data4, dtype=np.float64)
 data5=np.array(data5, dtype=np.float64)
 data6=np.array(data6, dtype=np.float64)
 data7=np.array(data7, dtype=np.float64)
-print(data1.shape)
+
+
 # print(data2.shape)
 # print(data3.shape)
-# plt.plot(data1)
-# plt.show()
+plt.plot(data1)
+# plt.xticks(fontsize=30)
+# plt.yticks(fontsize=30)
+plt.show()
 # plt.plot(data2)
+# plt.xticks(fontsize=30)
+# plt.yticks(fontsize=30)
 # plt.show()
 # plt.plot(data3)
+# plt.xticks(fontsize=30)
+# plt.yticks(fontsize=30)
 # plt.show()
 # plt.plot(data4)
+# plt.xticks(fontsize=30)
+# plt.yticks(fontsize=30)
 # plt.show()
 # plt.plot(data5)
+# plt.xticks(fontsize=30)
+# plt.yticks(fontsize=30)
 # plt.show()
 # plt.plot(data6)
+# plt.xticks(fontsize=30)
+# plt.yticks(fontsize=30)
 # plt.show()
 
-data1 = data1[:, 10:11]
-data2 = data2[:, 10:11]
-data3 = data3[:, 10:11]
-data4 = data4[:, 10:11]
-data5 = data5[:, 10:11]
-data6 = data6[:, 10:11]
-print(data1.shape)
-
-
-#data7 = data7[:, 10:11]
-t = range(10000)
-plt.plot(t[:data1.shape[0]], data1, 'r')
-plt.plot(t[:data2.shape[0]], data2, 'g')
-plt.plot(t[:data3.shape[0]], data3, 'b')
-plt.plot(t[:data4.shape[0]], data4, 'y')
-plt.plot(t[:data5.shape[0]], data5, 'black')
-plt.plot(t[:data6.shape[0]], data6, 'pink')
-#plt.plot(t[:data7.shape[0]], data7, 'm')
-plt.show()
+# data1 = data1[:, 10:11]
+# data2 = data2[:, 10:11]
+# data3 = data3[:, 10:11]
+# data4 = data4[:, 10:11]
+# data5 = data5[:, 10:11]
+# data6 = data6[:, 10:11]
+# t = range(10000)
+# plt.plot(t[:data1.shape[0]], data1, 'r')
+# # plt.plot(t[:data2.shape[0]], data2, 'g')
+# # plt.plot(t[:data3.shape[0]], data3, 'b')
+# # plt.plot(t[:data4.shape[0]], data4, 'y')
+# # plt.plot(t[:data5.shape[0]], data5, 'black')
+# # plt.plot(t[:data6.shape[0]], data6, 'pink')
+# plt.show()

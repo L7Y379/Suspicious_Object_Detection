@@ -354,7 +354,7 @@ def train_test():
     dirPath = "D:/my bad/Suspicious object detection/data/fall/notdx/1126_pre"
     dirPath2 = "D:/my bad/Suspicious object detection/data/fall/notdx/1125_aft_pre"
     dirPath3 = "D:/my bad/Suspicious object detection/data/fall/notdx/1126_pre"
-    dirPath_test = "D:/my bad/Suspicious object detection/data/fall/notdx/1126_aft_pre"
+    dirPath_test = "D:/my bad/Suspicious object detection/data/fall/notdx/1126_test_pre"
     model_train_test(dirPath,dirPath_test, model_path)
     #model_train_test2(dirPath,dirPath2, dirPath_test,model_path)
     #model_train_test3(dirPath, dirPath2,dirPath3, dirPath_test, model_path)

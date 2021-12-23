@@ -1,0 +1,603 @@
+#全局归一化
+import os
+import pandas as pd
+import tensorflow as tf
+import numpy as np
+from keras.layers import LSTM,Input, Dense,Flatten,MaxPooling1D,TimeDistributed,Bidirectional, Conv1D,Dropout,Lambda
+from keras.models import Sequential, Model
+#from keras.optimizers import adam_v2
+from keras.optimizers import Adam
+from keras import backend as K
+from keras.utils import np_utils
+from sklearn.preprocessing import MinMaxScaler
+import matplotlib.pyplot as plt
+import math
+os.environ['KERAS_BACKEND']='tensorflow'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
+nb_time_steps = 48  #时间序列长度
+nb_input_vector = 32 #输入序列
+ww=1
+channels = 270
+sampleNum=300
+img_shape = (sampleNum, channels)
+epochs = 2000
+batch_size = 50
+latent_dim = 90
+
+def build_cnn(img_shape):
+    cnn = Sequential()
+    cnn.add(Conv1D(128, kernel_size=3, activation='relu',padding='same',input_shape=img_shape))
+    cnn.add(MaxPooling1D(pool_size=4))
+    cnn.add(Conv1D(64, kernel_size=3,activation='relu', padding='same'))
+    cnn.add(MaxPooling1D(pool_size=4))
+    cnn.add(Conv1D(32, kernel_size=3, activation='relu', padding='same'))
+    #cnn.add(MaxPooling1D(pool_size=4))
+    cnn.add(Flatten())
+    #cnn.add(Dropout(0.25))
+    #cnn.add(TimeDistributed(Dense(sampleNum, activation="relu")))
+    img = Input(shape=img_shape)
+    latent_repr = cnn(img)
+    return Model(img, latent_repr)
+def build_rnn():
+    rnn=Sequential()
+    rnn.add(Dense(500, activation="relu"))
+    rnn.add(Dense(128, activation="relu"))
+    rnn.add(Dense(64, activation="relu"))
+    rnn.add(Dense(2, activation="softmax"))
+    encoded_repr = Input(shape=(576,))
+    # def get_class(x):
+    #     return x.T
+    # encoded_repr = Lambda(get_class)(encoded_repr)
+    validity = rnn(encoded_repr)
+    return Model(encoded_repr, validity)
+def train_t(train_feature,test_feature,train_label,model_path):
+    print("train_feature" + str(train_feature.shape))
+    print("test_feature" + str(test_feature.shape))
+    print("train_label" + str(train_label.shape))
+
+    #全局归化为0~1
+    a=train_feature.reshape(int(train_feature.shape[0] / sampleNum),sampleNum*270)
+    a=a.T
+    min_max_scaler = MinMaxScaler(feature_range=[0, 1])
+    train_feature = min_max_scaler.fit_transform(a)
+    print(train_feature.shape)
+    train_feature=train_feature.T
+
+    a = test_feature.reshape(int(test_feature.shape[0] / sampleNum), sampleNum * 270)
+    a = a.T
+    min_max_scaler = MinMaxScaler(feature_range=[0, 1])
+    test_feature = min_max_scaler.fit_transform(a)
+    print(test_feature.shape)
+    test_feature = test_feature.T
+    train_feature = train_feature.reshape([train_feature.shape[0], sampleNum, 270])
+    test_feature = test_feature.reshape([test_feature.shape[0], sampleNum, 270])
+    print(train_feature.shape)
+    print(test_feature.shape)
+
+    # 列归化为0~1
+    # min_max_scaler = MinMaxScaler(feature_range=[0, 1])
+    # train_feature = min_max_scaler.fit_transform(train_feature)
+    # test_feature=min_max_scaler.fit_transform(test_feature)
+
+    # 列归化为0~1（针对每个样本单独归一）
+    # min_max_scaler = MinMaxScaler(feature_range=[0, 1])
+    # for i in range(int(train_feature.shape[0]/sampleNum)):
+    #     train_feature[i*sampleNum:(i+1)*sampleNum]=min_max_scaler.fit_transform(train_feature[i*sampleNum:(i+1)*sampleNum])
+    # for i in range(int(test_feature.shape[0]/sampleNum)):
+    #     test_feature[i*sampleNum:(i+1)*sampleNum]=min_max_scaler.fit_transform(test_feature[i*sampleNum:(i+1)*sampleNum])
+    # train_feature = train_feature.reshape([int(train_feature.shape[0] / sampleNum), sampleNum, img_rows, img_cols])
+    # train_feature = np.expand_dims(train_feature, axis=4)
+    # test_feature = test_feature.reshape([int(test_feature.shape[0] / sampleNum), sampleNum, img_rows, img_cols])
+    # test_feature = np.expand_dims(test_feature, axis=4)
+
+    # 行归化为0~1
+    # min_max_scaler = MinMaxScaler(feature_range=[0,1])
+    # all = np.concatenate((train_feature, test_feature), axis=0)
+    # all = np.concatenate((all, train_feature_ot), axis=0)
+    # all=all.T
+    # all= min_max_scaler.fit_transform(all)
+    # all=all.T
+    # train_feature = all[:len(train_feature)]
+    # test_feature = all[len(train_feature):(len(train_feature)+len(test_feature))]
+    # train_feature_ot = all[(len(train_feature)+len(test_feature)):]
+    opt = Adam(0.0002, 0.5)
+    #opt = adam_v2.Adam(0.0002, 0.5)
+    cnn = build_cnn(img_shape)
+    rnn = build_rnn()
+    rnn.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
+    img3 = Input(shape=img_shape)
+    encoded_repr3 = cnn(img3)
+    print(encoded_repr3.shape)
+    validity1 = rnn(encoded_repr3)
+    crnn_model = Model(img3, validity1)
+    crnn_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
+    #crnn_model.load_weights(model_path)
+    # dis.load_weights('/content/drive/MyDrive/huodong/to-1/models/crnn-dislstm-to-4/4000dis.h5')
+    #crnn_model.save_weights(model_path)
+    k = 0
+    acc=0
+    acc_test=0
+    loss = 0
+    for epoch in range(epochs):
+
+        idx = np.random.randint(0, train_feature.shape[0], batch_size)
+        imgs = train_feature[idx]
+        crnn_loss = crnn_model.train_on_batch(imgs, train_label[idx])
+        if epoch % 10 == 0:
+            print("%d [fall_detection_loss: %f,acc: %.2f%%]" % (epoch, crnn_loss[0], 100 * crnn_loss[1]))
+
+            n = 0
+            a_all = np.zeros((3, 2))  # 3个动作：第一个跌倒，后两个个非跌倒
+            for o in range(5):  # 四个人的数据
+                # print(test_feature.shape)
+                non_mid = crnn_model.predict(test_feature[o * 20:(o + 1) * 20])  # 每个人20条数据，10条跌倒，10条非跌倒
+                non_pre = non_mid  # (20,2)
+                m = 0
+                a = np.zeros((3, 2))
+                for i in range(4):
+                    for k in range(5):
+                        x = np.argmax(non_pre[i * 5 + k])
+                        if (i == 0 or i == 1):
+                            a[0][x] = a[0][x] + 1
+                            a_all[0][x] = a_all[0][x] + 1
+                        else:
+                            a[i - 1][x] = a[i - 1][x] + 1
+                            a_all[i - 1][x] = a_all[i - 1][x] + 1
+                        if ((x == 0 and i <= 1) or (x == 1 and i >= 2)):
+                            m = m + 1
+                            n = n + 1
+                acc = float(m) / float(len(non_pre))
+                print("源" + str(o + 1) + "测试数据准确率：" + str(acc))
+                print(a)
+            ac = float(n) / float(100)
+            k1 = ac
+            print("源平均测试数据准确率：" + str(ac))
+            print("精度：" + str(a_all[0:1, 0:1] / (a_all[0:1, 0:1] + a_all[1:2, 0:1] + a_all[2:3, 0:1])))
+            print("召回率：" + str(a_all[0:1, 0:1] / (a_all[0:1, 0:1] + a_all[0:1, 1:2])))
+            print(a_all)
+
+            if (acc_test <= ac):
+                acc_test = ac
+                # loss = crnn_loss[1]
+                crnn_model.save_weights(model_path)
+        # if (epoch!=0 and epoch % 20==0 and acc < crnn_loss[1]):
+        #     acc = crnn_loss[1]
+        #     # if os.path.exists(model_path):
+        #     #     os.remove(model_path)
+        #     crnn_model.save_weights(model_path)
+
+    K.clear_session()
+    print("训练完成")
+    #train_stop()
+def getlabel(path):
+    path2=path.replace(".csv",".dat")
+    col_name = ['path','label']
+    filepath = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/labels.csv"
+    csv_data = pd.read_csv(filepath, names=col_name, header=None)
+    label = -1
+    for index, row in csv_data.iterrows():
+        # print(row)
+        if row["path"] == path or row["path"] == path2:
+            # print(111)
+            label = row["label"]
+    # print("labels:",labels)
+    print("label", label)
+    return label
+#直接取预处理后的数据训练训练
+def model_train_test(dirname,dirname2, model_path):
+    k = 0 #标识符 判断数据列表是否新建
+    print("进入模型训练。。。")
+    dataList = os.listdir(dirname)
+    for i in range(0,len(dataList)):
+        path = os.path.join(dirname,dataList[i])
+        if os.path.isfile(path):
+            temp_data=pd.read_csv(path, error_bad_lines=False, header=None)
+            temp_data = np.array(temp_data, dtype=np.float64)
+            if k == 0:
+                raw_data=temp_data
+                label = getlabel(dataList[i])
+                k = 1
+            else:
+                raw_data = np.row_stack((raw_data, temp_data))
+                label = np.row_stack((label, getlabel(dataList[i])))
+    label=np_utils.to_categorical(label)
+    print("raw_data:",raw_data.shape)
+    print("label:", label.shape)
+    data=raw_data
+    label = label.astype(np.float32)
+
+    k = 0  # 标识符 判断数据列表是否新建
+    print("进入模型训练。。。")
+    dataList = os.listdir(dirname2)
+    for i in range(0, len(dataList)):
+        path = os.path.join(dirname2, dataList[i])
+        if os.path.isfile(path):
+            temp_data = pd.read_csv(path, error_bad_lines=False, header=None)
+            temp_data = np.array(temp_data, dtype=np.float64)
+            if k == 0:
+                raw_data = temp_data
+                label2 = getlabel(dataList[i])
+                k = 1
+            else:
+                raw_data = np.row_stack((raw_data, temp_data))
+                label2 = np.row_stack((label2, getlabel(dataList[i])))
+    label2 = np_utils.to_categorical(label2)
+    print("raw_data:", raw_data.shape)
+    print("label2:", label2.shape)
+    data2 = raw_data
+    label2 = label2.astype(np.float32)
+    train_t(data,data2,label, model_path)
+def model_train_test2(dirname,dirname2,dirPath_test, model_path):
+    k = 0 #标识符 判断数据列表是否新建
+    print("进入模型训练。。。")
+    dataList = os.listdir(dirname)
+    for i in range(0,len(dataList)):
+        path = os.path.join(dirname,dataList[i])
+        if os.path.isfile(path):
+            temp_data=pd.read_csv(path, error_bad_lines=False, header=None)
+            temp_data = np.array(temp_data, dtype=np.float64)
+            if k == 0:
+                raw_data=temp_data
+                label = getlabel(dataList[i])
+                k = 1
+            else:
+                raw_data = np.row_stack((raw_data, temp_data))
+                label = np.row_stack((label, getlabel(dataList[i])))
+    #label=np_utils.to_categorical(label)
+    print("raw_data:",raw_data.shape)
+    print("label:", label.shape)
+    print("label:", label)
+    #label = label.astype(np.float32)
+
+    dataList = os.listdir(dirname2)
+    for i in range(0, len(dataList)):
+        path = os.path.join(dirname2, dataList[i])
+        if os.path.isfile(path):
+            temp_data = pd.read_csv(path, error_bad_lines=False, header=None)
+            temp_data = np.array(temp_data, dtype=np.float64)
+            raw_data = np.row_stack((raw_data, temp_data))
+            label = np.row_stack((label, getlabel(dataList[i])))
+    label = np_utils.to_categorical(label)
+    print("raw_data:", raw_data.shape)
+    print("label:", label.shape)
+    print("label:", label)
+    data = raw_data
+    label = label.astype(np.float32)
+
+
+    k = 0  # 标识符 判断数据列表是否新建
+    print("进入模型训练。。。")
+    dataList = os.listdir(dirPath_test)
+    for i in range(0, len(dataList)):
+        path = os.path.join(dirPath_test, dataList[i])
+        if os.path.isfile(path):
+            temp_data = pd.read_csv(path, error_bad_lines=False, header=None)
+            temp_data = np.array(temp_data, dtype=np.float64)
+            if k == 0:
+                raw_data = temp_data
+                label2 = getlabel(dataList[i])
+                k = 1
+            else:
+                raw_data = np.row_stack((raw_data, temp_data))
+                label2 = np.row_stack((label2, getlabel(dataList[i])))
+    label2 = np_utils.to_categorical(label2)
+    print("raw_data:", raw_data.shape)
+    print("label2:", label2.shape)
+    print("label2:", label2)
+    data2 = raw_data
+    label2 = label2.astype(np.float32)
+    train_t(data,data2,label, model_path)
+def model_train_test3(dirname,dirname2,dirname3,dirPath_test, model_path):
+    k = 0 #标识符 判断数据列表是否新建
+    print("进入模型训练。。。")
+    dataList = os.listdir(dirname)
+    for i in range(0,len(dataList)):
+        path = os.path.join(dirname,dataList[i])
+        if os.path.isfile(path):
+            temp_data=pd.read_csv(path, error_bad_lines=False, header=None)
+            temp_data = np.array(temp_data, dtype=np.float64)
+            if k == 0:
+                raw_data=temp_data
+                label = getlabel(dataList[i])
+                k = 1
+            else:
+                raw_data = np.row_stack((raw_data, temp_data))
+                label = np.row_stack((label, getlabel(dataList[i])))
+    #label=np_utils.to_categorical(label)
+    print("raw_data:",raw_data.shape)
+    print("label:", label.shape)
+    print("label:", label)
+    #label = label.astype(np.float32)
+
+    dataList = os.listdir(dirname2)
+    for i in range(0, len(dataList)):
+        path = os.path.join(dirname2, dataList[i])
+        if os.path.isfile(path):
+            temp_data = pd.read_csv(path, error_bad_lines=False, header=None)
+            temp_data = np.array(temp_data, dtype=np.float64)
+            raw_data = np.row_stack((raw_data, temp_data))
+            label = np.row_stack((label, getlabel(dataList[i])))
+    #label = np_utils.to_categorical(label)
+    print("raw_data:", raw_data.shape)
+    print("label:", label.shape)
+    print("label:", label)
+    #data = raw_data
+    #label = label.astype(np.float32)
+
+    dataList = os.listdir(dirname3)
+    for i in range(0, len(dataList)):
+        path = os.path.join(dirname3, dataList[i])
+        if os.path.isfile(path):
+            temp_data = pd.read_csv(path, error_bad_lines=False, header=None)
+            temp_data = np.array(temp_data, dtype=np.float64)
+            raw_data = np.row_stack((raw_data, temp_data))
+            label = np.row_stack((label, getlabel(dataList[i])))
+    label = np_utils.to_categorical(label)
+    print("raw_data:", raw_data.shape)
+    print("label:", label.shape)
+    print("label:", label)
+    data = raw_data
+    label = label.astype(np.float32)
+
+
+    k = 0  # 标识符 判断数据列表是否新建
+    print("进入模型训练。。。")
+    dataList = os.listdir(dirPath_test)
+    for i in range(0, len(dataList)):
+        path = os.path.join(dirPath_test, dataList[i])
+        if os.path.isfile(path):
+            temp_data = pd.read_csv(path, error_bad_lines=False, header=None)
+            temp_data = np.array(temp_data, dtype=np.float64)
+            if k == 0:
+                raw_data = temp_data
+                label2 = getlabel(dataList[i])
+                k = 1
+            else:
+                raw_data = np.row_stack((raw_data, temp_data))
+                label2 = np.row_stack((label2, getlabel(dataList[i])))
+    label2 = np_utils.to_categorical(label2)
+    print("raw_data:", raw_data.shape)
+    print("label2:", label2.shape)
+    print("label2:", label2)
+    data2 = raw_data
+    label2 = label2.astype(np.float32)
+    train_t(data,data2,label, model_path)
+def model_train_test4(dirname,dirname2,dirname3,dirname4,dirPath_test, model_path):
+    k = 0 #标识符 判断数据列表是否新建
+    print("进入模型训练。。。")
+    dataList = os.listdir(dirname)
+    for i in range(0,len(dataList)):
+        path = os.path.join(dirname,dataList[i])
+        if os.path.isfile(path):
+            temp_data=pd.read_csv(path, error_bad_lines=False, header=None)
+            temp_data = np.array(temp_data, dtype=np.float64)
+            if k == 0:
+                raw_data=temp_data
+                label = getlabel(dataList[i])
+                k = 1
+            else:
+                raw_data = np.row_stack((raw_data, temp_data))
+                label = np.row_stack((label, getlabel(dataList[i])))
+    #label=np_utils.to_categorical(label)
+    print("raw_data:",raw_data.shape)
+    print("label:", label.shape)
+    print("label:", label)
+    #label = label.astype(np.float32)
+
+    dataList = os.listdir(dirname2)
+    for i in range(0, len(dataList)):
+        path = os.path.join(dirname2, dataList[i])
+        if os.path.isfile(path):
+            temp_data = pd.read_csv(path, error_bad_lines=False, header=None)
+            temp_data = np.array(temp_data, dtype=np.float64)
+            raw_data = np.row_stack((raw_data, temp_data))
+            label = np.row_stack((label, getlabel(dataList[i])))
+    #label = np_utils.to_categorical(label)
+    print("raw_data:", raw_data.shape)
+    print("label:", label.shape)
+    print("label:", label)
+    #data = raw_data
+    #label = label.astype(np.float32)
+
+    dataList = os.listdir(dirname3)
+    for i in range(0, len(dataList)):
+        path = os.path.join(dirname3, dataList[i])
+        if os.path.isfile(path):
+            temp_data = pd.read_csv(path, error_bad_lines=False, header=None)
+            temp_data = np.array(temp_data, dtype=np.float64)
+            raw_data = np.row_stack((raw_data, temp_data))
+            label = np.row_stack((label, getlabel(dataList[i])))
+    # label = np_utils.to_categorical(label)
+    print("raw_data:", raw_data.shape)
+    print("label:", label.shape)
+    print("label:", label)
+
+    dataList = os.listdir(dirname4)
+    for i in range(0, len(dataList)):
+        path = os.path.join(dirname4, dataList[i])
+        if os.path.isfile(path):
+            temp_data = pd.read_csv(path, error_bad_lines=False, header=None)
+            temp_data = np.array(temp_data, dtype=np.float64)
+            raw_data = np.row_stack((raw_data, temp_data))
+            label = np.row_stack((label, getlabel(dataList[i])))
+    label = np_utils.to_categorical(label)
+    print("raw_data:", raw_data.shape)
+    print("label:", label.shape)
+    print("label:", label)
+    data = raw_data
+    label = label.astype(np.float32)
+
+
+    k = 0  # 标识符 判断数据列表是否新建
+    print("进入模型训练。。。")
+    dataList = os.listdir(dirPath_test)
+    for i in range(0, len(dataList)):
+        path = os.path.join(dirPath_test, dataList[i])
+        if os.path.isfile(path):
+            temp_data = pd.read_csv(path, error_bad_lines=False, header=None)
+            temp_data = np.array(temp_data, dtype=np.float64)
+            if k == 0:
+                raw_data = temp_data
+                label2 = getlabel(dataList[i])
+                k = 1
+            else:
+                raw_data = np.row_stack((raw_data, temp_data))
+                label2 = np.row_stack((label2, getlabel(dataList[i])))
+    label2 = np_utils.to_categorical(label2)
+    print("raw_data:", raw_data.shape)
+    print("label2:", label2.shape)
+    print("label2:", label2)
+    data2 = raw_data
+    label2 = label2.astype(np.float32)
+    train_t(data,data2,label, model_path)
+def train_test():
+    print("train_test已调用")
+
+    model_path = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1117_1119_1123_1202_new_cn5.h5"
+    dirPath = "D:/my bad/Suspicious object detection/data/fall/notdx_newwalk/1117_pre"
+    dirPath2 = "D:/my bad/Suspicious object detection/data/fall/notdx_newwalk/1119_pre"
+    dirPath3 = "D:/my bad/Suspicious object detection/data/fall/notdx_newwalk/1123_pre"
+    dirPath4 = "D:/my bad/Suspicious object detection/data/fall/notdx_newwalk/1203_pre"
+    dirPath_test = "D:/my bad/Suspicious object detection/data/fall/notdx_newwalk/1202_pre"
+    #model_train_test(dirPath,dirPath_test, model_path)
+    #model_train_test2(dirPath,dirPath2, dirPath_test,model_path)
+    #model_train_test3(dirPath, dirPath2,dirPath3, dirPath_test, model_path)
+    model_train_test4(dirPath, dirPath2, dirPath3,dirPath4, dirPath_test, model_path)
+def test_walk():
+    modelName = "D:/my bad/Suspicious object detection/Suspicious_Object_Detection/yue/fall_detect/models/1202_new.h5"
+    dirname = "D:/my bad/Suspicious object detection/data/fall/notdx_newwalk/1203_pre"
+    k = 0  # 标识符 判断数据列表是否新建
+    print("进入模型训练。。。")
+    dataList = os.listdir(dirname)
+    for i in range(0, len(dataList)):
+        path = os.path.join(dirname, dataList[i])
+        if os.path.isfile(path):
+            temp_data = pd.read_csv(path, error_bad_lines=False, header=None)
+            temp_data = np.array(temp_data, dtype=np.float64)
+            #print(temp_data.shape)
+            if k == 0:
+                raw_data = temp_data
+                label = getlabel(dataList[i])
+                k = 1
+            else:
+                raw_data = np.row_stack((raw_data, temp_data))
+                label = np.row_stack((label, getlabel(dataList[i])))
+    label = np_utils.to_categorical(label)
+    print("raw_data:", raw_data.shape)
+    print("label:", label.shape)
+    t = range(10000)
+    # plt.plot(t[:raw_data.shape[0]], raw_data[:, 0:1], 'r')
+    # plt.show()
+    # plt.savefig("D:\\my bad\\CSI_DATA\\fall_detection\\fall_detection\\data_model_dir\\data_dir\\2.png")
+    data = raw_data
+    label = label.astype(np.float32)
+
+    test_feature=data
+    print("test_feature" + str(test_feature.shape))
+
+    #全局归化为0~1
+    #b1=test_feature.reshape(80,sampleNum,270)
+    a = test_feature.reshape(int(test_feature.shape[0] / sampleNum), sampleNum * 270)
+    a = a.T
+    min_max_scaler = MinMaxScaler(feature_range=[0, 1])
+    test_feature = min_max_scaler.fit_transform(a)
+    print(test_feature.shape)
+    test_feature = test_feature.T
+    #b2=test_feature.reshape(80,sampleNum,270)
+    # plt.plot(b1[0])
+    # plt.show()
+    # plt.plot(b2[0])
+    # plt.show()
+    test_feature = test_feature.reshape([test_feature.shape[0], sampleNum, 270])
+    test_feature=np.swapaxes(test_feature, 1, 2)
+    test_feature = np.expand_dims(test_feature, axis=3)#(N,sampleNum,15,18,1)
+    #
+
+    # min_max_scaler = MinMaxScaler(feature_range=[0, 1])
+    # for i in range(int(test_feature.shape[0] / sampleNum)):
+    #     test_feature[i * sampleNum:(i + 1) * sampleNum] = min_max_scaler.fit_transform(test_feature[i * sampleNum:(i + 1) * sampleNum])
+    # test_feature = test_feature.reshape([int(test_feature.shape[0] / sampleNum), sampleNum, img_rows, img_cols])
+    # test_feature = np.expand_dims(test_feature, axis=4)
+
+
+    print(test_feature.shape)
+    #opt = Adam(0.0002, 0.5)
+    cnn = build_cnn(img_shape)
+    rnn = build_rnn()
+    #rnn.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
+    img3 = Input(shape=img_shape)
+    encoded_repr3 = cnn(img3)
+    print(encoded_repr3.shape)
+    #encoded_repr3=np.array(encoded_repr3,dtype=np.float64)
+    def get_class(x):
+        #return np.swapaxes(x, 1, 2)
+        #return tf.transpose(x, [0, 2, 1])
+        x=tf.reshape(x, [-1, x.shape[1], x.shape[2]*x.shape[3]])
+        return tf.transpose(x, [0, 2, 1])
+    encoded_repr3_class = Lambda(get_class)(encoded_repr3)
+    print(encoded_repr3_class.shape)
+    validity1 = rnn(encoded_repr3_class)
+    crnn_model = Model(img3, validity1)
+    #crnn_model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
+    crnn_model.load_weights(modelName)
+    n = 0
+    a_all = np.zeros((3, 2))  # 3个动作：第一个跌倒，后两个个非跌倒
+    # for o in range(1):  # 四个人的数据
+    #     # print(test_feature.shape)
+    #     non_mid = crnn_model.predict(test_feature[o * 40:(o + 1) * 40])  # 每个人40条数据，20条跌倒，20条非跌倒
+    #     non_pre = non_mid  # (40,2)
+    #     m = 0
+    #     a = np.zeros((3, 2))
+    #     for i in range(4):
+    #         for k in range(10):
+    #             x = np.argmax(non_pre[i * 10 + k])
+    #             if (i == 0 or i == 1):
+    #                 a[0][x] = a[0][x] + 1
+    #                 a_all[0][x] = a_all[0][x] + 1
+    #             else:
+    #                 a[i - 1][x] = a[i - 1][x] + 1
+    #                 a_all[i - 1][x] = a_all[i - 1][x] + 1
+    #             if ((x == 0 and i <= 1) or (x == 1 and i >= 2)):
+    #                 m = m + 1
+    #                 n = n + 1
+    #     acc = float(m) / float(len(non_pre))
+    #     print("源" + str(o + 1) + "测试数据准确率：" + str(acc))
+    #     print(a)
+    # ac = float(n) / float(100)
+    # k1 = ac
+    # print("源平均测试数据准确率：" + str(ac))
+    # print("精度：" + str(a_all[0:1, 0:1] / (a_all[0:1, 0:1] + a_all[1:2, 0:1] + a_all[2:3, 0:1])))
+    # print("召回率：" + str(a_all[0:1, 0:1] / (a_all[0:1, 0:1] + a_all[0:1, 1:2])))
+    # print(a_all)
+
+    for o in range(5):  # 四个人的数据
+        # print(test_feature.shape)
+        non_mid = crnn_model.predict(test_feature[o * 20:(o + 1) * 20])  # 每个人20条数据，10条跌倒，10条非跌倒
+        non_pre = non_mid  # (20,2)
+        m = 0
+        a = np.zeros((3, 2))
+        for i in range(4):
+            for k in range(5):
+                x = np.argmax(non_pre[i * 5 + k])
+                if (i == 0 or i == 1):
+                    a[0][x] = a[0][x] + 1
+                    a_all[0][x] = a_all[0][x] + 1
+                else:
+                    a[i - 1][x] = a[i - 1][x] + 1
+                    a_all[i - 1][x] = a_all[i - 1][x] + 1
+                if ((x == 0 and i <= 1) or (x == 1 and i >= 2)):
+                    m = m + 1
+                    n = n + 1
+        acc = float(m) / float(len(non_pre))
+        print("源" + str(o + 1) + "测试数据准确率：" + str(acc))
+        print(a)
+    ac = float(n) / float(100)
+    k1 = ac
+    print("源平均测试数据准确率：" + str(ac))
+    print("精度：" + str(a_all[0:1, 0:1] / (a_all[0:1, 0:1] + a_all[1:2, 0:1] + a_all[2:3, 0:1])))
+    print("召回率：" + str(a_all[0:1, 0:1] / (a_all[0:1, 0:1] + a_all[0:1, 1:2])))
+    print(a_all)
+
+#test_walk()
+train_test()

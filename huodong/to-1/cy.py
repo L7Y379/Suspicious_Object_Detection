@@ -37,9 +37,6 @@ from torch import nn
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
 
-# In[2]:
-
-
 #files = ['/content/drive/MyDrive/huodong/data/data.csv', '/content/drive/MyDrive/huodong/data/label.csv']
 files = ['D:/my bad/Suspicious object detection/data/huodong/room1/data.csv', 'D:/my bad/Suspicious object detection/data/huodong/room1/label.csv']
 for file in files:
@@ -131,7 +128,7 @@ class Feature_extractor(nn.Module):
     def __init__(self, feature_len):
         super(Feature_extractor, self).__init__()
         self.feature_extractor = nn.Sequential(
-          nn.Conv1d(in_channels = feature_len, out_channels=200, kernel_size=20),
+          nn.Conv1d(in_channels = feature_len, out_channels=200, kernel_size=20),#feature_len270
           nn.BatchNorm1d(200),
           nn.ReLU(),
 
@@ -173,10 +170,14 @@ class ClassClassfier(nn.Module):
         class_out = self.class_classifier(ipt)
 
         return class_out
+
+
 def get_acc(all_loders, target_loder):
+    # all_loders(((60,90,200),(60,6)  (60,90,200),(60,6)),((60,90,200),(60,6)  (60,90,200),(60,6))。。。)
+    # target_loder((60,90,200),(60,6)  (60,90,200),(60,6))
     lr = 0.001
     class_num = 6
-    feature_len = 270
+    feature_len = 90
     epochs = 100
     time_seq = 200
 
@@ -187,39 +188,49 @@ def get_acc(all_loders, target_loder):
 
     optimizer_feature_extractor = optim.Adam(feature_extractor.parameters(), lr)
     optimizer_classClassfier = optim.Adam(classClassfier.parameters(), lr)
-    loder_len = len(target_loder)
+    all_loders_len = len(all_loders)
+    target_len = len(target_loder)
+    print("all_loders_len", all_loders_len)
+    print("target_len", target_len)
 
-
-    for epoch in range(1, 1+epochs):
+    for epoch in range(1, 1 + epochs):
         all_iters = []
         lambd = 2 / (1 + math.exp(-10 * (epoch) / epochs)) - 1
-        for i in range(4):
+        for i in range(9):
             all_iters.append(iter(all_loders[i]))
-        for iter_num in range(loder_len):
-            for i in range(4):
-                souce_item = all_iters[i].next()
+        for iter_num in range(target_len):
+            for i in range(9):
+                souce_item = all_iters[i].next()  # ((60,90,200),(60,6))
                 mmd_loss = torch.tensor(0.0)
                 mmd_loss = Variable(mmd_loss, requires_grad=True)
-                source_item_csi_data,  source_item_label = souce_item[0].to(device), souce_item[1].to(device)
-                source_item_label = torch.argmax(source_item_label,1)
-
+                source_item_csi_data, source_item_label = souce_item[0].to(device), souce_item[1].to(device)
+                source_item_label = torch.argmax(source_item_label, 1)
+                print("source_item_label.shape", source_item_label.shape)
                 optimizer_feature_extractor.zero_grad()
                 optimizer_classClassfier.zero_grad()
 
                 feature = feature_extractor(source_item_csi_data)
                 class_out = classClassfier(feature)
-                if i == 0:
-                    last_feature = feature.detach()
-                    last_label = source_item_label.detach()
-                else:
-                    mmd_loss = cal_mmd(last_feature, feature, last_label, source_item_label)
-#                     mmd_loss = cal_mmd(last_feature, feature)
 
-                loss = loss_class(class_out, source_item_label) + mmd_loss*lambd
+                for data in target_loder:
+                    t_img, t_label = data[0].to(device), data[1].to(device)
+                    print(t_img.shape)
+                    feature_target = feature_extractor(t_img)
+                    mmd_loss = mmd_rbf(feature, feature_target)
+
+                loss = loss_class(class_out, source_item_label) + mmd_loss * lambd
                 loss.backward()
 
                 optimizer_feature_extractor.step()
                 optimizer_classClassfier.step()
+                # for i, data in enumerate(train_loader, 1):  # 注意enumerate返回值有两个,一个是序号，一个是数据（包含训练数据和标签）
+                #   x_data, label = data
+        #                 if i == 0:
+        #                     last_feature = feature.detach()
+        #                     last_label = source_item_label.detach()
+        #                 else:
+        #                     mmd_loss = cal_mmd(last_feature, feature, last_label, source_item_label)
+        # #                     mmd_loss = cal_mmd(last_feature, feature)
 
         # print(loss)
 
@@ -227,7 +238,7 @@ def get_acc(all_loders, target_loder):
         total_num = 0
         for data in target_loder:
             t_img, t_label = data[0].to(device), data[1].to(device)
-            t_label = torch.argmax(t_label,1)
+            t_label = torch.argmax(t_label, 1)
 
             feature = feature_extractor(t_img)
             pred = classClassfier(feature)
@@ -239,32 +250,33 @@ def get_acc(all_loders, target_loder):
         print('t-acc:', acc_num / total_num)
     return feature_extractor
 
-stack_scaler_gesture_data = np.vstack((scaler_gesture_data,scaler_gesture_data))
-stack_gesture_label = np.vstack((gesture_label,gesture_label))
-batchsz =  60
+stack_scaler_gesture_data = np.vstack((scaler_gesture_data, scaler_gesture_data))
+stack_gesture_label = np.vstack((gesture_label, gesture_label))
+batchsz = 60
 all_feature_extractors = []
 
 for k in range(1):
     all_loders = []
-    start = k*120
+    start = k * 120
     end = k * 120 + 120
-    for i in range(4):
-        train_data = torch.from_numpy(stack_scaler_gesture_data[end+i*120:end+i*120+120])
-        train_label = torch.from_numpy(stack_gesture_label[end+i*120:end+i*120+120]).type(torch.long)
-        source_set = torch.utils.data.TensorDataset(train_data, train_label)#((120,90,200),(120,6))
-        #print(source_set.shape)
-        source_loder = torch.utils.data.DataLoader(source_set, batch_size = batchsz, shuffle=True)#((60,90,200),(60,6)  (60,90,200),(60,6))
+    for i in range(9):
+        train_data = torch.from_numpy(stack_scaler_gesture_data[end + i * 120:end + i * 120 + 120])
+        train_label = torch.from_numpy(stack_gesture_label[end + i * 120:end + i * 120 + 120]).type(torch.long)
+        source_set = torch.utils.data.TensorDataset(train_data, train_label)  # ((120,90,200),(120,6))
+        # print(source_set.shape)
+        source_loder = torch.utils.data.DataLoader(source_set, batch_size=batchsz,
+                                                   shuffle=True)  # ((60,90,200),(60,6)  (60,90,200),(60,6))
 
         all_loders.append(source_loder)
 
-    #print(all_loders.)
+    # print(all_loders.)
 
     target_data = torch.from_numpy(stack_scaler_gesture_data[start:end])
     target_label = torch.from_numpy(stack_gesture_label[start:end]).type(torch.long)
     target_set = torch.utils.data.TensorDataset(target_data, target_label)
-    target_loder = torch.utils.data.DataLoader(target_set, batch_size = batchsz, shuffle=True)
+    target_loder = torch.utils.data.DataLoader(target_set, batch_size=batchsz, shuffle=True)
 
-    print(k+1)
+    print(k + 1)
     all_feature_extractors.append(get_acc(all_loders, target_loder))
 
 from sklearn.manifold import TSNE
